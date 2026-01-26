@@ -15,7 +15,7 @@ export function Demo() {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <p className="text-xs uppercase tracking-[0.15em] text-[var(--primary)] font-semibold mb-3">
+          <p className="text-base uppercase tracking-[0.2em] text-[var(--primary)] font-bold mb-4">
             Demo
           </p>
           <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
