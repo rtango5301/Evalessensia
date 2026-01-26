@@ -26,10 +26,34 @@ TensorEval is a Next.js 16 marketing website for an AI agent CI/CD platform. It 
 **Routes** (`src/app/`):
 - `/` - Landing page composed of section components
 - `/login` - Authentication page with OAuth and email options
+- `/evaluations/[runId]/results` - Evaluation results dashboard (app-style layout)
 
 **Components** (`src/components/`):
 - Section components (Hero, Workflow, Features, UseCases, Pricing, etc.) are client components using Framer Motion
 - UI primitives in `ui/` folder follow shadcn/ui conventions with CVA (class-variance-authority) for variants
+
+**Dashboard Components** (`src/components/dashboard/`):
+- `app-navigation.tsx` - App-style navigation (differs from marketing nav)
+- `dashboard-footer.tsx` - Simplified footer for app pages
+
+**Evaluation Components** (`src/components/evaluation/`):
+- `EvaluationHeader.tsx` - Breadcrumb, title, status badge, action buttons
+- `MetricCards.tsx` - Overall score, test pass rate, avg latency cards
+- `PerformanceComparison.tsx` - Radar chart with baseline comparison
+- `TestCasesTable.tsx` - Searchable, filterable, paginated test results table
+
+**Additional UI Primitives** (`src/components/ui/`):
+- `table.tsx` - Data table with shadcn/ui pattern
+- `select.tsx` - Dropdown select (Radix UI)
+- `circular-progress.tsx` - SVG circular progress indicator
+- `radar-chart.tsx` - Reusable radar/spider chart
+- `breadcrumb.tsx` - Navigation breadcrumb
+
+**Mock Data** (`src/lib/mock-data/`):
+- `evaluation.ts` - Static mock data for evaluation results
+
+**Types** (`src/types/`):
+- `evaluation.ts` - TypeScript interfaces for evaluation data structures
 
 **Design System** (`src/app/globals.css`):
 - CSS custom properties define the color palette, spacing, and theming
