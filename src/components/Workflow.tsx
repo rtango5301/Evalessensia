@@ -55,10 +55,10 @@ export function Workflow() {
             Workflow
           </p>
           <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-            From setup to confident deploy
+            Evaluate, compare, deploy
           </h2>
           <p className="text-lg text-[var(--text-secondary)]">
-            Hover over each step to see the corresponding interface
+            See how TensorEval automates your agent testing workflow
           </p>
         </motion.div>
 
