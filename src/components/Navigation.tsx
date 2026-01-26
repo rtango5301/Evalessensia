@@ -61,7 +61,7 @@ export function Navigation() {
         <Link href="/" className="flex items-center gap-2.5 text-[var(--foreground)] no-underline">
           <motion.div
             whileHover={{ scale: 1.05, rotate: 5 }}
-            className="w-8 h-8 bg-[#1a1f2e] rounded-lg flex items-center justify-center text-white"
+            className="w-8 h-8 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] rounded-lg flex items-center justify-center text-white"
           >
             <Layers className="w-4 h-4" />
           </motion.div>
@@ -69,14 +69,14 @@ export function Navigation() {
         </Link>
 
         {/* Desktop Nav Links */}
-        <div className="hidden lg:flex items-center gap-1">
+        <div className="hidden lg:flex items-center gap-2">
           {navLinks.map((link) => {
             const isActive = activeSection === link.href.slice(1);
             return (
               <motion.div key={link.label} whileHover={{ y: -1 }}>
                 <Link
                   href={link.href}
-                  className={`relative px-3 py-2 text-sm font-medium transition-colors rounded-lg ${
+                  className={`relative px-4 py-2 text-[15px] font-medium transition-colors rounded-lg ${
                     isActive
                       ? "text-[var(--primary)]"
                       : "text-[var(--text-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--bg-subtle)]"
@@ -86,7 +86,7 @@ export function Navigation() {
                   {isActive && (
                     <motion.div
                       layoutId="activeNav"
-                      className="absolute bottom-0 left-3 right-3 h-0.5 bg-[var(--primary)] rounded-full"
+                      className="absolute bottom-0 left-4 right-4 h-0.5 bg-[var(--primary)] rounded-full"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                     />
                   )}
@@ -97,12 +97,12 @@ export function Navigation() {
         </div>
 
         {/* Desktop Actions */}
-        <div className="hidden lg:flex items-center gap-2">
+        <div className="hidden lg:flex items-center gap-3">
           <Link href="/login">
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="px-4 py-2 text-[var(--text-secondary)] hover:text-[var(--foreground)] text-sm font-medium transition-colors rounded-lg hover:bg-[var(--bg-subtle)]"
+              className="px-4 py-2 text-[var(--text-secondary)] hover:text-[var(--foreground)] text-[15px] font-medium transition-colors rounded-lg hover:bg-[var(--bg-subtle)]"
             >
               Login
             </motion.button>
@@ -110,7 +110,7 @@ export function Navigation() {
           <motion.button
             whileHover={{ scale: 1.02, y: -1 }}
             whileTap={{ scale: 0.98 }}
-            className="px-5 py-2.5 bg-[#1a1f2e] hover:bg-[#2a3142] text-white rounded-lg text-sm font-semibold transition-all shadow-sm hover:shadow-md"
+            className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg text-[15px] font-semibold transition-all shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/30"
           >
             Get Started
           </motion.button>
@@ -146,7 +146,7 @@ export function Navigation() {
             >
               <Link
                 href={link.href}
-                className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
                   activeSection === link.href.slice(1)
                     ? "text-[var(--primary)] bg-[var(--primary)]/5"
                     : "text-[var(--text-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--bg-subtle)]"
@@ -159,11 +159,11 @@ export function Navigation() {
           ))}
           <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-[var(--border-light)]">
             <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-              <button className="w-full py-2.5 text-[var(--foreground)] text-sm font-semibold border border-[var(--border)] rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
+              <button className="w-full py-3 text-[var(--foreground)] text-base font-semibold border border-[var(--border)] rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
                 Login
               </button>
             </Link>
-            <button className="w-full py-2.5 bg-[#1a1f2e] text-white rounded-lg text-sm font-semibold hover:bg-[#2a3142] transition-colors">
+            <button className="w-full py-3 bg-[var(--primary)] text-white rounded-lg text-base font-semibold hover:bg-[var(--primary-dark)] transition-colors">
               Get Started
             </button>
           </div>
