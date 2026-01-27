@@ -1,27 +1,27 @@
-"use client"
+'use client';
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Layers, User } from "lucide-react"
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Layers, User } from 'lucide-react';
 
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils';
 
 const navTabs = [
-  { href: "/projects", label: "Projects" },
-  { href: "/evaluations", label: "Evaluations" },
-  { href: "/playground", label: "Playground" },
-  { href: "/settings", label: "Settings" },
-]
+  { href: '/projects', label: 'Projects' },
+  { href: '/evaluations', label: 'Evaluations' },
+  { href: '/playground', label: 'Playground' },
+  { href: '/settings', label: 'Settings' },
+];
 
 export function AppNavigation() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   const isActive = (href: string) => {
-    if (href === "/evaluations") {
-      return pathname.startsWith("/evaluations")
+    if (href === '/evaluations') {
+      return pathname.startsWith('/evaluations');
     }
-    return pathname === href || pathname.startsWith(href + "/")
-  }
+    return pathname === href || pathname.startsWith(href + '/');
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-[var(--border)]">
@@ -41,21 +41,21 @@ export function AppNavigation() {
           {/* Nav Tabs */}
           <div className="hidden md:flex items-center gap-1">
             {navTabs.map((tab) => {
-              const active = isActive(tab.href)
+              const active = isActive(tab.href);
               return (
                 <Link
                   key={tab.href}
                   href={tab.href}
                   className={cn(
-                    "px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                    'px-3 py-2 text-sm font-medium rounded-md transition-colors',
                     active
-                      ? "text-[var(--primary)] bg-[var(--primary)]/5"
-                      : "text-[var(--text-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--bg-subtle)]"
+                      ? 'text-[var(--primary)] bg-[var(--primary)]/5'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--bg-subtle)]'
                   )}
                 >
                   {tab.label}
                 </Link>
-              )
+              );
             })}
           </div>
         </div>
@@ -66,5 +66,5 @@ export function AppNavigation() {
         </button>
       </div>
     </nav>
-  )
+  );
 }

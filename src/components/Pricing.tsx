@@ -1,53 +1,48 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { motion } from 'framer-motion';
+import { Check } from 'lucide-react';
 
 const pricingPlans = [
   {
-    tier: "Starter",
-    price: "$0",
-    period: "/month",
-    description: "Perfect for side projects and experimentation",
-    features: [
-      "100 eval runs/month",
-      "1 agent",
-      "7-day data retention",
-      "Community support",
-    ],
-    cta: "Start Free",
+    tier: 'Starter',
+    price: '$0',
+    period: '/month',
+    description: 'Perfect for side projects and experimentation',
+    features: ['100 eval runs/month', '1 agent', '7-day data retention', 'Community support'],
+    cta: 'Start Free',
     featured: false,
   },
   {
-    tier: "Professional",
-    price: "$40",
-    period: "/month",
-    description: "For teams shipping production agents",
+    tier: 'Professional',
+    price: '$40',
+    period: '/month',
+    description: 'For teams shipping production agents',
     features: [
-      "5,000 eval runs/month",
-      "10 agents",
-      "90-day data retention",
-      "A/B testing & data export",
-      "CI/CD integrations",
-      "Email support",
+      '5,000 eval runs/month',
+      '10 agents',
+      '90-day data retention',
+      'A/B testing & data export',
+      'CI/CD integrations',
+      'Email support',
     ],
-    cta: "Get Started",
+    cta: 'Get Started',
     featured: true,
   },
   {
-    tier: "Enterprise",
-    price: "Custom",
-    period: "",
-    description: "For organizations with advanced needs",
+    tier: 'Enterprise',
+    price: 'Custom',
+    period: '',
+    description: 'For organizations with advanced needs',
     features: [
-      "Unlimited eval runs",
-      "Unlimited agents",
-      "Custom retention",
-      "SSO/SAML",
-      "Dedicated support & SLA",
-      "On-premise option",
+      'Unlimited eval runs',
+      'Unlimited agents',
+      'Custom retention',
+      'SSO/SAML',
+      'Dedicated support & SLA',
+      'On-premise option',
     ],
-    cta: "Contact Sales",
+    cta: 'Contact Sales',
     featured: false,
   },
 ];
@@ -87,8 +82,8 @@ export function Pricing() {
               whileHover={{ y: -5 }}
               className={`relative bg-white border rounded-2xl p-8 ${
                 plan.featured
-                  ? "border-[var(--primary)] shadow-lg shadow-[var(--primary)]/15"
-                  : "border-[var(--border)]"
+                  ? 'border-[var(--primary)] shadow-lg shadow-[var(--primary)]/15'
+                  : 'border-[var(--border)]'
               }`}
             >
               {plan.featured && (
@@ -108,7 +103,10 @@ export function Pricing() {
 
               <ul className="space-y-3 mb-6">
                 {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-2.5 text-sm text-[var(--text-secondary)]">
+                  <li
+                    key={feature}
+                    className="flex items-center gap-2.5 text-sm text-[var(--text-secondary)]"
+                  >
                     <Check className="w-4 h-4 text-[var(--accent-green)] flex-shrink-0" />
                     {feature}
                   </li>
@@ -120,8 +118,8 @@ export function Pricing() {
                 whileTap={{ scale: 0.98 }}
                 className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all ${
                   plan.featured
-                    ? "bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white shadow-sm hover:shadow-md hover:shadow-[var(--primary)]/30"
-                    : "bg-white hover:bg-[var(--bg-subtle)] text-[var(--foreground)] border border-[var(--border)]"
+                    ? 'bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white shadow-sm hover:shadow-md hover:shadow-[var(--primary)]/30'
+                    : 'bg-white hover:bg-[var(--bg-subtle)] text-[var(--foreground)] border border-[var(--border)]'
                 }`}
               >
                 {plan.cta}

@@ -1,18 +1,16 @@
-"use client"
+'use client';
 
-import { motion } from "framer-motion"
+import { motion } from 'framer-motion';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { RadarChart } from "@/components/ui/radar-chart"
-import type { PerformanceData } from "@/types/evaluation"
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RadarChart } from '@/components/ui/radar-chart';
+import type { PerformanceData } from '@/types/evaluation';
 
 interface PerformanceComparisonProps {
-  performance: PerformanceData
+  performance: PerformanceData;
 }
 
-export function PerformanceComparison({
-  performance,
-}: PerformanceComparisonProps) {
+export function PerformanceComparison({ performance }: PerformanceComparisonProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -22,9 +20,7 @@ export function PerformanceComparison({
       <Card>
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-semibold">
-              Performance Comparison
-            </CardTitle>
+            <CardTitle className="text-base font-semibold">Performance Comparison</CardTitle>
             <div className="flex items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5">
                 <div className="w-3 h-0.5 bg-[var(--text-muted)] rounded opacity-60" />
@@ -64,9 +60,7 @@ export function PerformanceComparison({
                     <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-1">
                       {item.label}
                     </p>
-                    <p className="text-2xl font-bold text-[var(--foreground)]">
-                      {item.value}%
-                    </p>
+                    <p className="text-2xl font-bold text-[var(--foreground)]">{item.value}%</p>
                   </motion.div>
                 ))}
               </div>
@@ -75,5 +69,5 @@ export function PerformanceComparison({
         </CardContent>
       </Card>
     </motion.div>
-  )
+  );
 }

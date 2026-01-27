@@ -1,29 +1,30 @@
-"use client";
+'use client';
 
-import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
-import { TestTube2, BarChart3, GitCompare, Package } from "lucide-react";
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import { TestTube2, BarChart3, GitCompare, Package } from 'lucide-react';
 
 const features = [
   {
     icon: TestTube2,
-    title: "Synthetic Query Generation",
-    description: "Auto-generate test cases from domain knowledge. Cover edge cases humans would miss.",
+    title: 'Synthetic Query Generation',
+    description:
+      'Auto-generate test cases from domain knowledge. Cover edge cases humans would miss.',
   },
   {
     icon: BarChart3,
-    title: "Multi-Metric Evaluation",
-    description: "Task Completion, Accuracy, Latency, Cost, Safety, Efficiency.",
+    title: 'Multi-Metric Evaluation',
+    description: 'Task Completion, Accuracy, Latency, Cost, Safety, Efficiency.',
   },
   {
     icon: GitCompare,
-    title: "A/B Testing",
-    description: "Compare agent versions head-to-head. See exactly what changed and why.",
+    title: 'A/B Testing',
+    description: 'Compare agent versions head-to-head. See exactly what changed and why.',
   },
   {
     icon: Package,
-    title: "Training Data Export",
-    description: "Export passing eval traces as fine-tuning data. Close the feedback loop.",
+    title: 'Training Data Export',
+    description: 'Export passing eval traces as fine-tuning data. Close the feedback loop.',
   },
 ];
 
@@ -69,8 +70,8 @@ export function Features() {
                   onClick={() => setActiveFeature(index)}
                   className={`p-5 border rounded-xl cursor-pointer transition-all bg-white ${
                     activeFeature === index
-                      ? "border-[var(--primary)] shadow-md shadow-[var(--primary)]/10 bg-[var(--primary)]/[0.02]"
-                      : "border-[var(--border)] hover:border-[var(--primary)] hover:shadow-md hover:shadow-[var(--primary)]/10"
+                      ? 'border-[var(--primary)] shadow-md shadow-[var(--primary)]/10 bg-[var(--primary)]/[0.02]'
+                      : 'border-[var(--border)] hover:border-[var(--primary)] hover:shadow-md hover:shadow-[var(--primary)]/10'
                   }`}
                 >
                   <div className="text-2xl mb-3">
@@ -138,7 +139,7 @@ function QueryGeneratorFeature() {
           LIVE
         </span>
       </div>
-      
+
       <div className="p-5">
         {/* Circular Progress Indicators */}
         <div className="grid grid-cols-3 gap-4 mb-5">
@@ -152,7 +153,9 @@ function QueryGeneratorFeature() {
           {/* Query Diversity */}
           <div className="bg-[var(--bg-subtle)] rounded-lg p-4">
             <div className="flex justify-between items-center mb-3">
-              <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Query Diversity</span>
+              <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+                Query Diversity
+              </span>
               <span className="text-xs text-[var(--text-muted)]">Total: 4.2k</span>
             </div>
             <DiversityBar label="Happy Path" percentage={45} color="var(--primary)" />
@@ -163,7 +166,9 @@ function QueryGeneratorFeature() {
           {/* Generation Quality */}
           <div className="bg-[var(--bg-subtle)] rounded-lg p-4">
             <div className="flex justify-between items-center mb-3">
-              <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Generation Quality</span>
+              <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+                Generation Quality
+              </span>
               <span className="text-xs text-[var(--accent-green)]">+12% vs last run</span>
             </div>
             <div className="h-16 flex items-end gap-1.5">
@@ -174,7 +179,7 @@ function QueryGeneratorFeature() {
                   animate={{ height: `${height}%` }}
                   transition={{ duration: 0.5, delay: i * 0.08 }}
                   className="flex-1 bg-[var(--primary)] rounded-t"
-                  style={{ opacity: 0.4 + (i * 0.12) }}
+                  style={{ opacity: 0.4 + i * 0.12 }}
                 />
               ))}
             </div>
@@ -188,27 +193,31 @@ function QueryGeneratorFeature() {
         {/* Top Generated Queries Table */}
         <div>
           <div className="flex justify-between items-center mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Top Generated Queries</span>
-            <span className="text-xs text-[var(--primary)] font-medium cursor-pointer">DETAILED VIEW →</span>
+            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+              Top Generated Queries
+            </span>
+            <span className="text-xs text-[var(--primary)] font-medium cursor-pointer">
+              DETAILED VIEW →
+            </span>
           </div>
           <div className="space-y-2">
-            <QueryRow 
-              query='"How do I handle nested recursive data types in SDK v3?"' 
-              tag="EDGE" 
+            <QueryRow
+              query='"How do I handle nested recursive data types in SDK v3?"'
+              tag="EDGE"
               tagColor="var(--primary)"
-              score="0.98" 
+              score="0.98"
             />
-            <QueryRow 
-              query='"Explain the rate limiting strategy for batch uploads."' 
-              tag="HAPPY" 
+            <QueryRow
+              query='"Explain the rate limiting strategy for batch uploads."'
+              tag="HAPPY"
               tagColor="var(--accent-green)"
-              score="0.94" 
+              score="0.94"
             />
-            <QueryRow 
-              query='"Attempt to SQL inject via the user profile metadata field."' 
-              tag="ADVERS" 
+            <QueryRow
+              query='"Attempt to SQL inject via the user profile metadata field."'
+              tag="ADVERS"
               tagColor="var(--error)"
-              score="0.91" 
+              score="0.91"
             />
           </div>
         </div>
@@ -255,8 +264,12 @@ function MetricsDashboardFeature() {
         {/* Bottom Section - Recent Evaluations */}
         <div>
           <div className="flex justify-between items-center mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Recent Evaluations</span>
-            <span className="text-xs text-[var(--primary)] font-medium cursor-pointer">VIEW ALL →</span>
+            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+              Recent Evaluations
+            </span>
+            <span className="text-xs text-[var(--primary)] font-medium cursor-pointer">
+              VIEW ALL →
+            </span>
           </div>
           <div className="space-y-2">
             <EvalRow name="GPT-4-Turbo Eval" score="94%" status="passed" time="2m ago" />
@@ -281,7 +294,9 @@ function ABTestingFeature() {
             <div className="p-4">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-lg font-bold">v2.3</span>
-                <span className="text-xs text-[var(--text-muted)] uppercase tracking-wide">Baseline</span>
+                <span className="text-xs text-[var(--text-muted)] uppercase tracking-wide">
+                  Baseline
+                </span>
               </div>
               <div className="space-y-3">
                 <CompareRow label="Task Completion" value="88.5%" />
@@ -299,7 +314,9 @@ function ABTestingFeature() {
             <div className="p-4">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-lg font-bold">v2.4</span>
-                <span className="px-2.5 py-1 bg-[var(--accent-green)] text-white rounded-full text-xs font-semibold">WINNER</span>
+                <span className="px-2.5 py-1 bg-[var(--accent-green)] text-white rounded-full text-xs font-semibold">
+                  WINNER
+                </span>
               </div>
               <div className="space-y-3">
                 <CompareRow label="Task Completion" value="94.2%" change="up" winner />
@@ -316,12 +333,20 @@ function ABTestingFeature() {
         {/* Performance Divergence Chart */}
         <div className="bg-[var(--bg-subtle)] rounded-xl p-4 mb-4">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">Performance Divergence (100 Test Cases)</span>
+            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+              Performance Divergence (100 Test Cases)
+            </span>
             <div className="flex items-center gap-4">
-              <div className="px-2 py-1 bg-gray-800 text-white text-[10px] rounded">Divergence point: +18.4%</div>
+              <div className="px-2 py-1 bg-gray-800 text-white text-[10px] rounded">
+                Divergence point: +18.4%
+              </div>
               <div className="flex items-center gap-3 text-[10px]">
-                <span className="flex items-center gap-1"><span className="w-4 h-0.5 bg-gray-400" style={{ borderStyle: 'dashed' }} /> v2.3</span>
-                <span className="flex items-center gap-1"><span className="w-4 h-0.5 bg-[var(--primary)]" /> v2.4</span>
+                <span className="flex items-center gap-1">
+                  <span className="w-4 h-0.5 bg-gray-400" style={{ borderStyle: 'dashed' }} /> v2.3
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-4 h-0.5 bg-[var(--primary)]" /> v2.4
+                </span>
               </div>
             </div>
           </div>
@@ -384,7 +409,9 @@ function ABTestingFeature() {
         {/* Statistical Significance */}
         <div className="flex items-center justify-center gap-2">
           <span className="w-3 h-3 rounded-full bg-[var(--accent-green)]" />
-          <span className="text-sm font-medium">Statistical significance: <span className="text-[var(--accent-green)]">95.2%</span></span>
+          <span className="text-sm font-medium">
+            Statistical significance: <span className="text-[var(--accent-green)]">95.2%</span>
+          </span>
         </div>
       </div>
     </div>
@@ -406,10 +433,13 @@ function ExportFeature() {
                 <select className="w-full px-3 py-2 border border-[var(--border)] rounded-lg bg-white text-sm appearance-none cursor-pointer">
                   <option>Passed Evaluations - Q3</option>
                 </select>
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">▼</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">
+                  ▼
+                </span>
               </div>
               <p className="text-[11px] text-[var(--text-muted)] mt-1.5">
-                Available: <strong className="text-[var(--foreground)]">1,247 traces</strong> | Selected: <strong className="text-[var(--foreground)]">1,103</strong>
+                Available: <strong className="text-[var(--foreground)]">1,247 traces</strong> |
+                Selected: <strong className="text-[var(--foreground)]">1,103</strong>
               </p>
             </div>
 
@@ -438,10 +468,17 @@ function ExportFeature() {
                   <div className="text-sm">JSONL (OpenAI format)</div>
                 </label>
                 <label className="flex items-center gap-2.5 p-2.5 border-2 border-[var(--primary)] rounded-lg cursor-pointer bg-[var(--primary)]/[0.02]">
-                  <input type="radio" name="exportFormat" defaultChecked className="accent-[var(--primary)]" />
+                  <input
+                    type="radio"
+                    name="exportFormat"
+                    defaultChecked
+                    className="accent-[var(--primary)]"
+                  />
                   <div className="flex items-center gap-2 flex-1">
                     <span className="text-sm font-medium">Alpaca format (Parquet)</span>
-                    <span className="px-1.5 py-0.5 bg-[var(--primary)] text-white text-[8px] font-semibold rounded">RECOMMENDED</span>
+                    <span className="px-1.5 py-0.5 bg-[var(--primary)] text-white text-[8px] font-semibold rounded">
+                      RECOMMENDED
+                    </span>
                   </div>
                 </label>
                 <label className="flex items-center gap-2.5 p-2.5 border border-[var(--border)] rounded-lg cursor-pointer hover:bg-[var(--bg-subtle)]">
@@ -466,31 +503,39 @@ function ExportFeature() {
               <span className="text-[11px] text-[var(--text-muted)] flex items-center gap-1">
                 <span className="text-[var(--primary)]">&lt;&gt;</span> LIVE PREVIEW
               </span>
-              <span className="text-[11px] text-[var(--primary)] font-medium cursor-pointer">Copy</span>
+              <span className="text-[11px] text-[var(--primary)] font-medium cursor-pointer">
+                Copy
+              </span>
             </div>
             <div className="bg-gray-900 rounded-xl p-3 font-mono text-[11px] text-gray-300 h-[180px] overflow-hidden">
-              <div className="text-gray-500">{"{"}</div>
+              <div className="text-gray-500">{'{'}</div>
               <div className="pl-3">
-                <span className="text-green-400">"instruction"</span>: <span className="text-amber-300">"How do I track my ord..."</span>,
+                <span className="text-green-400">"instruction"</span>:{' '}
+                <span className="text-amber-300">"How do I track my ord..."</span>,
               </div>
               <div className="pl-3">
-                <span className="text-green-400">"input"</span>: <span className="text-amber-300">""</span>,
+                <span className="text-green-400">"input"</span>:{' '}
+                <span className="text-amber-300">""</span>,
               </div>
               <div className="pl-3">
-                <span className="text-green-400">"output"</span>: <span className="text-amber-300">"I'd be happy to help..."</span>
+                <span className="text-green-400">"output"</span>:{' '}
+                <span className="text-amber-300">"I'd be happy to help..."</span>
               </div>
-              <div className="text-gray-500">{"},"}</div>
-              <div className="text-gray-500">{"{"}</div>
+              <div className="text-gray-500">{'},'}</div>
+              <div className="text-gray-500">{'{'}</div>
               <div className="pl-3">
-                <span className="text-green-400">"instruction"</span>: <span className="text-amber-300">"Summarize the return..."</span>,
+                <span className="text-green-400">"instruction"</span>:{' '}
+                <span className="text-amber-300">"Summarize the return..."</span>,
               </div>
               <div className="pl-3">
-                <span className="text-green-400">"input"</span>: <span className="text-amber-300">"Returns are accepted..."</span>,
+                <span className="text-green-400">"input"</span>:{' '}
+                <span className="text-amber-300">"Returns are accepted..."</span>,
               </div>
               <div className="pl-3">
-                <span className="text-green-400">"output"</span>: <span className="text-amber-300">"Customers have 30..."</span>
+                <span className="text-green-400">"output"</span>:{' '}
+                <span className="text-amber-300">"Customers have 30..."</span>
               </div>
-              <div className="text-gray-500">{"}"}</div>
+              <div className="text-gray-500">{'}'}</div>
             </div>
 
             {/* Schema Validation */}
@@ -500,7 +545,9 @@ function ExportFeature() {
               </div>
               <div>
                 <div className="text-xs font-medium">Schema Validation</div>
-                <div className="text-[11px] text-[var(--text-muted)]">All 1,103 entries validated against Alpaca format.</div>
+                <div className="text-[11px] text-[var(--text-muted)]">
+                  All 1,103 entries validated against Alpaca format.
+                </div>
               </div>
             </div>
           </div>
@@ -511,7 +558,17 @@ function ExportFeature() {
 }
 
 // Helper Components
-function ScoreBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
+function ScoreBar({
+  label,
+  value,
+  max,
+  color,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  color: string;
+}) {
   const percentage = (value / max) * 100;
   return (
     <div className="flex items-center gap-3 py-2.5">
@@ -530,26 +587,52 @@ function ScoreBar({ label, value, max, color }: { label: string; value: number; 
   );
 }
 
-function MetricCard({ value, label, change, up }: { value: string; label: string; change?: string; up?: boolean }) {
+function MetricCard({
+  value,
+  label,
+  change,
+  up,
+}: {
+  value: string;
+  label: string;
+  change?: string;
+  up?: boolean;
+}) {
   return (
     <div className="bg-[var(--bg-subtle)] border border-[var(--border-light)] rounded-lg p-4 text-center">
       <div className="text-2xl font-bold">{value}</div>
       <div className="text-xs text-[var(--text-muted)] uppercase tracking-wide mt-1">{label}</div>
       {change && (
-        <div className={`text-xs mt-1 ${up ? "text-[var(--accent-green)]" : ""}`}>{change}</div>
+        <div className={`text-xs mt-1 ${up ? 'text-[var(--accent-green)]' : ''}`}>{change}</div>
       )}
     </div>
   );
 }
 
-function ABRow({ label, value, change, positive }: { label: string; value: string; change?: string; positive?: boolean }) {
+function ABRow({
+  label,
+  value,
+  change,
+  positive,
+}: {
+  label: string;
+  value: string;
+  change?: string;
+  positive?: boolean;
+}) {
   return (
     <div className="flex justify-between text-sm">
       <span>{label}</span>
       <span>
-        {value}{" "}
+        {value}{' '}
         {change && (
-          <span className={positive ? "text-[var(--accent-green)] font-semibold" : "text-[var(--error)] font-semibold"}>
+          <span
+            className={
+              positive
+                ? 'text-[var(--accent-green)] font-semibold'
+                : 'text-[var(--error)] font-semibold'
+            }
+          >
             {change}
           </span>
         )}
@@ -563,12 +646,12 @@ function PerformanceRadar() {
   const center = size / 2;
   const levels = [25, 50, 75, 100];
   const metrics = [
-    { label: "ACCURACY", value: 94.2, display: "94.2%" },
-    { label: "SAFETY", value: 99.8, display: "99.8%" },
-    { label: "LATENCY", value: 70, display: "1.2s" },
-    { label: "COST", value: 85, display: "$0.047" },
+    { label: 'ACCURACY', value: 94.2, display: '94.2%' },
+    { label: 'SAFETY', value: 99.8, display: '99.8%' },
+    { label: 'LATENCY', value: 70, display: '1.2s' },
+    { label: 'COST', value: 85, display: '$0.047' },
   ];
-  
+
   const angleStep = (Math.PI * 2) / 4;
   const maxRadius = 70;
 
@@ -581,14 +664,18 @@ function PerformanceRadar() {
     };
   };
 
-  const currentData = metrics.map(m => m.value);
+  const currentData = metrics.map((m) => m.value);
   const baselineData = [85, 92, 60, 75];
 
   const createPath = (data: number[]) => {
-    return data.map((value, index) => {
-      const point = getPoint(value, index);
-      return `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`;
-    }).join(" ") + " Z";
+    return (
+      data
+        .map((value, index) => {
+          const point = getPoint(value, index);
+          return `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`;
+        })
+        .join(' ') + ' Z'
+    );
   };
 
   return (
@@ -599,7 +686,7 @@ function PerformanceRadar() {
         const points = Array.from({ length: 4 }, (_, j) => {
           const angle = angleStep * j - Math.PI / 2;
           return `${center + radius * Math.cos(angle)},${center + radius * Math.sin(angle)}`;
-        }).join(" ");
+        }).join(' ');
         return (
           <polygon
             key={level}
@@ -705,18 +792,26 @@ function PerformanceRadar() {
   );
 }
 
-function RunCard({ grade, gradeColor, name, acc, lat, cost, time }: { 
-  grade: string; 
-  gradeColor: string; 
-  name: string; 
-  acc: string; 
-  lat: string; 
-  cost: string; 
-  time: string; 
+function RunCard({
+  grade,
+  gradeColor,
+  name,
+  acc,
+  lat,
+  cost,
+  time,
+}: {
+  grade: string;
+  gradeColor: string;
+  name: string;
+  acc: string;
+  lat: string;
+  cost: string;
+  time: string;
 }) {
   return (
     <div className="flex items-center gap-3 p-2.5 bg-[var(--bg-subtle)] rounded-lg border border-[var(--border-light)]">
-      <div 
+      <div
         className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold text-white"
         style={{ backgroundColor: gradeColor }}
       >
@@ -739,10 +834,17 @@ function SixAxisRadar() {
   const size = 200;
   const center = size / 2;
   const levels = [25, 50, 75, 100];
-  const labels = ["Task Completion", "Accuracy", "Plan Quality", "Tool Use", "Efficiency", "Safety"];
+  const labels = [
+    'Task Completion',
+    'Accuracy',
+    'Plan Quality',
+    'Tool Use',
+    'Efficiency',
+    'Safety',
+  ];
   const currentData = [94, 92, 88, 91, 93, 98];
   const baselineData = [80, 85, 75, 82, 78, 90];
-  
+
   const angleStep = (Math.PI * 2) / 6;
   const maxRadius = 70;
 
@@ -756,10 +858,14 @@ function SixAxisRadar() {
   };
 
   const createPath = (data: number[]) => {
-    return data.map((value, index) => {
-      const point = getPoint(value, index);
-      return `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`;
-    }).join(" ") + " Z";
+    return (
+      data
+        .map((value, index) => {
+          const point = getPoint(value, index);
+          return `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`;
+        })
+        .join(' ') + ' Z'
+    );
   };
 
   return (
@@ -770,7 +876,7 @@ function SixAxisRadar() {
         const points = Array.from({ length: 6 }, (_, j) => {
           const angle = angleStep * j - Math.PI / 2;
           return `${center + radius * Math.cos(angle)},${center + radius * Math.sin(angle)}`;
-        }).join(" ");
+        }).join(' ');
         return (
           <polygon
             key={level}
@@ -877,35 +983,59 @@ function SixAxisRadar() {
 function MetricTile({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-[var(--bg-subtle)] border border-[var(--border-light)] rounded-xl p-4 text-center">
-      <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide mb-2">{label}</div>
+      <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide mb-2">
+        {label}
+      </div>
       <div className="text-2xl font-bold">{value}</div>
     </div>
   );
 }
 
-function EvalRow({ name, score, status, time }: { name: string; score: string; status: "passed" | "failed"; time: string }) {
+function EvalRow({
+  name,
+  score,
+  status,
+  time,
+}: {
+  name: string;
+  score: string;
+  status: 'passed' | 'failed';
+  time: string;
+}) {
   return (
     <div className="flex items-center gap-3 py-2.5 px-3 bg-[var(--bg-subtle)] rounded-lg border border-[var(--border-light)]">
-      <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-        status === "passed" 
-          ? "bg-[var(--accent-green)]/10 text-[var(--accent-green)]" 
-          : "bg-[var(--error)]/10 text-[var(--error)]"
-      }`}>
-        {status === "passed" ? "PASS" : "FAIL"}
+      <span
+        className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+          status === 'passed'
+            ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
+            : 'bg-[var(--error)]/10 text-[var(--error)]'
+        }`}
+      >
+        {status === 'passed' ? 'PASS' : 'FAIL'}
       </span>
       <span className="flex-1 text-sm font-medium truncate">{name}</span>
-      <span className={`text-sm font-semibold ${
-        parseInt(score) >= 80 ? "text-[var(--accent-green)]" : "text-[var(--error)]"
-      }`}>{score}</span>
+      <span
+        className={`text-sm font-semibold ${
+          parseInt(score) >= 80 ? 'text-[var(--accent-green)]' : 'text-[var(--error)]'
+        }`}
+      >
+        {score}
+      </span>
       <span className="text-xs text-[var(--text-muted)]">{time}</span>
     </div>
   );
 }
 
-function CompareRow({ label, value, change, winner, negative }: { 
-  label: string; 
-  value: string; 
-  change?: "up" | "down"; 
+function CompareRow({
+  label,
+  value,
+  change,
+  winner,
+  negative,
+}: {
+  label: string;
+  value: string;
+  change?: 'up' | 'down';
   winner?: boolean;
   negative?: boolean;
 }) {
@@ -913,12 +1043,16 @@ function CompareRow({ label, value, change, winner, negative }: {
     <div className="flex items-center justify-between">
       <span className="text-sm text-[var(--text-secondary)]">{label}</span>
       <div className="flex items-center gap-1">
-        <span className={`text-sm font-semibold ${winner ? "text-[var(--accent-green)]" : negative ? "text-[var(--error)]" : ""}`}>
+        <span
+          className={`text-sm font-semibold ${winner ? 'text-[var(--accent-green)]' : negative ? 'text-[var(--error)]' : ''}`}
+        >
           {value}
         </span>
         {change && (
-          <span className={`text-xs ${negative ? "text-[var(--error)]" : "text-[var(--accent-green)]"}`}>
-            {change === "up" ? "↑" : "↓"}
+          <span
+            className={`text-xs ${negative ? 'text-[var(--error)]' : 'text-[var(--accent-green)]'}`}
+          >
+            {change === 'up' ? '↑' : '↓'}
           </span>
         )}
       </div>
@@ -929,19 +1063,12 @@ function CompareRow({ label, value, change, winner, negative }: {
 function CircularMetric({ value, label, color }: { value: number; label: string; color: string }) {
   const circumference = 2 * Math.PI * 36;
   const strokeDashoffset = circumference - (value / 100) * circumference;
-  
+
   return (
     <div className="flex flex-col items-center">
       <div className="relative w-20 h-20">
         <svg className="w-20 h-20 transform -rotate-90">
-          <circle
-            cx="40"
-            cy="40"
-            r="36"
-            stroke="var(--border-light)"
-            strokeWidth="6"
-            fill="none"
-          />
+          <circle cx="40" cy="40" r="36" stroke="var(--border-light)" strokeWidth="6" fill="none" />
           <motion.circle
             cx="40"
             cy="40"
@@ -952,7 +1079,7 @@ function CircularMetric({ value, label, color }: { value: number; label: string;
             strokeLinecap="round"
             initial={{ strokeDashoffset: circumference }}
             animate={{ strokeDashoffset }}
-            transition={{ duration: 1, ease: "easeOut" }}
+            transition={{ duration: 1, ease: 'easeOut' }}
             style={{ strokeDasharray: circumference }}
           />
         </svg>
@@ -960,12 +1087,22 @@ function CircularMetric({ value, label, color }: { value: number; label: string;
           <span className="text-lg font-bold">{value}%</span>
         </div>
       </div>
-      <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide mt-2">{label}</span>
+      <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wide mt-2">
+        {label}
+      </span>
     </div>
   );
 }
 
-function DiversityBar({ label, percentage, color }: { label: string; percentage: number; color: string }) {
+function DiversityBar({
+  label,
+  percentage,
+  color,
+}: {
+  label: string;
+  percentage: number;
+  color: string;
+}) {
   return (
     <div className="flex items-center gap-2 py-1.5">
       <span className="w-20 text-xs text-[var(--text-secondary)]">{label}</span>
@@ -983,17 +1120,29 @@ function DiversityBar({ label, percentage, color }: { label: string; percentage:
   );
 }
 
-function QueryRow({ query, tag, tagColor, score }: { query: string; tag: string; tagColor: string; score: string }) {
+function QueryRow({
+  query,
+  tag,
+  tagColor,
+  score,
+}: {
+  query: string;
+  tag: string;
+  tagColor: string;
+  score: string;
+}) {
   return (
     <div className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-b-0">
       <span className="flex-1 text-sm text-[var(--text-secondary)] truncate italic">{query}</span>
-      <span 
+      <span
         className="px-2 py-0.5 text-[10px] font-semibold rounded"
         style={{ background: `color-mix(in srgb, ${tagColor} 15%, transparent)`, color: tagColor }}
       >
         {tag}
       </span>
-      <span className="text-sm font-semibold text-[var(--accent-green)] w-10 text-right">{score}</span>
+      <span className="text-sm font-semibold text-[var(--accent-green)] w-10 text-right">
+        {score}
+      </span>
     </div>
   );
 }
