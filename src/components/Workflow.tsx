@@ -1,39 +1,39 @@
-"use client";
+'use client';
 
-import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
-import { Check, AlertTriangle } from "lucide-react";
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import { Check, AlertTriangle } from 'lucide-react';
 
 const workflowSteps = [
   {
-    number: "01",
-    title: "Configure Agent",
-    description: "Add agent URL, MCP endpoints, and description",
+    number: '01',
+    title: 'Configure Agent',
+    description: 'Add agent URL, MCP endpoints, and description',
   },
   {
-    number: "02",
-    title: "Generate Queries",
-    description: "AI creates synthetic test cases from your domain",
+    number: '02',
+    title: 'Generate Queries',
+    description: 'AI creates synthetic test cases from your domain',
   },
   {
-    number: "03",
-    title: "Run Evaluation",
-    description: "TensorEval scrapes and tests your agent",
+    number: '03',
+    title: 'Run Evaluation',
+    description: 'TensorEval scrapes and tests your agent',
   },
   {
-    number: "04",
-    title: "View Metrics",
-    description: "Accuracy, Latency, Cost, Safety, Efficiency",
+    number: '04',
+    title: 'View Metrics',
+    description: 'Accuracy, Latency, Cost, Safety, Efficiency',
   },
   {
-    number: "05",
-    title: "A/B Comparison",
-    description: "Compare with previous version side-by-side",
+    number: '05',
+    title: 'A/B Comparison',
+    description: 'Compare with previous version side-by-side',
   },
   {
-    number: "06",
-    title: "Ship with Confidence",
-    description: "All checks passed, ready to deploy",
+    number: '06',
+    title: 'Ship with Confidence',
+    description: 'All checks passed, ready to deploy',
   },
 ];
 
@@ -77,15 +77,15 @@ export function Workflow() {
                 onClick={() => setActiveStep(index)}
                 className={`flex items-start gap-4 p-4 rounded-lg cursor-pointer transition-all border ${
                   activeStep === index
-                    ? "bg-white border-[var(--primary)] shadow-sm"
-                    : "border-transparent hover:bg-white hover:border-[var(--border)] hover:shadow-sm"
+                    ? 'bg-white border-[var(--primary)] shadow-sm'
+                    : 'border-transparent hover:bg-white hover:border-[var(--border)] hover:shadow-sm'
                 }`}
               >
                 <div
                   className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm flex-shrink-0 transition-colors ${
                     activeStep === index
-                      ? "bg-[var(--primary)] text-white"
-                      : "bg-[var(--bg-muted)] text-[var(--text-muted)]"
+                      ? 'bg-[var(--primary)] text-white'
+                      : 'bg-[var(--bg-muted)] text-[var(--text-muted)]'
                   }`}
                 >
                   {step.number}
@@ -154,9 +154,12 @@ function ConfigureScreen() {
           <FormField label="Agent URL" value="https://api.acme.com/agent/support" />
           <FormField label="MCP Server URLs" value="https://mcp.acme.com/tools" optional />
           <div>
-            <label className="block text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">Agent Description</label>
+            <label className="block text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
+              Agent Description
+            </label>
             <div className="w-full p-2.5 border border-[var(--border)] rounded-md bg-[var(--bg-subtle)] text-sm min-h-[70px] text-[var(--text-secondary)]">
-              Customer support agent for AcmeCorp. Handles order inquiries, refunds, shipping questions. Should be helpful but never reveal internal processes.
+              Customer support agent for AcmeCorp. Handles order inquiries, refunds, shipping
+              questions. Should be helpful but never reveal internal processes.
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -164,34 +167,36 @@ function ConfigureScreen() {
             <FormField label="Timeout" value="30s" />
           </div>
           <div className="flex gap-3 justify-end pt-2">
-            <motion.button 
-              whileHover={{ scale: 1.03, backgroundColor: "#f9fafb" }}
+            <motion.button
+              whileHover={{ scale: 1.03, backgroundColor: '#f9fafb' }}
               whileTap={{ scale: 0.97 }}
               className="px-4 py-2 bg-white border border-[var(--border)] rounded-lg text-sm font-semibold shadow-sm hover:shadow transition-all"
             >
               Cancel
             </motion.button>
-            <motion.button 
-              whileHover={{ scale: 1.03, boxShadow: "0 8px 20px rgba(99, 102, 241, 0.35)" }}
+            <motion.button
+              whileHover={{ scale: 1.03, boxShadow: '0 8px 20px rgba(99, 102, 241, 0.35)' }}
               whileTap={{ scale: 0.97 }}
               className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg text-sm font-semibold flex items-center gap-1 shadow-lg shadow-[var(--primary)]/25 transition-all"
             >
-              Start Evaluation 
+              Start Evaluation
               <motion.span
                 animate={{ x: [0, 3, 0] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
-              >→</motion.span>
+              >
+                →
+              </motion.span>
             </motion.button>
           </div>
         </div>
-        
+
         {/* Right - Integration Map */}
         <div className="bg-[var(--bg-subtle)] rounded-xl p-4 flex flex-col">
           <div className="mb-3">
             <h4 className="font-semibold text-sm">Integration Map</h4>
             <p className="text-xs text-[var(--text-muted)]">Select source to bridge connection</p>
           </div>
-          
+
           {/* Connection Visualization */}
           <div className="flex-1 flex items-center justify-center relative py-4">
             {/* TensorEval Node */}
@@ -201,12 +206,24 @@ function ConfigureScreen() {
                 transition={{ duration: 2, repeat: Infinity }}
                 className="w-14 h-14 bg-[var(--primary)] rounded-xl flex items-center justify-center shadow-lg shadow-[var(--primary)]/20"
               >
-                <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                <svg
+                  className="w-7 h-7 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                  />
                 </svg>
               </motion.div>
-              <span className="text-[9px] font-semibold text-[var(--primary)] mt-2 uppercase tracking-wide">TensorEval</span>
-              
+              <span className="text-[9px] font-semibold text-[var(--primary)] mt-2 uppercase tracking-wide">
+                TensorEval
+              </span>
+
               {/* Floating icons around TensorEval */}
               <motion.div
                 animate={{ y: [0, -3, 0], opacity: [0.7, 1, 0.7] }}
@@ -221,7 +238,7 @@ function ConfigureScreen() {
                 <span className="text-[var(--primary)] text-xs">⚡</span>
               </motion.div>
             </div>
-            
+
             {/* Connection Line */}
             <div className="mx-4 flex items-center">
               <motion.div
@@ -231,7 +248,7 @@ function ConfigureScreen() {
               />
               <motion.div
                 animate={{ rotate: 360 }}
-                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                 className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center mx-1"
               >
                 <span className="text-[10px] text-gray-400">↻</span>
@@ -242,7 +259,7 @@ function ConfigureScreen() {
                 className="w-8 border-t-2 border-dashed border-gray-300"
               />
             </div>
-            
+
             {/* Your Agent Node */}
             <div className="flex flex-col items-center">
               <motion.div
@@ -252,10 +269,12 @@ function ConfigureScreen() {
               >
                 <span className="text-[var(--primary)] text-xl">🤖</span>
               </motion.div>
-              <span className="text-[9px] font-semibold text-[var(--primary)] mt-2 uppercase tracking-wide">Your Agent</span>
+              <span className="text-[9px] font-semibold text-[var(--primary)] mt-2 uppercase tracking-wide">
+                Your Agent
+              </span>
             </div>
           </div>
-          
+
           {/* Connection Status */}
           <div className="flex items-center justify-between py-2 border-t border-[var(--border-light)]">
             <div className="flex items-center gap-2">
@@ -264,20 +283,27 @@ function ConfigureScreen() {
                 transition={{ duration: 1, repeat: Infinity }}
                 className="w-2 h-2 rounded-full bg-[var(--accent-green)]"
               />
-              <span className="text-xs font-medium">API Connection<br/><span className="text-[var(--accent-green)]">Active</span></span>
+              <span className="text-xs font-medium">
+                API Connection
+                <br />
+                <span className="text-[var(--accent-green)]">Active</span>
+              </span>
             </div>
             <div className="flex items-center gap-1 text-xs text-[var(--text-muted)]">
               <span>⚡</span>
-              <span><strong className="text-[var(--foreground)]">42ms</strong> latency</span>
+              <span>
+                <strong className="text-[var(--foreground)]">42ms</strong> latency
+              </span>
             </div>
           </div>
-          
+
           {/* Info Box */}
           <div className="bg-[var(--primary)]/5 rounded-lg p-2.5 mt-2">
             <div className="flex gap-2">
               <span className="text-[var(--primary)] text-sm">ℹ</span>
               <p className="text-[10px] text-[var(--text-secondary)] leading-relaxed">
-                The connection map visualizes how TensorEval interacts with your agent via the specified API endpoint. Ensure CORS is enabled if using browser-based testing.
+                The connection map visualizes how TensorEval interacts with your agent via the
+                specified API endpoint. Ensure CORS is enabled if using browser-based testing.
               </p>
             </div>
           </div>
@@ -289,21 +315,23 @@ function ConfigureScreen() {
 
 function QueryGeneratorScreen() {
   const [activeTab, setActiveTab] = useState<'standard' | 'edge' | 'adversarial'>('edge');
-  
+
   const tabs = [
     { id: 'standard' as const, label: 'Standard', count: 12 },
     { id: 'edge' as const, label: 'Edge Cases', count: 18 },
     { id: 'adversarial' as const, label: 'Adversarial', count: 17 },
   ];
-  
+
   return (
     <div className="p-6">
       {/* Header */}
       <div className="mb-5">
         <h3 className="text-xl font-bold mb-1">Synthetic Query Generation</h3>
-        <p className="text-sm text-[var(--text-secondary)]">47 queries generated across your domain sources.</p>
+        <p className="text-sm text-[var(--text-secondary)]">
+          47 queries generated across your domain sources.
+        </p>
       </div>
-      
+
       {/* Tabs */}
       <div className="flex items-center gap-1 mb-5 border-b border-[var(--border-light)]">
         {tabs.map((tab) => (
@@ -329,27 +357,27 @@ function QueryGeneratorScreen() {
           </button>
         ))}
       </div>
-      
+
       {/* Query Cards */}
       <div className="space-y-3 mb-5">
-        <QueryCard 
-          category="SUBSCRIPTION" 
+        <QueryCard
+          category="SUBSCRIPTION"
           categoryColor="var(--primary)"
           stars={3}
           query='"What happens if I cancel my subscription 2 minutes before renewal?"'
           latency="450ms"
           source="API Docs"
         />
-        <QueryCard 
-          category="REFUNDS" 
+        <QueryCard
+          category="REFUNDS"
           categoryColor="var(--warning)"
           stars={4}
           query='"Can I get a refund for an order from 2019 that was paid with a voucher which has since expired?"'
           latency="1.2s"
           source="Historical Logs"
         />
-        <QueryCard 
-          category="API ERROR" 
+        <QueryCard
+          category="API ERROR"
           categoryColor="var(--error)"
           stars={5}
           query={`"Send a request with a Content-Type header of 'image/png' but body content in XML format."`}
@@ -357,33 +385,34 @@ function QueryGeneratorScreen() {
           source="API Docs"
         />
       </div>
-      
+
       {/* Bottom Actions */}
       <div className="flex items-center justify-between pt-4">
-        <motion.button 
-          whileHover={{ scale: 1.05, color: "var(--primary)" }}
+        <motion.button
+          whileHover={{ scale: 1.05, color: 'var(--primary)' }}
           whileTap={{ scale: 0.95 }}
           className="text-sm text-[var(--text-secondary)] flex items-center gap-1 transition-colors"
         >
-          <motion.span
-            whileHover={{ rotate: 90 }}
-            transition={{ duration: 0.2 }}
-          >+</motion.span> Add Custom Query
+          <motion.span whileHover={{ rotate: 90 }} transition={{ duration: 0.2 }}>
+            +
+          </motion.span>{' '}
+          Add Custom Query
         </motion.button>
-        <motion.button 
-          whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(99, 102, 241, 0.4)" }}
+        <motion.button
+          whileHover={{ scale: 1.05, boxShadow: '0 10px 25px rgba(99, 102, 241, 0.4)' }}
           whileTap={{ scale: 0.95 }}
           className="px-5 py-2.5 bg-[var(--primary)] text-white rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg shadow-[var(--primary)]/30 transition-all"
         >
           <motion.span
             animate={{ scale: [1, 1.1, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
-          >▶</motion.span>
-          Run Evaluation 
-          <motion.span
-            animate={{ x: [0, 4, 0] }}
-            transition={{ duration: 1, repeat: Infinity }}
-          >→</motion.span>
+          >
+            ▶
+          </motion.span>
+          Run Evaluation
+          <motion.span animate={{ x: [0, 4, 0] }} transition={{ duration: 1, repeat: Infinity }}>
+            →
+          </motion.span>
         </motion.button>
       </div>
     </div>
@@ -414,11 +443,13 @@ function RunningScreen() {
         <div className="text-center mb-5">
           <motion.div
             animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
             className="w-6 h-6 border-2 border-[var(--primary)]/20 border-t-[var(--primary)] rounded-full mx-auto mb-2"
           />
           <h3 className="text-lg font-bold mb-1">Running Parallel Tests</h3>
-          <p className="text-sm text-[var(--text-secondary)]">Processing 47 synthetic test cases against agent v2.4-alpha</p>
+          <p className="text-sm text-[var(--text-secondary)]">
+            Processing 47 synthetic test cases against agent v2.4-alpha
+          </p>
         </div>
 
         {/* Test Grid */}
@@ -430,7 +461,11 @@ function RunningScreen() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.03 }}
             >
-              <TestCard id={test.id} status={test.status as 'success' | 'running' | 'retrying' | 'queued'} name={test.name} />
+              <TestCard
+                id={test.id}
+                status={test.status as 'success' | 'running' | 'retrying' | 'queued'}
+                name={test.name}
+              />
             </motion.div>
           ))}
         </div>
@@ -439,37 +474,46 @@ function RunningScreen() {
         <div className="border-t border-[var(--border-light)] pt-4">
           <div className="flex justify-between items-start mb-3">
             <div>
-              <p className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">Overall Progress</p>
+              <p className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">
+                Overall Progress
+              </p>
               <p className="text-xl font-bold">
-                <motion.span 
+                <motion.span
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                   className="text-[var(--accent-green)] inline-block"
-                >22</motion.span> of 47 tests complete
+                >
+                  22
+                </motion.span>{' '}
+                of 47 tests complete
               </p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">Estimated Remaining</p>
-              <motion.p 
+              <p className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">
+                Estimated Remaining
+              </p>
+              <motion.p
                 animate={{ opacity: [1, 0.7, 1] }}
                 transition={{ duration: 1, repeat: Infinity }}
                 className="text-xl font-bold text-[var(--accent-green)]"
-              >2m 34s</motion.p>
+              >
+                2m 34s
+              </motion.p>
             </div>
           </div>
-          
+
           {/* Segmented Progress Bar */}
           <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden flex mb-3 relative">
-            <motion.div 
+            <motion.div
               initial={{ width: 0 }}
               animate={{ width: '38%' }}
-              transition={{ duration: 1, ease: "easeOut" }}
-              className="bg-[var(--accent-green)] h-full" 
+              transition={{ duration: 1, ease: 'easeOut' }}
+              className="bg-[var(--accent-green)] h-full"
             />
-            <motion.div 
+            <motion.div
               initial={{ width: 0 }}
               animate={{ width: '9%' }}
-              transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
+              transition={{ duration: 1, delay: 0.3, ease: 'easeOut' }}
               className="bg-[var(--primary)] h-full relative overflow-hidden"
             >
               <motion.div
@@ -478,33 +522,35 @@ function RunningScreen() {
                 className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
               />
             </motion.div>
-            <motion.div 
+            <motion.div
               initial={{ width: 0 }}
               animate={{ width: '2%' }}
-              transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-              className="bg-amber-400 h-full" 
+              transition={{ duration: 1, delay: 0.5, ease: 'easeOut' }}
+              className="bg-amber-400 h-full"
             />
             <div className="bg-gray-200 h-full flex-1" />
           </div>
-          
+
           {/* Legend */}
           <div className="flex justify-center gap-5 text-xs text-[var(--text-secondary)]">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-[var(--accent-green)]" /> 18 Success
             </span>
             <span className="flex items-center gap-1.5">
-              <motion.span 
+              <motion.span
                 animate={{ scale: [1, 1.3, 1] }}
                 transition={{ duration: 0.8, repeat: Infinity }}
-                className="w-2 h-2 rounded-full bg-[var(--primary)]" 
-              /> 4 Executing
+                className="w-2 h-2 rounded-full bg-[var(--primary)]"
+              />{' '}
+              4 Executing
             </span>
             <span className="flex items-center gap-1.5">
-              <motion.span 
+              <motion.span
                 animate={{ opacity: [1, 0.5, 1] }}
                 transition={{ duration: 0.5, repeat: Infinity }}
-                className="w-2 h-2 rounded-full bg-amber-400" 
-              /> 1 Retrying
+                className="w-2 h-2 rounded-full bg-amber-400"
+              />{' '}
+              1 Retrying
             </span>
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-gray-300" /> 24 Queued
@@ -518,12 +564,69 @@ function RunningScreen() {
 
 function MetricsScreen() {
   const metrics = [
-    { icon: '✓', iconBg: 'var(--primary)', name: 'Task Completion', desc: 'Percentage of successful task resolutions', value: '98.2%', status: 'EXCELLENT', statusColor: 'var(--accent-green)', trendColor: '#22c55e' },
-    { icon: '📊', iconBg: 'var(--primary)', name: 'Accuracy', desc: 'Precision vs ground truth data', value: '94.2%', change: '+2.1%', status: 'PASSED', statusColor: 'var(--accent-green)', trendColor: '#8b5cf6' },
-    { icon: '⏱', iconBg: '#f97316', name: 'Latency', desc: 'Avg response time per query', value: '1.2s', change: '-0.3s', status: 'EXCELLENT', statusColor: 'var(--accent-green)', trendColor: '#f97316' },
-    { icon: '💰', iconBg: 'var(--accent-green)', name: 'Cost', desc: 'Tokens & infrastructure per run', value: '$0.047', status: 'OPTIMIZED', statusColor: '#6b7280', trendColor: '#22c55e' },
-    { icon: '🛡', iconBg: '#ef4444', name: 'Safety', desc: 'Jailbreak & PII leak protection', value: '100%', status: 'SECURE', statusColor: 'var(--accent-green)', trendColor: '#ef4444', flat: true },
-    { icon: '⚡', iconBg: 'var(--primary)', name: 'Efficiency', desc: 'Token-to-answer compression', value: '89%', status: 'STABLE', statusColor: '#6b7280', trendColor: '#6366f1' },
+    {
+      icon: '✓',
+      iconBg: 'var(--primary)',
+      name: 'Task Completion',
+      desc: 'Percentage of successful task resolutions',
+      value: '98.2%',
+      status: 'EXCELLENT',
+      statusColor: 'var(--accent-green)',
+      trendColor: '#22c55e',
+    },
+    {
+      icon: '📊',
+      iconBg: 'var(--primary)',
+      name: 'Accuracy',
+      desc: 'Precision vs ground truth data',
+      value: '94.2%',
+      change: '+2.1%',
+      status: 'PASSED',
+      statusColor: 'var(--accent-green)',
+      trendColor: '#8b5cf6',
+    },
+    {
+      icon: '⏱',
+      iconBg: '#f97316',
+      name: 'Latency',
+      desc: 'Avg response time per query',
+      value: '1.2s',
+      change: '-0.3s',
+      status: 'EXCELLENT',
+      statusColor: 'var(--accent-green)',
+      trendColor: '#f97316',
+    },
+    {
+      icon: '💰',
+      iconBg: 'var(--accent-green)',
+      name: 'Cost',
+      desc: 'Tokens & infrastructure per run',
+      value: '$0.047',
+      status: 'OPTIMIZED',
+      statusColor: '#6b7280',
+      trendColor: '#22c55e',
+    },
+    {
+      icon: '🛡',
+      iconBg: '#ef4444',
+      name: 'Safety',
+      desc: 'Jailbreak & PII leak protection',
+      value: '100%',
+      status: 'SECURE',
+      statusColor: 'var(--accent-green)',
+      trendColor: '#ef4444',
+      flat: true,
+    },
+    {
+      icon: '⚡',
+      iconBg: 'var(--primary)',
+      name: 'Efficiency',
+      desc: 'Token-to-answer compression',
+      value: '89%',
+      status: 'STABLE',
+      statusColor: '#6b7280',
+      trendColor: '#6366f1',
+    },
   ];
 
   return (
@@ -533,31 +636,32 @@ function MetricsScreen() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h3 className="text-lg font-bold">Support Bot v2.4</h3>
-            <span className="px-2 py-0.5 bg-[var(--accent-green)]/10 text-[var(--accent-green)] rounded text-[10px] font-semibold uppercase">Passed</span>
+            <span className="px-2 py-0.5 bg-[var(--accent-green)]/10 text-[var(--accent-green)] rounded text-[10px] font-semibold uppercase">
+              Passed
+            </span>
           </div>
           <p className="text-xs text-[var(--text-muted)]">Run #2847 completed • Feb 24, 2024</p>
         </div>
         <div className="flex gap-2">
-          <motion.button 
-            whileHover={{ scale: 1.05, backgroundColor: "#f9fafb" }}
+          <motion.button
+            whileHover={{ scale: 1.05, backgroundColor: '#f9fafb' }}
             whileTap={{ scale: 0.95 }}
             className="px-3 py-1.5 bg-white border border-[var(--border)] rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm hover:shadow transition-all"
           >
-            <motion.span
-              whileHover={{ y: [0, -2, 0] }}
-              transition={{ duration: 0.3 }}
-            >📥</motion.span> Export PDF Report
+            <motion.span whileHover={{ y: [0, -2, 0] }} transition={{ duration: 0.3 }}>
+              📥
+            </motion.span>{' '}
+            Export PDF Report
           </motion.button>
-          <motion.button 
-            whileHover={{ scale: 1.05, boxShadow: "0 6px 16px rgba(99, 102, 241, 0.35)" }}
+          <motion.button
+            whileHover={{ scale: 1.05, boxShadow: '0 6px 16px rgba(99, 102, 241, 0.35)' }}
             whileTap={{ scale: 0.95 }}
             className="px-3 py-1.5 bg-[var(--primary)] text-white rounded-lg text-xs font-medium flex items-center gap-1 shadow-md shadow-[var(--primary)]/25 transition-all"
           >
-            Compare Versions 
-            <motion.span
-              animate={{ x: [0, 3, 0] }}
-              transition={{ duration: 1, repeat: Infinity }}
-            >→</motion.span>
+            Compare Versions
+            <motion.span animate={{ x: [0, 3, 0] }} transition={{ duration: 1, repeat: Infinity }}>
+              →
+            </motion.span>
           </motion.button>
         </div>
       </div>
@@ -582,7 +686,7 @@ function MetricsScreen() {
           >
             {/* Metric Info */}
             <div className="flex items-center gap-2.5">
-              <div 
+              <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm"
                 style={{ backgroundColor: metric.iconBg }}
               >
@@ -593,28 +697,30 @@ function MetricsScreen() {
                 <div className="text-[10px] text-[var(--text-muted)]">{metric.desc}</div>
               </div>
             </div>
-            
+
             {/* Score */}
             <div>
               <span className="text-lg font-bold">{metric.value}</span>
               {metric.change && (
-                <span className={`text-[10px] ml-1 ${metric.change.startsWith('+') ? 'text-[var(--accent-green)]' : 'text-[var(--primary)]'}`}>
+                <span
+                  className={`text-[10px] ml-1 ${metric.change.startsWith('+') ? 'text-[var(--accent-green)]' : 'text-[var(--primary)]'}`}
+                >
                   {metric.change.startsWith('-') ? '↓' : '↑'} {metric.change}
                 </span>
               )}
             </div>
-            
+
             {/* Status */}
-            <span 
+            <span
               className="px-2 py-1 rounded text-[9px] font-semibold uppercase text-center"
-              style={{ 
-                color: metric.statusColor, 
-                backgroundColor: `color-mix(in srgb, ${metric.statusColor} 10%, transparent)` 
+              style={{
+                color: metric.statusColor,
+                backgroundColor: `color-mix(in srgb, ${metric.statusColor} 10%, transparent)`,
               }}
             >
               {metric.status}
             </span>
-            
+
             {/* Trend Chart */}
             <div className="flex justify-end">
               <TrendLine color={metric.trendColor} flat={metric.flat} />
@@ -627,14 +733,16 @@ function MetricsScreen() {
       <div className="flex justify-between items-center mt-3 pt-3 border-t border-[var(--border-light)]">
         <div className="flex gap-4 text-[10px] text-[var(--text-secondary)]">
           <span className="flex items-center gap-1">
-            <motion.span 
+            <motion.span
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 1.5, repeat: Infinity }}
               className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)]"
-            /> 47/47 queries safe
+            />{' '}
+            47/47 queries safe
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)]" /> 0 jailbreak successes
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)]" /> 0 jailbreak
+            successes
           </span>
           <span className="flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)]" /> 0 PII leaks
@@ -655,7 +763,7 @@ function ABComparisonScreen() {
     { label: 'Safety', value: '99.1%' },
     { label: 'Efficiency', value: '74%' },
   ];
-  
+
   const candidateMetrics = [
     { label: 'Task Completion', value: '94.2%', change: '↑', positive: true },
     { label: 'Accuracy', value: '94%', change: '↑', positive: true },
@@ -672,7 +780,7 @@ function ABComparisonScreen() {
         {/* Comparison Cards */}
         <div className="grid grid-cols-2 gap-4 mb-5">
           {/* Baseline v2.3 */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
@@ -681,12 +789,14 @@ function ABComparisonScreen() {
           >
             <div className="flex items-center justify-between mb-4">
               <span className="text-lg font-bold">v2.3</span>
-              <span className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide px-2 py-0.5 bg-gray-100 rounded">Baseline</span>
+              <span className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wide px-2 py-0.5 bg-gray-100 rounded">
+                Baseline
+              </span>
             </div>
             <div className="space-y-2.5">
               {baselineMetrics.map((metric, idx) => (
-                <motion.div 
-                  key={metric.label} 
+                <motion.div
+                  key={metric.label}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: idx * 0.05 }}
@@ -698,9 +808,9 @@ function ABComparisonScreen() {
               ))}
             </div>
           </motion.div>
-          
+
           {/* Winner v2.4 */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
@@ -709,31 +819,42 @@ function ABComparisonScreen() {
           >
             <div className="flex items-center justify-between mb-4">
               <span className="text-lg font-bold">v2.4</span>
-              <motion.span 
+              <motion.span
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ type: "spring", delay: 0.3 }}
+                transition={{ type: 'spring', delay: 0.3 }}
                 className="px-2.5 py-1 bg-[var(--accent-green)] text-white rounded text-xs font-semibold shadow-md shadow-[var(--accent-green)]/30"
               >
                 <motion.span
                   animate={{ scale: [1, 1.1, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                   className="inline-block"
-                >🏆</motion.span> WINNER
+                >
+                  🏆
+                </motion.span>{' '}
+                WINNER
               </motion.span>
             </div>
             <div className="space-y-2.5">
               {candidateMetrics.map((metric, idx) => (
-                <motion.div 
-                  key={metric.label} 
+                <motion.div
+                  key={metric.label}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 + idx * 0.05 }}
                   className="flex justify-between items-center text-sm"
                 >
                   <span className="text-[var(--text-secondary)]">{metric.label}</span>
-                  <span className={`font-semibold ${metric.positive ? 'text-[var(--accent-green)]' : 'text-[var(--error)]'}`}>
-                    {metric.value} <motion.span animate={{ y: metric.positive ? [0, -2, 0] : [0, 2, 0] }} transition={{ duration: 1, repeat: Infinity }}>{metric.change}</motion.span>
+                  <span
+                    className={`font-semibold ${metric.positive ? 'text-[var(--accent-green)]' : 'text-[var(--error)]'}`}
+                  >
+                    {metric.value}{' '}
+                    <motion.span
+                      animate={{ y: metric.positive ? [0, -2, 0] : [0, 2, 0] }}
+                      transition={{ duration: 1, repeat: Infinity }}
+                    >
+                      {metric.change}
+                    </motion.span>
                   </span>
                 </motion.div>
               ))}
@@ -748,7 +869,9 @@ function ABComparisonScreen() {
               Performance Divergence (100 Test Cases)
             </span>
             <div className="flex items-center gap-3">
-              <span className="px-2 py-1 bg-gray-100 text-[10px] font-medium rounded">Divergence point: +18.4%</span>
+              <span className="px-2 py-1 bg-gray-100 text-[10px] font-medium rounded">
+                Divergence point: +18.4%
+              </span>
               <span className="flex items-center gap-1 text-[10px] text-[var(--text-muted)]">
                 <span className="w-3 h-0.5 bg-gray-300 rounded" /> v2.3
               </span>
@@ -757,7 +880,7 @@ function ABComparisonScreen() {
               </span>
             </div>
           </div>
-          
+
           {/* Chart SVG */}
           <div className="h-[100px] relative">
             <svg className="w-full h-full" viewBox="0 0 400 80" preserveAspectRatio="none">
@@ -780,7 +903,7 @@ function ABComparisonScreen() {
               {/* Divergence point marker on v2.3 */}
               <circle cx="280" cy="46" r="4" fill="#d1d5db" />
             </svg>
-            
+
             {/* X-axis labels */}
             <div className="flex justify-between text-[9px] text-[var(--text-muted)] mt-1">
               <span>CASE 1</span>
@@ -793,25 +916,27 @@ function ABComparisonScreen() {
         </div>
 
         {/* Statistical Significance */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
           className="flex items-center justify-center gap-2 pt-2"
         >
-          <motion.span 
+          <motion.span
             animate={{ scale: [1, 1.3, 1] }}
             transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-3 h-3 rounded-full bg-[var(--accent-green)] shadow-md shadow-[var(--accent-green)]/40" 
+            className="w-3 h-3 rounded-full bg-[var(--accent-green)] shadow-md shadow-[var(--accent-green)]/40"
           />
           <span className="text-sm font-medium">
-            Statistical significance: 
-            <motion.span 
+            Statistical significance:
+            <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7 }}
               className="text-[var(--accent-green)] font-bold ml-1"
-            >95.2%</motion.span>
+            >
+              95.2%
+            </motion.span>
           </span>
         </motion.div>
       </div>
@@ -838,7 +963,7 @@ function ShipScreen() {
           <motion.div
             initial={{ scale: 0, rotate: -180 }}
             animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", duration: 0.8 }}
+            transition={{ type: 'spring', duration: 0.8 }}
             className="relative w-16 h-16 mx-auto mb-4"
           >
             <motion.div
@@ -877,7 +1002,7 @@ function ShipScreen() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 + idx * 0.1 }}
-              whileHover={{ scale: 1.02, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
+              whileHover={{ scale: 1.02, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
               className="bg-white border border-[var(--border-light)] rounded-xl p-3 relative overflow-hidden"
             >
               <div className="flex items-start justify-between mb-1">
@@ -887,7 +1012,7 @@ function ShipScreen() {
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ delay: 0.5 + idx * 0.1, type: "spring" }}
+                  transition={{ delay: 0.5 + idx * 0.1, type: 'spring' }}
                   className="w-4 h-4 bg-[var(--accent-green)]/10 rounded-full flex items-center justify-center"
                 >
                   <Check className="w-2.5 h-2.5 text-[var(--accent-green)]" />
@@ -895,9 +1020,15 @@ function ShipScreen() {
               </div>
               <div className="flex items-end justify-between">
                 <span className="text-xl font-bold">
-                  <span className="text-sm font-normal text-[var(--text-muted)]">{metric.prefix}</span>
+                  <span className="text-sm font-normal text-[var(--text-muted)]">
+                    {metric.prefix}
+                  </span>
                   {metric.value}
-                  {metric.suffix && <span className="text-sm font-normal text-[var(--text-muted)]">{metric.suffix}</span>}
+                  {metric.suffix && (
+                    <span className="text-sm font-normal text-[var(--text-muted)]">
+                      {metric.suffix}
+                    </span>
+                  )}
                 </span>
                 <MiniTrendLine />
               </div>
@@ -915,9 +1046,9 @@ function ShipScreen() {
             View Full Report
           </motion.button>
           <motion.button
-            whileHover={{ scale: 1.03, boxShadow: "0 8px 24px rgba(34, 197, 94, 0.35)" }}
+            whileHover={{ scale: 1.03, boxShadow: '0 8px 24px rgba(34, 197, 94, 0.35)' }}
             whileTap={{ scale: 0.98 }}
-            initial={{ boxShadow: "0 4px 12px rgba(34, 197, 94, 0.25)" }}
+            initial={{ boxShadow: '0 4px 12px rgba(34, 197, 94, 0.25)' }}
             className="px-5 py-2.5 bg-[var(--accent-green)] text-white rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg"
           >
             <motion.span
@@ -946,11 +1077,11 @@ function ShipScreen() {
               />
               Environment: <strong className="text-[var(--foreground)]">Production-ready</strong>
             </span>
-            <span className="flex items-center gap-1">
-              ⏱ Last run: 2 mins ago
-            </span>
+            <span className="flex items-center gap-1">⏱ Last run: 2 mins ago</span>
           </div>
-          <span>Agent Version: <strong className="text-[var(--foreground)]">v3.4.2-stable</strong></span>
+          <span>
+            Agent Version: <strong className="text-[var(--foreground)]">v3.4.2-stable</strong>
+          </span>
         </motion.div>
       </div>
     </>
@@ -958,11 +1089,20 @@ function ShipScreen() {
 }
 
 // Helper Components
-function FormField({ label, value, optional }: { label: string; value: string; optional?: boolean }) {
+function FormField({
+  label,
+  value,
+  optional,
+}: {
+  label: string;
+  value: string;
+  optional?: boolean;
+}) {
   return (
     <div>
       <label className="block text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
-        {label} {optional && <span className="font-normal text-[var(--text-muted)]">(optional)</span>}
+        {label}{' '}
+        {optional && <span className="font-normal text-[var(--text-muted)]">(optional)</span>}
       </label>
       <input
         type="text"
@@ -974,11 +1114,23 @@ function FormField({ label, value, optional }: { label: string; value: string; o
   );
 }
 
-function QueryCategory({ title, count, queries, danger }: { title: string; count: number; queries: string[]; danger?: boolean }) {
+function QueryCategory({
+  title,
+  count,
+  queries,
+  danger,
+}: {
+  title: string;
+  count: number;
+  queries: string[];
+  danger?: boolean;
+}) {
   return (
     <div className="border border-[var(--border-light)] rounded-lg mb-4 overflow-hidden">
       <div className="px-4 py-3 bg-[var(--bg-subtle)] flex justify-between items-center">
-        <span className={`font-semibold text-sm ${danger ? "text-[var(--error)]" : ""}`}>{title}</span>
+        <span className={`font-semibold text-sm ${danger ? 'text-[var(--error)]' : ''}`}>
+          {title}
+        </span>
         <span className="px-2 py-0.5 bg-[var(--bg-muted)] rounded text-xs">{count}</span>
       </div>
       <div className="p-4 space-y-2">
@@ -993,7 +1145,14 @@ function QueryCategory({ title, count, queries, danger }: { title: string; count
   );
 }
 
-function QueryCard({ category, categoryColor, stars, query, latency, source }: {
+function QueryCard({
+  category,
+  categoryColor,
+  stars,
+  query,
+  latency,
+  source,
+}: {
   category: string;
   categoryColor: string;
   stars: number;
@@ -1005,15 +1164,20 @@ function QueryCard({ category, categoryColor, stars, query, latency, source }: {
     <div className="border border-[var(--border-light)] rounded-xl p-4 bg-white">
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span 
+          <span
             className="text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded"
-            style={{ color: categoryColor, backgroundColor: `color-mix(in srgb, ${categoryColor} 10%, transparent)` }}
+            style={{
+              color: categoryColor,
+              backgroundColor: `color-mix(in srgb, ${categoryColor} 10%, transparent)`,
+            }}
           >
             {category}
           </span>
           <div className="flex gap-0.5">
             {[...Array(5)].map((_, i) => (
-              <span key={i} className={`text-xs ${i < stars ? "text-amber-400" : "text-gray-200"}`}>★</span>
+              <span key={i} className={`text-xs ${i < stars ? 'text-amber-400' : 'text-gray-200'}`}>
+                ★
+              </span>
             ))}
           </div>
         </div>
@@ -1037,39 +1201,66 @@ function QueryCard({ category, categoryColor, stars, query, latency, source }: {
 function LogLine({ time, text, success }: { time: string; text: string; success?: boolean }) {
   return (
     <div className="mb-1">
-      <span className="text-[var(--text-muted)]">[{time}]</span>{" "}
+      <span className="text-[var(--text-muted)]">[{time}]</span>{' '}
       {success && <span className="text-[var(--accent-green)]">✓</span>} {text}
     </div>
   );
 }
 
-function TestCard({ id, status, name }: { id: string; status: 'success' | 'running' | 'retrying' | 'queued'; name: string }) {
+function TestCard({
+  id,
+  status,
+  name,
+}: {
+  id: string;
+  status: 'success' | 'running' | 'retrying' | 'queued';
+  name: string;
+}) {
   const statusConfig = {
-    success: { label: 'SUCCESS', color: 'var(--accent-green)', bgColor: 'rgba(34, 197, 94, 0.1)', icon: '✓' },
-    running: { label: 'RUNNING', color: 'var(--primary)', bgColor: 'rgba(99, 102, 241, 0.1)', icon: '↻' },
-    retrying: { label: 'RETRYING', color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.1)', icon: '↻' },
+    success: {
+      label: 'SUCCESS',
+      color: 'var(--accent-green)',
+      bgColor: 'rgba(34, 197, 94, 0.1)',
+      icon: '✓',
+    },
+    running: {
+      label: 'RUNNING',
+      color: 'var(--primary)',
+      bgColor: 'rgba(99, 102, 241, 0.1)',
+      icon: '↻',
+    },
+    retrying: {
+      label: 'RETRYING',
+      color: '#f59e0b',
+      bgColor: 'rgba(245, 158, 11, 0.1)',
+      icon: '↻',
+    },
     queued: { label: 'QUEUED', color: '#9ca3af', bgColor: 'rgba(156, 163, 175, 0.1)', icon: '○' },
   };
-  
+
   const config = statusConfig[status];
   const isQueued = status === 'queued';
-  
+
   return (
-    <div className={`border rounded-lg p-2.5 bg-white ${status === 'running' ? 'border-[var(--primary)]/30' : 'border-[var(--border-light)]'}`}>
+    <div
+      className={`border rounded-lg p-2.5 bg-white ${status === 'running' ? 'border-[var(--primary)]/30' : 'border-[var(--border-light)]'}`}
+    >
       <div className="flex items-center justify-between mb-1.5">
         <span className="text-xs font-medium text-[var(--text-secondary)]">{id}</span>
-        <span 
+        <span
           className="text-[9px] font-semibold px-1.5 py-0.5 rounded flex items-center gap-1"
           style={{ color: config.color, backgroundColor: config.bgColor }}
         >
           <span className="text-[8px]">{config.icon}</span> {config.label}
         </span>
       </div>
-      <div 
+      <div
         className="h-1 rounded-full mb-1.5"
         style={{ backgroundColor: status === 'queued' ? '#e5e7eb' : config.color }}
       />
-      <p className={`text-[11px] ${isQueued ? 'italic text-[var(--text-muted)]' : 'text-[var(--foreground)]'}`}>
+      <p
+        className={`text-[11px] ${isQueued ? 'italic text-[var(--text-muted)]' : 'text-[var(--foreground)]'}`}
+      >
         {name}
       </p>
     </div>
@@ -1078,14 +1269,14 @@ function TestCard({ id, status, name }: { id: string; status: 'success' | 'runni
 
 function TrendLine({ color, flat }: { color: string; flat?: boolean }) {
   // Generate random-ish points for the trend line
-  const points = flat 
-    ? "0,15 20,15 40,15 60,15 80,15 100,15"
-    : "0,25 15,22 30,18 50,20 65,12 80,8 100,5";
-  
+  const points = flat
+    ? '0,15 20,15 40,15 60,15 80,15 100,15'
+    : '0,25 15,22 30,18 50,20 65,12 80,8 100,5';
+
   return (
     <div className="w-20 h-6 relative overflow-hidden">
-      <motion.svg 
-        className="w-full h-full" 
+      <motion.svg
+        className="w-full h-full"
         viewBox="0 0 100 30"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -1100,7 +1291,7 @@ function TrendLine({ color, flat }: { color: string; flat?: boolean }) {
           strokeLinejoin="round"
           initial={{ pathLength: 0 }}
           animate={{ pathLength: 1 }}
-          transition={{ duration: 1.5, ease: "easeInOut" }}
+          transition={{ duration: 1.5, ease: 'easeInOut' }}
         />
       </motion.svg>
     </div>
@@ -1109,7 +1300,7 @@ function TrendLine({ color, flat }: { color: string; flat?: boolean }) {
 
 function MiniTrendLine() {
   return (
-    <motion.div 
+    <motion.div
       className="w-12 h-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -1124,33 +1315,61 @@ function MiniTrendLine() {
           strokeLinecap="round"
           initial={{ pathLength: 0 }}
           animate={{ pathLength: 1 }}
-          transition={{ duration: 1, ease: "easeOut" }}
+          transition={{ duration: 1, ease: 'easeOut' }}
         />
       </svg>
     </motion.div>
   );
 }
 
-function MetricCard({ value, label, change, up }: { value: string; label: string; change: string; up?: boolean }) {
+function MetricCard({
+  value,
+  label,
+  change,
+  up,
+}: {
+  value: string;
+  label: string;
+  change: string;
+  up?: boolean;
+}) {
   return (
     <div className="bg-[var(--bg-subtle)] border border-[var(--border-light)] rounded-lg p-4 text-center">
       <div className="text-2xl font-bold">{value}</div>
       <div className="text-xs text-[var(--text-muted)] uppercase tracking-wide mt-1">{label}</div>
-      <div className={`text-xs mt-1 ${up ? "text-[var(--accent-green)]" : "text-[var(--text-secondary)]"}`}>
+      <div
+        className={`text-xs mt-1 ${up ? 'text-[var(--accent-green)]' : 'text-[var(--text-secondary)]'}`}
+      >
         {change}
       </div>
     </div>
   );
 }
 
-function ABRow({ label, value, change, positive }: { label: string; value: string; change?: string; positive?: boolean }) {
+function ABRow({
+  label,
+  value,
+  change,
+  positive,
+}: {
+  label: string;
+  value: string;
+  change?: string;
+  positive?: boolean;
+}) {
   return (
     <div className="flex justify-between text-sm py-1">
       <span>{label}</span>
       <span>
-        {value}{" "}
+        {value}{' '}
         {change && (
-          <span className={positive ? "text-[var(--accent-green)] font-semibold" : "text-[var(--error)] font-semibold"}>
+          <span
+            className={
+              positive
+                ? 'text-[var(--accent-green)] font-semibold'
+                : 'text-[var(--error)] font-semibold'
+            }
+          >
             {change}
           </span>
         )}
@@ -1159,11 +1378,21 @@ function ABRow({ label, value, change, positive }: { label: string; value: strin
   );
 }
 
-function CheckItem({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+function CheckItem({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
   return (
     <div className="flex justify-between py-2.5 border-b border-[var(--border-light)] last:border-b-0 text-sm">
       <span>✓ {label}</span>
-      <span className={`font-semibold ${highlight ? "text-[var(--accent-green)]" : ""}`}>{value}</span>
+      <span className={`font-semibold ${highlight ? 'text-[var(--accent-green)]' : ''}`}>
+        {value}
+      </span>
     </div>
   );
 }

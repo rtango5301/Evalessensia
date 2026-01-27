@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
 
 export function CTA() {
   return (
@@ -17,8 +17,8 @@ export function CTA() {
             Ready to stabilize your AI pipeline?
           </h2>
           <p className="text-lg text-[var(--text-secondary)] mb-8">
-            Join hundreds of AI engineers who ship deterministic, high-quality agents 
-            every day with TensorEval.
+            Join hundreds of AI engineers who ship deterministic, high-quality agents every day with
+            TensorEval.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <motion.button

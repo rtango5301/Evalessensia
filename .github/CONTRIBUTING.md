@@ -20,13 +20,13 @@ git checkout -b feature/your-feature-name
 
 ### 2. Naming Conventions
 
-| Prefix | Use Case |
-|--------|----------|
-| `feature/` | New features |
-| `fix/` | Bug fixes |
+| Prefix      | Use Case          |
+| ----------- | ----------------- |
+| `feature/`  | New features      |
+| `fix/`      | Bug fixes         |
 | `refactor/` | Code improvements |
-| `chore/` | Maintenance tasks |
-| `docs/` | Documentation |
+| `chore/`    | Maintenance tasks |
+| `docs/`     | Documentation     |
 
 ### 3. Making Commits
 

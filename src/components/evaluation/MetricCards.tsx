@@ -1,48 +1,44 @@
-"use client"
+'use client';
 
-import { motion } from "framer-motion"
-import { TrendingUp, TrendingDown } from "lucide-react"
+import { motion } from 'framer-motion';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
-import { Card, CardContent } from "@/components/ui/card"
-import { CircularProgress } from "@/components/ui/circular-progress"
-import type { EvaluationMetrics } from "@/types/evaluation"
+import { Card, CardContent } from '@/components/ui/card';
+import { CircularProgress } from '@/components/ui/circular-progress';
+import type { EvaluationMetrics } from '@/types/evaluation';
 
 interface MetricCardsProps {
-  metrics: EvaluationMetrics
+  metrics: EvaluationMetrics;
 }
 
 function DeltaIndicator({
   delta,
-  suffix = "",
+  suffix = '',
   positive = true,
 }: {
-  delta: number
-  suffix?: string
-  positive?: boolean
+  delta: number;
+  suffix?: string;
+  positive?: boolean;
 }) {
-  const isPositive = delta > 0
-  const isGood = positive ? isPositive : !isPositive
+  const isPositive = delta > 0;
+  const isGood = positive ? isPositive : !isPositive;
 
   return (
     <span
       className={`flex items-center gap-0.5 text-xs font-medium ${
-        isGood ? "text-[var(--accent-green)]" : "text-[var(--error)]"
+        isGood ? 'text-[var(--accent-green)]' : 'text-[var(--error)]'
       }`}
     >
-      {isPositive ? (
-        <TrendingUp className="w-3 h-3" />
-      ) : (
-        <TrendingDown className="w-3 h-3" />
-      )}
-      {isPositive ? "+" : ""}
+      {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+      {isPositive ? '+' : ''}
       {delta.toFixed(1)}
       {suffix}
     </span>
-  )
+  );
 }
 
 export function MetricCards({ metrics }: MetricCardsProps) {
-  const passRate = (metrics.testsPassed / metrics.testsTotal) * 100
+  const passRate = (metrics.testsPassed / metrics.testsTotal) * 100;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -62,17 +58,13 @@ export function MetricCards({ metrics }: MetricCardsProps) {
                 showValue={false}
               />
               <div>
-                <p className="text-sm text-[var(--text-muted)] mb-1">
-                  Overall Score
-                </p>
+                <p className="text-sm text-[var(--text-muted)] mb-1">Overall Score</p>
                 <p className="text-3xl font-bold text-[var(--foreground)]">
                   {metrics.overallScore.toFixed(1)}%
                 </p>
                 <div className="flex items-center gap-1 mt-1">
                   <DeltaIndicator delta={metrics.scoreDelta} suffix="%" />
-                  <span className="text-xs text-[var(--text-muted)]">
-                    vs Baseline (+1.2)
-                  </span>
+                  <span className="text-xs text-[var(--text-muted)]">vs Baseline (+1.2)</span>
                 </div>
               </div>
             </div>
@@ -88,9 +80,7 @@ export function MetricCards({ metrics }: MetricCardsProps) {
       >
         <Card className="h-full">
           <CardContent className="pt-6">
-            <p className="text-sm text-[var(--text-muted)] mb-2">
-              Test Pass Rate
-            </p>
+            <p className="text-sm text-[var(--text-muted)] mb-2">Test Pass Rate</p>
             <p className="text-3xl font-bold text-[var(--foreground)] mb-3">
               {metrics.testsPassed}
               <span className="text-lg font-normal text-[var(--text-muted)]">
@@ -102,7 +92,7 @@ export function MetricCards({ metrics }: MetricCardsProps) {
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${passRate}%` }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
                 className="h-full bg-[var(--accent-green)] rounded-full"
               />
             </div>
@@ -123,18 +113,12 @@ export function MetricCards({ metrics }: MetricCardsProps) {
               {metrics.avgLatency.toFixed(1)}s
             </p>
             <div className="flex items-center gap-1 mt-1">
-              <DeltaIndicator
-                delta={metrics.latencyDelta * 1000}
-                suffix="ms"
-                positive={false}
-              />
-              <span className="text-xs text-[var(--text-muted)]">
-                vs Baseline
-              </span>
+              <DeltaIndicator delta={metrics.latencyDelta * 1000} suffix="ms" positive={false} />
+              <span className="text-xs text-[var(--text-muted)]">vs Baseline</span>
             </div>
           </CardContent>
         </Card>
       </motion.div>
     </div>
-  )
+  );
 }

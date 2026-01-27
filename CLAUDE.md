@@ -16,6 +16,7 @@ npm run lint     # Run ESLint (eslint command)
 TensorEval is a Next.js 16 marketing website for an AI agent CI/CD platform. It uses the App Router with React 19 and TypeScript.
 
 ### Tech Stack
+
 - **Framework**: Next.js 16.1.4 (App Router)
 - **Styling**: Tailwind CSS 4 with CSS custom properties in `globals.css`
 - **Animations**: Framer Motion for scroll-triggered and interactive animations
@@ -24,25 +25,30 @@ TensorEval is a Next.js 16 marketing website for an AI agent CI/CD platform. It 
 ### Structure
 
 **Routes** (`src/app/`):
+
 - `/` - Landing page composed of section components
 - `/login` - Authentication page with OAuth and email options
 - `/evaluations/[runId]/results` - Evaluation results dashboard (app-style layout)
 
 **Components** (`src/components/`):
+
 - Section components (Hero, Workflow, Features, UseCases, Pricing, etc.) are client components using Framer Motion
 - UI primitives in `ui/` folder follow shadcn/ui conventions with CVA (class-variance-authority) for variants
 
 **Dashboard Components** (`src/components/dashboard/`):
+
 - `app-navigation.tsx` - App-style navigation (differs from marketing nav)
 - `dashboard-footer.tsx` - Simplified footer for app pages
 
 **Evaluation Components** (`src/components/evaluation/`):
+
 - `EvaluationHeader.tsx` - Breadcrumb, title, status badge, action buttons
 - `MetricCards.tsx` - Overall score, test pass rate, avg latency cards
 - `PerformanceComparison.tsx` - Radar chart with baseline comparison
 - `TestCasesTable.tsx` - Searchable, filterable, paginated test results table
 
 **Additional UI Primitives** (`src/components/ui/`):
+
 - `table.tsx` - Data table with shadcn/ui pattern
 - `select.tsx` - Dropdown select (Radix UI)
 - `circular-progress.tsx` - SVG circular progress indicator
@@ -50,16 +56,20 @@ TensorEval is a Next.js 16 marketing website for an AI agent CI/CD platform. It 
 - `breadcrumb.tsx` - Navigation breadcrumb
 
 **Mock Data** (`src/lib/mock-data/`):
+
 - `evaluation.ts` - Static mock data for evaluation results
 
 **Types** (`src/types/`):
+
 - `evaluation.ts` - TypeScript interfaces for evaluation data structures
 
 **Design System** (`src/app/globals.css`):
+
 - CSS custom properties define the color palette, spacing, and theming
 - Custom animations: `pulse-dot`, `spin-slow`, gradient text effects
 
 ### Patterns
+
 - Server components by default; `"use client"` directive for components with state/effects/animations
 - `cn()` utility from `src/lib/utils.ts` merges Tailwind classes (clsx + tailwind-merge)
 - Mobile-first responsive design using Tailwind breakpoints
