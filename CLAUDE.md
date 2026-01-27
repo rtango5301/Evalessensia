@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Important Rules
+
+- **Always ask for permission before running any git commands** (commit, push, checkout, merge, etc.)
+
 ## Commands
 
 ```bash
