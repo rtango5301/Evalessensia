@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { Play } from "lucide-react";
+import { motion } from 'framer-motion';
+import { Play } from 'lucide-react';
 
 export function Demo() {
   return (
@@ -18,9 +18,7 @@ export function Demo() {
           <p className="text-base uppercase tracking-[0.2em] text-[var(--primary)] font-bold mb-4">
             Demo
           </p>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
-            See it in action
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">See it in action</h2>
           <p className="text-lg text-[var(--text-secondary)] max-w-[600px] mx-auto">
             Watch how TensorEval evaluates your agent in under 10 seconds
           </p>

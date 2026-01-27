@@ -1,18 +1,18 @@
-"use client"
+'use client';
 
-import { useState, useMemo } from "react"
-import { motion } from "framer-motion"
-import { Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -20,58 +20,54 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import type { TestCase } from "@/types/evaluation"
+} from '@/components/ui/table';
+import type { TestCase } from '@/types/evaluation';
 
 interface TestCasesTableProps {
-  testCases: TestCase[]
+  testCases: TestCase[];
 }
 
-const ITEMS_PER_PAGE = 10
+const ITEMS_PER_PAGE = 10;
 
 export function TestCasesTable({ testCases }: TestCasesTableProps) {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<string>("all")
-  const [currentPage, setCurrentPage] = useState(1)
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
 
   const filteredTestCases = useMemo(() => {
     return testCases.filter((tc) => {
       const matchesSearch =
-        searchQuery === "" ||
+        searchQuery === '' ||
         tc.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         tc.inputPrompt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tc.metric.toLowerCase().includes(searchQuery.toLowerCase())
+        tc.metric.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesStatus =
-        statusFilter === "all" || tc.status === statusFilter
+      const matchesStatus = statusFilter === 'all' || tc.status === statusFilter;
 
-      return matchesSearch && matchesStatus
-    })
-  }, [testCases, searchQuery, statusFilter])
+      return matchesSearch && matchesStatus;
+    });
+  }, [testCases, searchQuery, statusFilter]);
 
-  const totalPages = Math.ceil(filteredTestCases.length / ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(filteredTestCases.length / ITEMS_PER_PAGE);
   const paginatedTestCases = filteredTestCases.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
-  )
+  );
 
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1
-  const endIndex = Math.min(
-    currentPage * ITEMS_PER_PAGE,
-    filteredTestCases.length
-  )
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+  const endIndex = Math.min(currentPage * ITEMS_PER_PAGE, filteredTestCases.length);
 
   function formatLatency(ms: number): string {
     if (ms >= 1000) {
-      return `${(ms / 1000).toFixed(1)}s`
+      return `${(ms / 1000).toFixed(1)}s`;
     }
-    return `${Math.round(ms)}ms`
+    return `${Math.round(ms)}ms`;
   }
 
   function getScoreColor(score: number): string {
-    if (score >= 0.9) return "text-[var(--accent-green)]"
-    if (score >= 0.5) return "text-[var(--warning)]"
-    return "text-[var(--error)]"
+    if (score >= 0.9) return 'text-[var(--accent-green)]';
+    if (score >= 0.5) return 'text-[var(--warning)]';
+    return 'text-[var(--error)]';
   }
 
   return (
@@ -83,9 +79,7 @@ export function TestCasesTable({ testCases }: TestCasesTableProps) {
       <Card>
         <CardHeader className="pb-4">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <CardTitle className="text-base font-semibold">
-              Detailed Test Cases
-            </CardTitle>
+            <CardTitle className="text-base font-semibold">Detailed Test Cases</CardTitle>
             <div className="flex items-center gap-3">
               {/* Search */}
               <div className="relative">
@@ -94,8 +88,8 @@ export function TestCasesTable({ testCases }: TestCasesTableProps) {
                   placeholder="Search test cases..."
                   value={searchQuery}
                   onChange={(e) => {
-                    setSearchQuery(e.target.value)
-                    setCurrentPage(1)
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
                   }}
                   className="pl-9 w-[200px]"
                 />
@@ -104,8 +98,8 @@ export function TestCasesTable({ testCases }: TestCasesTableProps) {
               <Select
                 value={statusFilter}
                 onValueChange={(value) => {
-                  setStatusFilter(value)
-                  setCurrentPage(1)
+                  setStatusFilter(value);
+                  setCurrentPage(1);
                 }}
               >
                 <SelectTrigger variant="outline" className="w-[130px]">
@@ -139,26 +133,20 @@ export function TestCasesTable({ testCases }: TestCasesTableProps) {
                     <TableCell>
                       <span
                         className={`px-2 py-1 rounded text-xs font-semibold ${
-                          tc.status === "passed"
-                            ? "bg-[var(--accent-green)]/10 text-[var(--accent-green)]"
-                            : "bg-[var(--error)]/10 text-[var(--error)]"
+                          tc.status === 'passed'
+                            ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
+                            : 'bg-[var(--error)]/10 text-[var(--error)]'
                         }`}
                       >
-                        {tc.status === "passed" ? "Passed" : "Failed"}
+                        {tc.status === 'passed' ? 'Passed' : 'Failed'}
                       </span>
                     </TableCell>
-                    <TableCell className="font-mono text-sm font-medium">
-                      {tc.id}
-                    </TableCell>
+                    <TableCell className="font-mono text-sm font-medium">{tc.id}</TableCell>
                     <TableCell className="max-w-[300px] truncate text-[var(--text-secondary)]">
                       {tc.inputPrompt}
                     </TableCell>
-                    <TableCell className="text-[var(--text-secondary)]">
-                      {tc.metric}
-                    </TableCell>
-                    <TableCell
-                      className={`font-semibold ${getScoreColor(tc.score)}`}
-                    >
+                    <TableCell className="text-[var(--text-secondary)]">{tc.metric}</TableCell>
+                    <TableCell className={`font-semibold ${getScoreColor(tc.score)}`}>
                       {tc.score.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-[var(--text-secondary)]">
@@ -168,10 +156,7 @@ export function TestCasesTable({ testCases }: TestCasesTableProps) {
                 ))}
                 {paginatedTestCases.length === 0 && (
                   <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="text-center py-8 text-[var(--text-muted)]"
-                    >
+                    <TableCell colSpan={6} className="text-center py-8 text-[var(--text-muted)]">
                       No test cases found matching your criteria.
                     </TableCell>
                   </TableRow>
@@ -183,8 +168,7 @@ export function TestCasesTable({ testCases }: TestCasesTableProps) {
           {/* Pagination */}
           <div className="flex items-center justify-between mt-4 text-sm">
             <p className="text-[var(--text-muted)]">
-              Showing {startIndex} to {endIndex} of {filteredTestCases.length}{" "}
-              results
+              Showing {startIndex} to {endIndex} of {filteredTestCases.length} results
             </p>
             <div className="flex items-center gap-1">
               <button
@@ -195,15 +179,15 @@ export function TestCasesTable({ testCases }: TestCasesTableProps) {
                 <ChevronLeft className="w-4 h-4" />
               </button>
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum: number
+                let pageNum: number;
                 if (totalPages <= 5) {
-                  pageNum = i + 1
+                  pageNum = i + 1;
                 } else if (currentPage <= 3) {
-                  pageNum = i + 1
+                  pageNum = i + 1;
                 } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i
+                  pageNum = totalPages - 4 + i;
                 } else {
-                  pageNum = currentPage - 2 + i
+                  pageNum = currentPage - 2 + i;
                 }
 
                 return (
@@ -212,13 +196,13 @@ export function TestCasesTable({ testCases }: TestCasesTableProps) {
                     onClick={() => setCurrentPage(pageNum)}
                     className={`w-8 h-8 flex items-center justify-center rounded text-sm font-medium transition-colors ${
                       pageNum === currentPage
-                        ? "bg-[var(--primary)] text-white"
-                        : "border border-[var(--border)] hover:bg-[var(--bg-subtle)]"
+                        ? 'bg-[var(--primary)] text-white'
+                        : 'border border-[var(--border)] hover:bg-[var(--bg-subtle)]'
                     }`}
                   >
                     {pageNum}
                   </button>
-                )
+                );
               })}
               <button
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
@@ -232,5 +216,5 @@ export function TestCasesTable({ testCases }: TestCasesTableProps) {
         </CardContent>
       </Card>
     </motion.div>
-  )
+  );
 }

@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Zap, Check, Github, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Zap, Check, Github, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleSignIn = () => {
-    router.push("/");
+    router.push('/');
   };
 
   return (
@@ -34,7 +34,10 @@ export default function LoginPage() {
 
           {/* Heading */}
           <h1 className="text-4xl lg:text-5xl font-extrabold leading-[1.1] mb-6 tracking-tight">
-            Ship AI Agents<br />with<br />
+            Ship AI Agents
+            <br />
+            with
+            <br />
             <span className="gradient-text">Confidence</span>
           </h1>
 
@@ -46,9 +49,9 @@ export default function LoginPage() {
           {/* Features */}
           <div className="space-y-4 mb-10">
             {[
-              "Catch regressions before users",
-              "Automated baseline comparison",
-              "CI/CD native integration",
+              'Catch regressions before users',
+              'Automated baseline comparison',
+              'CI/CD native integration',
             ].map((feature, i) => (
               <motion.div
                 key={i}
@@ -134,14 +137,17 @@ export default function LoginPage() {
                 <label className="block text-sm font-medium text-[var(--foreground)]">
                   Password
                 </label>
-                <Link href="#" className="text-sm text-[var(--primary)] hover:underline font-medium">
+                <Link
+                  href="#"
+                  className="text-sm text-[var(--primary)] hover:underline font-medium"
+                >
                   Forgot password?
                 </Link>
               </div>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
                 <input
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   className="w-full pl-12 pr-12 py-3 border border-[var(--border)] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] transition-all text-[var(--foreground)] placeholder:text-[var(--text-muted)]"
                 />
@@ -168,7 +174,7 @@ export default function LoginPage() {
 
             {/* Sign Up Link */}
             <p className="text-center text-[var(--text-secondary)]">
-              Don't have an account?{" "}
+              Don't have an account?{' '}
               <Link href="#" className="text-[var(--primary)] font-semibold hover:underline">
                 Sign up
               </Link>
@@ -176,10 +182,14 @@ export default function LoginPage() {
 
             {/* Terms */}
             <p className="text-center text-xs text-[var(--text-muted)] mt-6">
-              By continuing, you agree to our{" "}
-              <Link href="#" className="underline hover:text-[var(--foreground)]">Terms</Link>
-              {" "}&{" "}
-              <Link href="#" className="underline hover:text-[var(--foreground)]">Privacy</Link>
+              By continuing, you agree to our{' '}
+              <Link href="#" className="underline hover:text-[var(--foreground)]">
+                Terms
+              </Link>{' '}
+              &{' '}
+              <Link href="#" className="underline hover:text-[var(--foreground)]">
+                Privacy
+              </Link>
             </p>
           </div>
         </div>
@@ -192,7 +202,9 @@ function StatItem({ value, label }: { value: string; label: string }) {
   return (
     <div>
       <div className="text-2xl lg:text-3xl font-bold text-[var(--primary)]">{value}</div>
-      <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mt-1">{label}</div>
+      <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mt-1">
+        {label}
+      </div>
     </div>
   );
 }

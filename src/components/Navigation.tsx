@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import Link from "next/link";
-import { Layers, Menu, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { Layers, Menu, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 const navLinks = [
-  { href: "#", label: "Docs" },
-  { href: "#demo", label: "Demo" },
-  { href: "#workflow", label: "Workflow" },
-  { href: "#features", label: "Features" },
-  { href: "#use-cases", label: "Use Cases" },
-  { href: "#pricing", label: "Pricing" },
+  { href: '#', label: 'Docs' },
+  { href: '#demo', label: 'Demo' },
+  { href: '#workflow', label: 'Workflow' },
+  { href: '#features', label: 'Features' },
+  { href: '#use-cases', label: 'Use Cases' },
+  { href: '#pricing', label: 'Pricing' },
 ];
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("");
+  const [activeSection, setActiveSection] = useState('');
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -25,8 +25,8 @@ export function Navigation() {
 
       // Detect active section
       const sections = navLinks
-        .filter(link => link.href.startsWith("#") && link.href !== "#")
-        .map(link => link.href.slice(1));
+        .filter((link) => link.href.startsWith('#') && link.href !== '#')
+        .map((link) => link.href.slice(1));
 
       for (const section of sections.reverse()) {
         const element = document.getElementById(section);
@@ -38,22 +38,22 @@ export function Navigation() {
           }
         }
       }
-      setActiveSection("");
+      setActiveSection('');
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled 
-          ? "bg-white/95 backdrop-blur-xl shadow-sm border-b border-[var(--border-light)]" 
-          : "bg-white/80 backdrop-blur-md"
+        scrolled
+          ? 'bg-white/95 backdrop-blur-xl shadow-sm border-b border-[var(--border-light)]'
+          : 'bg-white/80 backdrop-blur-md'
       }`}
     >
       <div className="max-w-[1200px] mx-auto px-6 flex items-center justify-between h-16">
@@ -78,8 +78,8 @@ export function Navigation() {
                   href={link.href}
                   className={`relative px-4 py-2 text-[15px] font-medium transition-colors rounded-lg ${
                     isActive
-                      ? "text-[var(--primary)]"
-                      : "text-[var(--text-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--bg-subtle)]"
+                      ? 'text-[var(--primary)]'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--bg-subtle)]'
                   }`}
                 >
                   {link.label}
@@ -87,7 +87,7 @@ export function Navigation() {
                     <motion.div
                       layoutId="activeNav"
                       className="absolute bottom-0 left-4 right-4 h-0.5 bg-[var(--primary)] rounded-full"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                     />
                   )}
                 </Link>
@@ -129,11 +129,11 @@ export function Navigation() {
       {/* Mobile Menu */}
       <motion.div
         initial={false}
-        animate={{ 
-          height: mobileMenuOpen ? "auto" : 0, 
-          opacity: mobileMenuOpen ? 1 : 0 
+        animate={{
+          height: mobileMenuOpen ? 'auto' : 0,
+          opacity: mobileMenuOpen ? 1 : 0,
         }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
         className="lg:hidden overflow-hidden bg-white border-t border-[var(--border-light)]"
       >
         <div className="px-6 py-4 flex flex-col gap-1">
@@ -148,8 +148,8 @@ export function Navigation() {
                 href={link.href}
                 className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
                   activeSection === link.href.slice(1)
-                    ? "text-[var(--primary)] bg-[var(--primary)]/5"
-                    : "text-[var(--text-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--bg-subtle)]"
+                    ? 'text-[var(--primary)] bg-[var(--primary)]/5'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--foreground)] hover:bg-[var(--bg-subtle)]'
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
               >

@@ -1,19 +1,19 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { motion } from "framer-motion"
+import * as React from 'react';
+import { motion } from 'framer-motion';
 
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils';
 
 interface RadarChartProps {
-  labels: string[]
-  baselineData?: number[]
-  currentData: number[]
-  size?: number
-  showBaseline?: boolean
-  className?: string
-  baselineColor?: string
-  currentColor?: string
+  labels: string[];
+  baselineData?: number[];
+  currentData: number[];
+  size?: number;
+  showBaseline?: boolean;
+  className?: string;
+  baselineColor?: string;
+  currentColor?: string;
 }
 
 function RadarChart({
@@ -23,48 +23,44 @@ function RadarChart({
   size = 200,
   showBaseline = true,
   className,
-  baselineColor = "var(--text-muted)",
-  currentColor = "var(--primary)",
+  baselineColor = 'var(--text-muted)',
+  currentColor = 'var(--primary)',
 }: RadarChartProps) {
-  const center = size / 2
-  const levels = [60, 70, 80, 90, 100]
-  const numSides = labels.length
-  const angleStep = (Math.PI * 2) / numSides
-  const maxRadius = size * 0.35
+  const center = size / 2;
+  const levels = [60, 70, 80, 90, 100];
+  const numSides = labels.length;
+  const angleStep = (Math.PI * 2) / numSides;
+  const maxRadius = size * 0.35;
 
   const getPoint = (value: number, index: number) => {
-    const radius = (value / 100) * maxRadius
-    const angle = angleStep * index - Math.PI / 2
+    const radius = (value / 100) * maxRadius;
+    const angle = angleStep * index - Math.PI / 2;
     return {
       x: center + radius * Math.cos(angle),
       y: center + radius * Math.sin(angle),
-    }
-  }
+    };
+  };
 
   const createPath = (data: number[]) => {
     return (
       data
         .map((value, index) => {
-          const point = getPoint(value, index)
-          return `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`
+          const point = getPoint(value, index);
+          return `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`;
         })
-        .join(" ") + " Z"
-    )
-  }
+        .join(' ') + ' Z'
+    );
+  };
 
   return (
-    <svg
-      width={size}
-      height={size}
-      className={cn("overflow-visible", className)}
-    >
+    <svg width={size} height={size} className={cn('overflow-visible', className)}>
       {/* Grid levels */}
       {levels.map((level) => {
-        const radius = (level / 100) * maxRadius
+        const radius = (level / 100) * maxRadius;
         const points = Array.from({ length: numSides }, (_, j) => {
-          const angle = angleStep * j - Math.PI / 2
-          return `${center + radius * Math.cos(angle)},${center + radius * Math.sin(angle)}`
-        }).join(" ")
+          const angle = angleStep * j - Math.PI / 2;
+          return `${center + radius * Math.cos(angle)},${center + radius * Math.sin(angle)}`;
+        }).join(' ');
         return (
           <polygon
             key={level}
@@ -74,12 +70,12 @@ function RadarChart({
             strokeWidth="1"
             opacity={0.5}
           />
-        )
+        );
       })}
 
       {/* Axis lines */}
       {Array.from({ length: numSides }, (_, i) => {
-        const angle = angleStep * i - Math.PI / 2
+        const angle = angleStep * i - Math.PI / 2;
         return (
           <line
             key={i}
@@ -91,7 +87,7 @@ function RadarChart({
             strokeWidth="1"
             opacity={0.5}
           />
-        )
+        );
       })}
 
       {/* Baseline polygon */}
@@ -124,7 +120,7 @@ function RadarChart({
 
       {/* Data points */}
       {currentData.map((value, index) => {
-        const point = getPoint(value, index)
+        const point = getPoint(value, index);
         return (
           <motion.circle
             key={index}
@@ -136,15 +132,15 @@ function RadarChart({
             r="4"
             fill={currentColor}
           />
-        )
+        );
       })}
 
       {/* Labels */}
       {labels.map((label, index) => {
-        const angle = angleStep * index - Math.PI / 2
-        const labelRadius = maxRadius + 24
-        const x = center + labelRadius * Math.cos(angle)
-        const y = center + labelRadius * Math.sin(angle)
+        const angle = angleStep * index - Math.PI / 2;
+        const labelRadius = maxRadius + 24;
+        const x = center + labelRadius * Math.cos(angle);
+        const y = center + labelRadius * Math.sin(angle);
         return (
           <text
             key={label}
@@ -156,7 +152,7 @@ function RadarChart({
           >
             {label}
           </text>
-        )
+        );
       })}
 
       {/* Center level labels */}
@@ -171,7 +167,7 @@ function RadarChart({
         </text>
       ))}
     </svg>
-  )
+  );
 }
 
-export { RadarChart }
+export { RadarChart };

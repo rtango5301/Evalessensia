@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import Link from "next/link";
-import { Layers, Github, Twitter } from "lucide-react";
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { Layers, Github, Twitter } from 'lucide-react';
 
 const footerLinks = {
-  Product: ["Features", "Integrations", "Pricing", "Changelog"],
-  Resources: ["Documentation", "API Reference", "Community", "Blog"],
-  Company: ["About", "Careers", "Legal", "Contact"],
+  Product: ['Features', 'Integrations', 'Pricing', 'Changelog'],
+  Resources: ['Documentation', 'API Reference', 'Community', 'Blog'],
+  Company: ['About', 'Careers', 'Legal', 'Contact'],
 };
 
 export function Footer() {
@@ -22,7 +22,10 @@ export function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <Link href="/" className="flex items-center gap-2.5 text-[var(--foreground)] no-underline mb-4">
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 text-[var(--foreground)] no-underline mb-4"
+            >
               <div className="w-8 h-8 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] rounded-lg flex items-center justify-center text-white">
                 <Layers className="w-4 h-4" />
               </div>
