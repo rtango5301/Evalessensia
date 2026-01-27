@@ -39,12 +39,21 @@ TensorEval is a Next.js 16 marketing website for an AI agent CI/CD platform. It 
 
 - `/` - Landing page composed of section components
 - `/login` - Authentication page with OAuth and email options
-- `/evaluations/[runId]/results` - Evaluation results dashboard (app-style layout)
+- `/evaluations/[runId]/results` - Evaluation results dashboard (uses `(dashboard)` route group with app-style layout)
 
-**Components** (`src/components/`):
+**Section Components** (`src/components/`):
 
-- Section components (Hero, Workflow, Features, UseCases, Pricing, etc.) are client components using Framer Motion
-- UI primitives in `ui/` folder follow shadcn/ui conventions with CVA (class-variance-authority) for variants
+- `Hero.tsx` - Landing page hero section
+- `Features.tsx` - Product features showcase
+- `Workflow.tsx` - How it works / workflow visualization
+- `UseCases.tsx` - Use case examples
+- `Pricing.tsx` - Pricing plans
+- `Demo.tsx` - Product demo section
+- `CTA.tsx` - Call-to-action section
+- `Navigation.tsx` - Main site navigation
+- `Footer.tsx` - Site footer
+
+All section components are client components using Framer Motion for animations.
 
 **Dashboard Components** (`src/components/dashboard/`):
 
@@ -58,10 +67,18 @@ TensorEval is a Next.js 16 marketing website for an AI agent CI/CD platform. It 
 - `PerformanceComparison.tsx` - Radar chart with baseline comparison
 - `TestCasesTable.tsx` - Searchable, filterable, paginated test results table
 
-**Additional UI Primitives** (`src/components/ui/`):
+**UI Primitives** (`src/components/ui/`):
 
-- `table.tsx` - Data table with shadcn/ui pattern
+Follows shadcn/ui conventions with CVA (class-variance-authority) for variants:
+
+- `button.tsx` - Button component with variants
+- `card.tsx` - Card container component
+- `input.tsx` - Text input field
+- `textarea.tsx` - Multi-line text input
 - `select.tsx` - Dropdown select (Radix UI)
+- `badge.tsx` - Status/label badges
+- `table.tsx` - Data table components
+- `progress.tsx` - Linear progress bar (Radix UI)
 - `circular-progress.tsx` - SVG circular progress indicator
 - `radar-chart.tsx` - Reusable radar/spider chart
 - `breadcrumb.tsx` - Navigation breadcrumb
