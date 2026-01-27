@@ -5,11 +5,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev      # Start development server at localhost:3000
-npm run build    # Production build
-npm run start    # Start production server
-npm run lint     # Run ESLint (eslint command)
+npm run dev          # Start development server at localhost:3000
+npm run build        # Production build
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run typecheck    # Run TypeScript type checking
+npm run format       # Format code with Prettier
+npm run format:check # Check if code is formatted
 ```
+
+## Code Quality
+
+- **Prettier**: Code formatting (config in `.prettierrc`)
+- **ESLint**: Linting with Next.js recommended rules
+- **Husky + lint-staged**: Pre-commit hooks run lint and format on staged files
+- **EditorConfig**: Consistent editor settings (`.editorconfig`)
+- **CI**: GitHub Actions runs lint, typecheck, and build on PRs to `main`/`development`
 
 ## Architecture
 
