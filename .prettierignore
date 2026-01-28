@@ -17,3 +17,6 @@ package-lock.json
 
 # Coverage
 coverage/
+
+# Design reference files
+stitch/
