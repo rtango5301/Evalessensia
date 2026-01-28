@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { Check, AlertTriangle } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 const workflowSteps = [
   {
@@ -1114,37 +1114,6 @@ function FormField({
   );
 }
 
-function QueryCategory({
-  title,
-  count,
-  queries,
-  danger,
-}: {
-  title: string;
-  count: number;
-  queries: string[];
-  danger?: boolean;
-}) {
-  return (
-    <div className="border border-[var(--border-light)] rounded-lg mb-4 overflow-hidden">
-      <div className="px-4 py-3 bg-[var(--bg-subtle)] flex justify-between items-center">
-        <span className={`font-semibold text-sm ${danger ? 'text-[var(--error)]' : ''}`}>
-          {title}
-        </span>
-        <span className="px-2 py-0.5 bg-[var(--bg-muted)] rounded text-xs">{count}</span>
-      </div>
-      <div className="p-4 space-y-2">
-        {queries.map((query, i) => (
-          <div key={i} className="flex items-center gap-2.5 text-sm text-[var(--text-secondary)]">
-            <input type="checkbox" defaultChecked className="w-4 h-4 accent-[var(--primary)]" />
-            {query}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function QueryCard({
   category,
   categoryColor,
@@ -1194,15 +1163,6 @@ function QueryCard({
           <span>📄</span> Source: {source}
         </span>
       </div>
-    </div>
-  );
-}
-
-function LogLine({ time, text, success }: { time: string; text: string; success?: boolean }) {
-  return (
-    <div className="mb-1">
-      <span className="text-[var(--text-muted)]">[{time}]</span>{' '}
-      {success && <span className="text-[var(--accent-green)]">✓</span>} {text}
     </div>
   );
 }
@@ -1319,80 +1279,5 @@ function MiniTrendLine() {
         />
       </svg>
     </motion.div>
-  );
-}
-
-function MetricCard({
-  value,
-  label,
-  change,
-  up,
-}: {
-  value: string;
-  label: string;
-  change: string;
-  up?: boolean;
-}) {
-  return (
-    <div className="bg-[var(--bg-subtle)] border border-[var(--border-light)] rounded-lg p-4 text-center">
-      <div className="text-2xl font-bold">{value}</div>
-      <div className="text-xs text-[var(--text-muted)] uppercase tracking-wide mt-1">{label}</div>
-      <div
-        className={`text-xs mt-1 ${up ? 'text-[var(--accent-green)]' : 'text-[var(--text-secondary)]'}`}
-      >
-        {change}
-      </div>
-    </div>
-  );
-}
-
-function ABRow({
-  label,
-  value,
-  change,
-  positive,
-}: {
-  label: string;
-  value: string;
-  change?: string;
-  positive?: boolean;
-}) {
-  return (
-    <div className="flex justify-between text-sm py-1">
-      <span>{label}</span>
-      <span>
-        {value}{' '}
-        {change && (
-          <span
-            className={
-              positive
-                ? 'text-[var(--accent-green)] font-semibold'
-                : 'text-[var(--error)] font-semibold'
-            }
-          >
-            {change}
-          </span>
-        )}
-      </span>
-    </div>
-  );
-}
-
-function CheckItem({
-  label,
-  value,
-  highlight,
-}: {
-  label: string;
-  value: string;
-  highlight?: boolean;
-}) {
-  return (
-    <div className="flex justify-between py-2.5 border-b border-[var(--border-light)] last:border-b-0 text-sm">
-      <span>✓ {label}</span>
-      <span className={`font-semibold ${highlight ? 'text-[var(--accent-green)]' : ''}`}>
-        {value}
-      </span>
-    </div>
   );
 }

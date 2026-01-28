@@ -956,39 +956,3 @@ function ContentAgentScreen() {
     </div>
   );
 }
-
-// Helper Components
-function TestResultRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between items-center px-4 py-3 border-b border-[var(--border-light)] last:border-b-0 text-sm">
-      <span>{label}</span>
-      <span className="text-[var(--accent-green)]">{value}</span>
-    </div>
-  );
-}
-
-function ScoreBar({
-  label,
-  value,
-  highlight,
-}: {
-  label: string;
-  value: number;
-  highlight?: boolean;
-}) {
-  return (
-    <div className="flex items-center gap-3 py-2.5">
-      <span className="w-24 text-sm text-[var(--text-secondary)]">{label}</span>
-      <div className="flex-1 h-2 bg-[var(--bg-muted)] rounded-full overflow-hidden">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${value}%` }}
-          transition={{ duration: 0.5 }}
-          className="h-full rounded-full"
-          style={{ background: highlight ? 'var(--accent-green)' : 'var(--primary)' }}
-        />
-      </div>
-      <span className="w-10 text-right text-sm font-semibold">{value}%</span>
-    </div>
-  );
-}
