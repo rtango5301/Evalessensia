@@ -10,10 +10,6 @@ import {
   CheckCircle,
   Clock,
   TrendingUp,
-  ChevronDown,
-  Search,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react';
 
 const containerVariants = {
@@ -429,7 +425,7 @@ function RadarChart() {
   return (
     <svg width={size} height={size} className="overflow-visible">
       {/* Grid levels */}
-      {levels.map((level, i) => {
+      {levels.map((level) => {
         const radius = (level / 100) * maxRadius;
         const points = Array.from({ length: 6 }, (_, j) => {
           const angle = angleStep * j - Math.PI / 2;
