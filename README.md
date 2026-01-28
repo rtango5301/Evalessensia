@@ -7,10 +7,10 @@ TensorEval is a CI/CD platform for AI agents — helping teams systematically ev
 
 ## Features
 
+- **Agent Management** — Create, configure, and manage AI agents with a guided wizard
 - **Evaluation Dashboard** — View detailed test results, metrics, and performance comparisons
 - **Automated Testing** — Run comprehensive test suites against your AI agents
 - **Performance Metrics** — Track latency, accuracy, and reliability over time
-- **Baseline Comparisons** — Compare agent performance against previous versions
 
 ## Tech Stack
 
@@ -59,15 +59,24 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 ```
 src/
 ├── app/                    # Next.js App Router pages
-│   ├── page.tsx           # Landing page
-│   ├── login/             # Authentication
-│   └── evaluations/       # Evaluation results dashboard
+│   ├── page.tsx            # Landing page
+│   ├── login/              # Login page
+│   ├── signup/             # Signup page
+│   ├── dashboard/          # Main dashboard
+│   │   ├── layout.tsx      # Dashboard shell (sidebar + header)
+│   │   └── page.tsx        # Dashboard home
+│   └── agents/             # Agent management
+│       ├── layout.tsx      # Agents layout
+│       ├── page.tsx        # Agents list
+│       ├── new/            # Step 1: Agent type selection
+│       ├── configure/      # Step 2: Configuration
+│       └── review/         # Step 3: Review & create
 ├── components/
-│   ├── ui/                # Reusable UI primitives
-│   ├── dashboard/         # Dashboard-specific components
-│   └── evaluation/        # Evaluation page components
-├── lib/                   # Utilities and helpers
-└── types/                 # TypeScript type definitions
+│   ├── ui/                 # Reusable UI primitives (shadcn/ui)
+│   ├── dashboard/          # Dashboard-specific components
+│   └── evaluation/         # Evaluation page components
+├── lib/                    # Utilities and helpers
+└── types/                  # TypeScript type definitions
 ```
 
 ## Contributing

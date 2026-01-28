@@ -24,11 +24,11 @@ npm run format:check # Check if code is formatted
 - **ESLint**: Linting with Next.js recommended rules
 - **Husky + lint-staged**: Pre-commit hooks run lint and format on staged files
 - **EditorConfig**: Consistent editor settings (`.editorconfig`)
-- **CI**: GitHub Actions runs lint, typecheck, and build on PRs to `main`/`development`
+- **CI**: GitHub Actions runs build on PRs to `main`/`development`
 
 ## Architecture
 
-TensorEval is a Next.js 16 marketing website for an AI agent CI/CD platform. It uses the App Router with React 19 and TypeScript.
+TensorEval is a Next.js 16 application for an AI agent CI/CD platform. It uses the App Router with React 19 and TypeScript.
 
 ### Tech Stack
 
@@ -36,6 +36,7 @@ TensorEval is a Next.js 16 marketing website for an AI agent CI/CD platform. It 
 - **Styling**: Tailwind CSS 4 with CSS custom properties in `globals.css`
 - **Animations**: Framer Motion for scroll-triggered and interactive animations
 - **Components**: shadcn/ui pattern with Radix UI primitives
+- **Icons**: Google Material Symbols
 
 ### Structure
 
@@ -43,9 +44,14 @@ TensorEval is a Next.js 16 marketing website for an AI agent CI/CD platform. It 
 
 - `/` - Landing page composed of section components
 - `/login` - Authentication page with OAuth and email options
-- `/evaluations/[runId]/results` - Evaluation results dashboard (uses `(dashboard)` route group with app-style layout)
+- `/signup` - User registration page
+- `/dashboard` - Main dashboard with agents overview and recent runs
+- `/agents` - Agent management (separate top-level route with own layout)
+  - `/agents/new` - Step 1: Agent type selection
+  - `/agents/configure` - Step 2: Configuration settings
+  - `/agents/review` - Step 3: Review and create agent
 
-**Section Components** (`src/components/`):
+**Landing Page Components** (`src/components/`):
 
 - `Hero.tsx` - Landing page hero section
 - `Features.tsx` - Product features showcase
@@ -86,6 +92,7 @@ Follows shadcn/ui conventions with CVA (class-variance-authority) for variants:
 - `circular-progress.tsx` - SVG circular progress indicator
 - `radar-chart.tsx` - Reusable radar/spider chart
 - `breadcrumb.tsx` - Navigation breadcrumb
+- `skeleton.tsx` - Loading skeleton component
 
 **Mock Data** (`src/lib/mock-data/`):
 
@@ -95,13 +102,32 @@ Follows shadcn/ui conventions with CVA (class-variance-authority) for variants:
 
 - `evaluation.ts` - TypeScript interfaces for evaluation data structures
 
+**Design Reference** (`stitch/`):
+
+- HTML exports from Google Stitch for UI implementation reference
+- Excluded from Prettier formatting checks
+
 **Design System** (`src/app/globals.css`):
 
 - CSS custom properties define the color palette, spacing, and theming
 - Custom animations: `pulse-dot`, `spin-slow`, gradient text effects
+
+### Design Tokens
+
+**Dashboard color palette:**
+
+- Primary: `#135bec` (blue)
+- Background: `#f6f6f8`
+- Font: Space Grotesk
+
+**Landing page color palette:**
+
+- Primary: `#4f46e5` to `#6366f1` (purple gradient)
+- Uses CSS custom properties from globals.css
 
 ### Patterns
 
 - Server components by default; `"use client"` directive for components with state/effects/animations
 - `cn()` utility from `src/lib/utils.ts` merges Tailwind classes (clsx + tailwind-merge)
 - Mobile-first responsive design using Tailwind breakpoints
+- URL params for passing state between wizard steps (e.g., `/agents/configure?name=...&type=...`)
