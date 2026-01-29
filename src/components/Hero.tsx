@@ -10,6 +10,9 @@ import {
   CheckCircle,
   Clock,
   TrendingUp,
+  GitBranch,
+  Users,
+  BarChart3,
 } from 'lucide-react';
 
 const containerVariants = {
@@ -32,59 +35,80 @@ export function Hero() {
   return (
     <section className="pt-[120px] pb-[80px] px-6 bg-gradient-to-b from-[var(--bg-subtle)] to-[var(--background)] overflow-hidden">
       <div className="max-w-[1200px] mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-[40px] items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-[40px] items-center">
           {/* Left Content */}
           <motion.div variants={containerVariants} initial="hidden" animate="visible">
-            {/* Badge */}
+            {/* Pill Badge */}
             <motion.div
               variants={itemVariants}
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[var(--primary)]/10 border border-[var(--primary)]/20 rounded-full text-sm mb-6"
+              className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#f0f0f5] border border-[#e4e4eb] rounded-full mb-6 w-fit"
             >
-              <span className="w-1.5 h-1.5 bg-[var(--accent-green)] rounded-full animate-pulse-dot" />
-              <span className="text-[var(--primary)] font-medium">
-                SHIP AGENT UPDATES WITH CONFIDENCE
+              <span className="w-2 h-2 rounded-full bg-[var(--accent-green)] flex-shrink-0" />
+              <span className="text-xs font-semibold text-[var(--primary)] uppercase tracking-[0.1em] whitespace-nowrap">
+                Ship Agent Updates With Confidence
               </span>
             </motion.div>
 
-            {/* Heading */}
+            {/* Headline - Big, Clean, Confident */}
             <motion.h1
               variants={itemVariants}
-              className="text-4xl md:text-[3.25rem] font-extrabold leading-[1.08] mb-5 tracking-tight"
+              className="text-5xl md:text-[4rem] lg:text-[4.5rem] font-extrabold leading-[1.05] mb-6 tracking-tight"
             >
               CI/CD for
               <br />
-              <span className="gradient-text">Agentic</span>
+              <span className="text-[var(--primary)]">Agentic</span>
               <br />
-              <span className="gradient-text">Workflows</span>
+              <span className="text-[var(--primary)]">Workflows</span>
             </motion.h1>
 
-            {/* Description */}
-            <motion.p
+            {/* Subheadline */}
+            <motion.div
               variants={itemVariants}
-              className="text-lg text-[var(--text-secondary)] mb-6 max-w-[420px]"
+              className="mb-8 max-w-[460px] px-5 py-4 rounded-lg bg-[#f0f0f5] border-l-[3px] border-l-[var(--primary)]"
             >
-              Automate evaluations, monitor performance drifts, and deploy AI agents with
-              enterprise-grade reliability.
-            </motion.p>
+              <p className="text-base text-[#6b7280] leading-relaxed">
+                Ship agent improvements in hours, not weeks. Automated evals. Instant feedback.{' '}
+                <span className="font-semibold text-[#1f2937]">Zero guesswork.</span>
+              </p>
+            </motion.div>
 
-            {/* Features List */}
-            <motion.div variants={itemVariants} className="space-y-3 mb-8">
+            {/* Features List - Emphasize titles, de-emphasize descriptions */}
+            <motion.div variants={itemVariants} className="space-y-4 mb-8 max-w-[460px]">
               {[
-                'Eval pipelines that run on every commit',
-                'Synthetic queries. Multi-metric scoring.',
-                'A/B comparisons. Built for agent teams.',
+                {
+                  icon: GitBranch,
+                  title: 'Eval pipelines on every commit',
+                  description: 'Automatically test agent behavior before every deploy.',
+                },
+                {
+                  icon: Users,
+                  title: 'Realistic, behavior-driven test cases',
+                  description: 'Evaluate agents using real user queries based on how your agent actually behaves.',
+                },
+                {
+                  icon: BarChart3,
+                  title: 'Multi-metric scoring & A/B comparisons',
+                  description: 'Measure accuracy, safety, latency, and plan quality across versions.',
+                },
               ].map((feature, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full bg-[var(--primary)] flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-white" />
+                <div key={i} className="flex items-start gap-3 group">
+                  <div className="w-8 h-8 rounded-lg bg-[var(--primary)]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <feature.icon className="w-4 h-4 text-[var(--primary)]" />
                   </div>
-                  <span className="text-[var(--text-secondary)] text-[0.95rem]">{feature}</span>
+                  <div className="space-y-0.5">
+                    <span className="text-[var(--foreground)] font-semibold text-[0.95rem] block">
+                      {feature.title}
+                    </span>
+                    <span className="text-[var(--text-muted)] text-sm block opacity-70 group-hover:opacity-100 transition-opacity">
+                      {feature.description}
+                    </span>
+                  </div>
                 </div>
               ))}
             </motion.div>
 
             {/* CTA Buttons */}
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3 mb-12">
+            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3">
               <motion.button
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
@@ -102,26 +126,6 @@ export function Hero() {
               </motion.button>
             </motion.div>
 
-            {/* Social Proof */}
-            <motion.div variants={itemVariants}>
-              <p className="text-xs uppercase tracking-wider text-[var(--text-muted)] mb-4">
-                TRUSTED BY TEAMS AT
-              </p>
-              <div className="flex flex-wrap gap-8 items-center">
-                {['PHANTOM', 'APERTURE', 'Vertex'].map((company, i) => (
-                  <motion.span
-                    key={company}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.8 + i * 0.1 }}
-                    className="font-semibold text-[var(--text-muted)] tracking-wide text-sm"
-                    style={{ fontStyle: company === 'PHANTOM' ? 'italic' : 'normal' }}
-                  >
-                    {company}
-                  </motion.span>
-                ))}
-              </div>
-            </motion.div>
           </motion.div>
 
           {/* Right - Dashboard Mockup */}
@@ -129,6 +133,7 @@ export function Hero() {
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
+            className="ml-20"
           >
             <EvaluationDashboard />
           </motion.div>
@@ -203,7 +208,7 @@ function EvaluationDashboard() {
                   </div>
                   <span className="text-xs text-gray-500">Overall Score</span>
                 </div>
-                <div className="text-2xl font-bold text-gray-900">88.4%</div>
+                <div className="text-2xl font-bold text-gray-900">84.8%</div>
                 <div className="text-[11px] text-[var(--accent-green)] flex items-center gap-1 mt-1">
                   <TrendingUp className="w-3 h-3" /> +2.1%
                 </div>
@@ -218,12 +223,12 @@ function EvaluationDashboard() {
                   <span className="text-xs text-gray-500">Pass Rate</span>
                 </div>
                 <div className="text-2xl font-bold text-gray-900">
-                  142<span className="text-sm text-gray-400">/150</span>
+                  137<span className="text-sm text-gray-400">/150</span>
                 </div>
                 <div className="h-1.5 bg-gray-100 rounded-full mt-2 overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: '94.6%' }}
+                    animate={{ width: '91.3%' }}
                     transition={{ duration: 1, delay: 0.5 }}
                     className="h-full bg-[var(--accent-green)] rounded-full"
                   />
@@ -238,9 +243,9 @@ function EvaluationDashboard() {
                   </div>
                   <span className="text-xs text-gray-500">Avg Latency</span>
                 </div>
-                <div className="text-2xl font-bold text-gray-900">1.2s</div>
-                <div className="text-[11px] text-[var(--error)] flex items-center gap-1 mt-1">
-                  <TrendingUp className="w-3 h-3" /> +120ms
+                <div className="text-2xl font-bold text-gray-900">840ms</div>
+                <div className="text-[11px] text-[var(--accent-green)] flex items-center gap-1 mt-1">
+                  <TrendingUp className="w-3 h-3" /> -95ms
                 </div>
               </div>
 
@@ -253,7 +258,7 @@ function EvaluationDashboard() {
                   <span className="text-xs text-gray-500">Tests Run</span>
                 </div>
                 <div className="text-2xl font-bold text-gray-900">150</div>
-                <div className="text-[11px] text-gray-400 mt-1">8 failed</div>
+                <div className="text-[11px] text-gray-400 mt-1">13 failed</div>
               </div>
             </div>
 
@@ -279,37 +284,37 @@ function EvaluationDashboard() {
                     <div className="text-[9px] text-gray-500 uppercase tracking-wide mb-1">
                       Task Completion
                     </div>
-                    <div className="text-base font-bold text-gray-900">94%</div>
+                    <div className="text-base font-bold text-gray-900">93%</div>
                   </div>
                   <div className="text-center p-2.5 bg-gray-50 rounded-lg">
                     <div className="text-[9px] text-gray-500 uppercase tracking-wide mb-1">
                       Accuracy
                     </div>
-                    <div className="text-base font-bold text-gray-900">92%</div>
+                    <div className="text-base font-bold text-gray-900">91%</div>
                   </div>
                   <div className="text-center p-2.5 bg-gray-50 rounded-lg">
                     <div className="text-[9px] text-gray-500 uppercase tracking-wide mb-1">
                       Plan Quality
                     </div>
-                    <div className="text-base font-bold text-gray-900">88%</div>
+                    <div className="text-base font-bold text-gray-900">89%</div>
                   </div>
                   <div className="text-center p-2.5 bg-gray-50 rounded-lg">
                     <div className="text-[9px] text-gray-500 uppercase tracking-wide mb-1">
                       Tool Use
                     </div>
-                    <div className="text-base font-bold text-gray-900">91%</div>
+                    <div className="text-base font-bold text-gray-900">90%</div>
                   </div>
                   <div className="text-center p-2.5 bg-gray-50 rounded-lg">
                     <div className="text-[9px] text-gray-500 uppercase tracking-wide mb-1">
                       Efficiency
                     </div>
-                    <div className="text-base font-bold text-gray-900">93%</div>
+                    <div className="text-base font-bold text-gray-900">92%</div>
                   </div>
-                  <div className="text-center p-2.5 bg-gray-50 rounded-lg">
-                    <div className="text-[9px] text-gray-500 uppercase tracking-wide mb-1">
+                  <div className="text-center p-2.5 bg-red-50 rounded-lg border border-red-200">
+                    <div className="text-[9px] text-red-500 uppercase tracking-wide mb-1">
                       Safety
                     </div>
-                    <div className="text-base font-bold text-gray-900">98%</div>
+                    <div className="text-base font-bold text-red-600">54%</div>
                   </div>
                 </div>
               </div>
@@ -332,7 +337,7 @@ function EvaluationDashboard() {
                   </span>
                   <span className="text-xs text-gray-400 w-[90px]">Task Completion</span>
                   <span className="text-xs font-semibold text-[var(--accent-green)] w-[40px]">
-                    0.96
+                    0.93
                   </span>
                   <span className="text-xs text-gray-400 w-[50px]">2.1s</span>
                 </div>
@@ -358,7 +363,7 @@ function EvaluationDashboard() {
                   </span>
                   <span className="text-xs text-gray-400 w-[90px]">Tool Use</span>
                   <span className="text-xs font-semibold text-[var(--accent-green)] w-[40px]">
-                    0.94
+                    0.91
                   </span>
                   <span className="text-xs text-gray-400 w-[50px]">1.8s</span>
                 </div>
@@ -396,8 +401,8 @@ function RadarChart() {
     'Efficiency',
     'Safety',
   ];
-  const baselineData = [82, 85, 75, 78, 88, 95];
-  const currentData = [94, 92, 88, 91, 93, 98];
+  const baselineData = [85, 84, 82, 83, 86, 60];
+  const currentData = [93, 91, 89, 90, 92, 54];
 
   const angleStep = (Math.PI * 2) / 6;
   const maxRadius = 40;
@@ -488,6 +493,7 @@ function RadarChart() {
       {/* Data points */}
       {currentData.map((value, index) => {
         const point = getPoint(value, index);
+        const isSafety = index === 5;
         return (
           <motion.circle
             key={index}
@@ -496,8 +502,8 @@ function RadarChart() {
             transition={{ delay: 0.8 + index * 0.05 }}
             cx={point.x}
             cy={point.y}
-            r="3"
-            fill="var(--primary)"
+            r={isSafety ? 4 : 3}
+            fill={isSafety ? '#ef4444' : 'var(--primary)'}
           />
         );
       })}
@@ -508,6 +514,7 @@ function RadarChart() {
         const labelRadius = maxRadius + 14;
         const x = center + labelRadius * Math.cos(angle);
         const y = center + labelRadius * Math.sin(angle);
+        const isSafety = label === 'Safety';
         return (
           <text
             key={label}
@@ -515,7 +522,7 @@ function RadarChart() {
             y={y}
             textAnchor="middle"
             dominantBaseline="middle"
-            className="text-[6px] fill-[var(--text-muted)]"
+            className={`text-[6px] ${isSafety ? 'fill-red-500 font-semibold' : 'fill-[var(--text-muted)]'}`}
           >
             {label}
           </text>
