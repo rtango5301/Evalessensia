@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Zap, Check, Github, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Zap, Github, Mail, Lock, Eye, EyeOff, GitBranch, Users, BarChart3 } from 'lucide-react';
 import { useState } from 'react';
 
 export default function LoginPage() {
@@ -20,38 +20,39 @@ export default function LoginPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-[1000px] bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-2"
+        className="w-full max-w-[1100px] bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 min-h-[680px]"
       >
         {/* Left Side - Branding */}
-        <div className="p-10 lg:p-12 bg-gradient-to-br from-white to-[var(--bg-subtle)] border-r border-[var(--border-light)]">
+        <div className="p-10 lg:p-14 bg-gradient-to-br from-[#1a1f3c] to-[#0d1025] flex flex-col justify-center">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 mb-12">
+          <Link href="/" className="flex items-center gap-2.5 mb-10">
             <div className="w-10 h-10 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] rounded-xl flex items-center justify-center text-white">
               <Zap className="w-5 h-5" />
             </div>
-            <span className="font-bold text-xl text-[var(--foreground)]">TensorEval</span>
+            <span className="font-bold text-xl text-white">TensorEval</span>
           </Link>
 
           {/* Heading */}
-          <h1 className="text-4xl lg:text-5xl font-extrabold leading-[1.1] mb-6 tracking-tight">
+          <h1 className="text-4xl lg:text-[2.75rem] font-extrabold leading-[1.2] mb-5 tracking-tight text-white">
             Ship AI Agents
             <br />
-            with
-            <br />
-            <span className="gradient-text">Confidence</span>
+            with{' '}
+            <span className="bg-gradient-to-r from-[#a78bfa] to-[#c4b5fd] bg-clip-text text-transparent italic inline-block pr-2">
+              Confidence
+            </span>
           </h1>
 
           {/* Description */}
-          <p className="text-[var(--text-secondary)] text-lg mb-8">
-            Automated evaluation, benchmarking, and release gating for every agentic workflow.
+          <p className="text-gray-400 text-lg mb-8">
+            Ship agent improvements in hours, not weeks. Automated evals. Instant feedback. <span className="font-semibold text-white whitespace-nowrap">Zero guesswork.</span>
           </p>
 
           {/* Features */}
-          <div className="space-y-4 mb-10">
+          <div className="space-y-4">
             {[
-              'Catch regressions before users',
-              'Automated baseline comparison',
-              'CI/CD native integration',
+              { icon: GitBranch, title: 'Eval pipelines on every commit' },
+              { icon: Users, title: 'Realistic, behavior-driven test cases' },
+              { icon: BarChart3, title: 'Multi-metric scoring & A/B comparisons' },
             ].map((feature, i) => (
               <motion.div
                 key={i}
@@ -60,27 +61,21 @@ export default function LoginPage() {
                 transition={{ delay: 0.3 + i * 0.1 }}
                 className="flex items-center gap-3"
               >
-                <div className="w-6 h-6 rounded-full bg-[var(--primary)] flex items-center justify-center flex-shrink-0">
-                  <Check className="w-3.5 h-3.5 text-white" />
+                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                  <feature.icon className="w-4 h-4 text-[#a78bfa]" />
                 </div>
-                <span className="text-[var(--foreground)] font-medium">{feature}</span>
+                <span className="text-white font-semibold text-[0.95rem]">
+                  {feature.title}
+                </span>
               </motion.div>
             ))}
           </div>
 
-          {/* Stats */}
-          <div className="pt-8 border-t border-[var(--border)]">
-            <div className="grid grid-cols-3 gap-6">
-              <StatItem value="90%+" label="REGRESSION RATE" />
-              <StatItem value="5K+" label="AGENTS EVALUATED" />
-              <StatItem value="<30m" label="EVAL TIME" />
-            </div>
-          </div>
         </div>
 
         {/* Right Side - Login Form */}
-        <div className="p-10 lg:p-12 flex flex-col justify-center">
-          <div className="max-w-[380px] mx-auto w-full">
+        <div className="p-8 lg:p-12 flex flex-col justify-center">
+          <div className="max-w-[400px] mx-auto w-full">
             {/* Header */}
             <h2 className="text-3xl font-bold text-center mb-2">Welcome back</h2>
             <p className="text-[var(--text-secondary)] text-center mb-8">
@@ -112,7 +107,9 @@ export default function LoginPage() {
             {/* Divider */}
             <div className="flex items-center gap-4 mb-6">
               <div className="flex-1 h-px bg-[var(--border)]" />
-              <span className="text-sm text-[var(--text-muted)]">or continue with email</span>
+              <span className="text-xs text-[var(--text-muted)] uppercase tracking-wider">
+                or continue with email
+              </span>
               <div className="flex-1 h-px bg-[var(--border)]" />
             </div>
 
@@ -194,17 +191,6 @@ export default function LoginPage() {
           </div>
         </div>
       </motion.div>
-    </div>
-  );
-}
-
-function StatItem({ value, label }: { value: string; label: string }) {
-  return (
-    <div>
-      <div className="text-2xl lg:text-3xl font-bold text-[var(--primary)]">{value}</div>
-      <div className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider mt-1">
-        {label}
-      </div>
     </div>
   );
 }
