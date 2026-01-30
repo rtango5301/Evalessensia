@@ -2,12 +2,25 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Layers, Github, Twitter } from 'lucide-react';
+import { Layers, Linkedin, CheckCircle } from 'lucide-react';
 
 const footerLinks = {
-  Product: ['Features', 'Integrations', 'Pricing', 'Changelog'],
-  Resources: ['Documentation', 'API Reference', 'Community', 'Blog'],
-  Company: ['About', 'Careers', 'Legal', 'Contact'],
+  Product: [
+    { label: 'Features', href: '#features' },
+    { label: 'Workflow', href: '#workflow' },
+    { label: 'Use Cases', href: '#use-cases' },
+    { label: 'Pricing', href: '#pricing' },
+  ],
+  Solutions: [
+    { label: 'Browser Agents', href: '#use-cases' },
+    { label: 'Data Analysis Agents', href: '#use-cases' },
+    { label: 'Customer Support Agents', href: '#use-cases' },
+    { label: 'Content Creation Agents', href: '#use-cases' },
+  ],
+  Company: [
+    { label: 'About', href: '#' },
+    { label: 'Contact', href: 'mailto:contact@tensoreval.com' },
+  ],
 };
 
 export function Footer() {
@@ -31,9 +44,13 @@ export function Footer() {
               </div>
               <span className="font-bold text-lg">TensorEval</span>
             </Link>
-            <p className="text-sm text-[var(--text-secondary)] max-w-[280px]">
-              The developer-first platform for evaluating and monitoring AI agents in production.
+            <p className="text-sm text-[var(--text-secondary)] max-w-[280px] mb-4">
+              Where AI agents go from experimental to enterprise-grade.
             </p>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-[var(--accent-green)]" />
+              <span className="text-sm text-[var(--text-secondary)]">All services are online</span>
+            </div>
           </motion.div>
 
           {/* Link Columns */}
@@ -48,12 +65,12 @@ export function Footer() {
               <h4 className="text-sm font-semibold mb-5">{category}</h4>
               <ul className="space-y-3">
                 {links.map((link) => (
-                  <li key={link}>
+                  <li key={link.label}>
                     <Link
-                      href="#"
+                      href={link.href}
                       className="text-sm text-[var(--text-secondary)] hover:text-[var(--foreground)] transition-colors"
                     >
-                      {link}
+                      {link.label}
                     </Link>
                   </li>
                 ))}
@@ -73,14 +90,7 @@ export function Footer() {
               whileHover={{ scale: 1.1 }}
               className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors"
             >
-              <Twitter className="w-5 h-5" />
-            </motion.a>
-            <motion.a
-              href="#"
-              whileHover={{ scale: 1.1 }}
-              className="text-[var(--text-muted)] hover:text-[var(--foreground)] transition-colors"
-            >
-              <Github className="w-5 h-5" />
+              <Linkedin className="w-5 h-5" />
             </motion.a>
           </div>
         </div>

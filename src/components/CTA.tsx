@@ -26,14 +26,14 @@ export function CTA() {
               whileTap={{ scale: 0.98 }}
               className="px-6 py-3 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg font-semibold text-sm transition-all shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/30"
             >
-              Get Started for Free
+              Start Your Free Trial
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="px-6 py-3 bg-white hover:bg-[var(--bg-subtle)] text-[var(--foreground)] border border-[var(--border)] rounded-lg font-semibold text-sm transition-colors"
             >
-              Talk to Sales
+              Schedule a Demo
             </motion.button>
           </div>
         </motion.div>
