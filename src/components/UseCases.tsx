@@ -2,32 +2,28 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { Globe, BarChart3, MessageSquare, PenLine, TrendingUp, Check } from 'lucide-react';
+import { Globe, BarChart3, MessageSquare, PenLine, Check } from 'lucide-react';
 
 const useCases = [
   {
     icon: Globe,
     title: 'Browser Agents',
     description: 'Eval navigation, form fills, multi-step workflows',
-    metric: '98.2% nav accuracy',
   },
   {
     icon: BarChart3,
     title: 'Data Analysis Agent',
     description: 'Validate SQL, charts, insight relevance',
-    metric: '12 regressions caught',
   },
   {
     icon: MessageSquare,
     title: 'Customer Support Agent',
     description: 'Test response quality, tone, escalation',
-    metric: '23% fewer escalations',
   },
   {
     icon: PenLine,
     title: 'Content Creation Agent',
     description: 'Brand voice, factual accuracy, style',
-    metric: '40% brand score lift',
   },
 ];
 
@@ -81,18 +77,14 @@ export function UseCases() {
                     <Icon className="w-10 h-10 text-[var(--primary)]" />
                   </div>
                   <h4 className="font-bold text-lg mb-2">{useCase.title}</h4>
-                  <p className="text-[15px] text-[var(--text-secondary)] mb-4 leading-relaxed">{useCase.description}</p>
-                  <div className="flex items-center gap-2 text-[15px] text-[var(--accent-green)] font-semibold">
-                    <TrendingUp className="w-5 h-5" />
-                    {useCase.metric}
-                  </div>
+                  <p className="text-[15px] text-[var(--text-secondary)] leading-relaxed">{useCase.description}</p>
                 </motion.div>
               );
             })}
           </div>
 
           {/* Use Case Screens */}
-          <div>
+          <div className="h-[520px]">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeCase}
@@ -100,6 +92,7 @@ export function UseCases() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
+                className="h-full"
               >
                 {activeCase === 0 && <BrowserAgentScreen />}
                 {activeCase === 1 && <DataAgentScreen />}
@@ -156,9 +149,9 @@ function BrowserAgentScreen() {
   ];
 
   return (
-    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg">
+    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-2 bg-[var(--ui-header)] border-b border-[var(--ui-border)]">
+      <div className="flex items-center gap-2 px-4 py-2 bg-[var(--ui-header)] border-b border-[var(--ui-border)] flex-shrink-0">
         <div className="flex gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F56]" />
           <span className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]" />
@@ -174,7 +167,7 @@ function BrowserAgentScreen() {
         </span>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 flex-1 flex flex-col min-h-0">
         {/* Target Task Header */}
         <div className="flex items-center justify-between mb-3 p-2.5 bg-gradient-to-r from-gray-50 to-[var(--primary)]/5 rounded-lg border border-gray-100">
           <div>
@@ -199,7 +192,7 @@ function BrowserAgentScreen() {
         </div>
 
         {/* Main Content - Three Column Layout */}
-        <div className="grid grid-cols-[1fr_0.85fr_0.85fr] gap-2.5 mb-3">
+        <div className="grid grid-cols-[1fr_0.85fr_0.85fr] gap-2.5 mb-3 flex-1 min-h-0 overflow-hidden">
           {/* Left Column - Browser Mockup */}
           <div className="border border-[var(--border-light)] rounded-lg overflow-hidden relative">
             {/* Browser URL Bar */}
@@ -424,7 +417,7 @@ function BrowserAgentScreen() {
         </div>
 
         {/* Evaluation Pipeline */}
-        <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-100">
+        <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-100 flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
             <p className="text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
               Evaluation Pipeline
@@ -478,7 +471,7 @@ function BrowserAgentScreen() {
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-6 gap-1.5">
+        <div className="grid grid-cols-6 gap-1.5 flex-shrink-0">
           {[
             { label: 'Rubrics', value: '3/6', extra: '✓', color: 'var(--accent-green)' },
             { label: 'Accuracy', value: '92.4%', color: 'var(--accent-green)' },
@@ -548,9 +541,9 @@ function DataAgentScreen() {
   ];
 
   return (
-    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg">
+    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-2 bg-[var(--ui-header)] border-b border-[var(--ui-border)]">
+      <div className="flex items-center gap-2 px-4 py-2 bg-[var(--ui-header)] border-b border-[var(--ui-border)] flex-shrink-0">
         <div className="flex gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F56]" />
           <span className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]" />
@@ -566,7 +559,7 @@ function DataAgentScreen() {
         </span>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 flex-1 flex flex-col min-h-0">
         {/* Target Task Header */}
         <div className="flex items-center justify-between mb-3 p-2.5 bg-gradient-to-r from-gray-50 to-[var(--primary)]/5 rounded-lg border border-gray-100">
           <div>
@@ -591,7 +584,7 @@ function DataAgentScreen() {
         </div>
 
         {/* Main Content - Three Column Layout */}
-        <div className="grid grid-cols-[1fr_0.85fr_0.85fr] gap-2.5 mb-3">
+        <div className="grid grid-cols-[1fr_0.85fr_0.85fr] gap-2.5 mb-3 flex-1 min-h-0 overflow-hidden">
           {/* Left Column - Python Code (Jupyter-like) */}
           <div className="border border-[var(--border-light)] rounded-lg overflow-hidden">
             {/* Notebook Header */}
@@ -761,7 +754,7 @@ function DataAgentScreen() {
         </div>
 
         {/* Evaluation Pipeline - Enhanced */}
-        <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-100">
+        <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-100 flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
             <p className="text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
               Evaluation Pipeline
@@ -815,7 +808,7 @@ function DataAgentScreen() {
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-6 gap-1.5">
+        <div className="grid grid-cols-6 gap-1.5 flex-shrink-0">
           {[
             { label: 'Rubrics', value: '3/6', extra: '✓', color: 'var(--accent-green)' },
             { label: 'Accuracy', value: '98.2%', color: 'var(--accent-green)' },
@@ -873,9 +866,9 @@ function SupportAgentScreen() {
   ];
 
   return (
-    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg">
+    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-2 bg-[var(--ui-header)] border-b border-[var(--ui-border)]">
+      <div className="flex items-center gap-2 px-4 py-2 bg-[var(--ui-header)] border-b border-[var(--ui-border)] flex-shrink-0">
         <div className="flex gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F56]" />
           <span className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]" />
@@ -891,7 +884,7 @@ function SupportAgentScreen() {
         </span>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 flex-1 flex flex-col min-h-0">
         {/* Target Task Header */}
         <div className="flex items-center justify-between mb-3 p-2.5 bg-gradient-to-r from-gray-50 to-[var(--primary)]/5 rounded-lg border border-gray-100">
           <div>
@@ -916,7 +909,7 @@ function SupportAgentScreen() {
         </div>
 
         {/* Main Content - Three Column Layout */}
-        <div className="grid grid-cols-[1fr_0.85fr_0.85fr] gap-2.5 mb-3">
+        <div className="grid grid-cols-[1fr_0.85fr_0.85fr] gap-2.5 mb-3 flex-1 min-h-0 overflow-hidden">
           {/* Left Column - Chat Interface Mockup */}
           <div className="border border-[var(--border-light)] rounded-lg overflow-hidden relative">
             {/* Chat Header */}
@@ -1138,7 +1131,7 @@ function SupportAgentScreen() {
         </div>
 
         {/* Evaluation Pipeline */}
-        <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-100">
+        <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-100 flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
             <p className="text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
               Evaluation Pipeline
@@ -1192,7 +1185,7 @@ function SupportAgentScreen() {
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-6 gap-1.5">
+        <div className="grid grid-cols-6 gap-1.5 flex-shrink-0">
           {[
             { label: 'Rubrics', value: '3/6', extra: '✓', color: 'var(--accent-green)' },
             { label: 'Tone Score', value: '94%', color: 'var(--accent-green)' },
@@ -1250,9 +1243,9 @@ function ContentAgentScreen() {
   ];
 
   return (
-    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg">
+    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-2 bg-[var(--ui-header)] border-b border-[var(--ui-border)]">
+      <div className="flex items-center gap-2 px-4 py-2 bg-[var(--ui-header)] border-b border-[var(--ui-border)] flex-shrink-0">
         <div className="flex gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-[#FF5F56]" />
           <span className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]" />
@@ -1268,7 +1261,7 @@ function ContentAgentScreen() {
         </span>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 flex-1 flex flex-col min-h-0">
         {/* Target Task Header */}
         <div className="flex items-center justify-between mb-3 p-2.5 bg-gradient-to-r from-gray-50 to-[var(--primary)]/5 rounded-lg border border-gray-100">
           <div>
@@ -1293,7 +1286,7 @@ function ContentAgentScreen() {
         </div>
 
         {/* Main Content - Three Column Layout */}
-        <div className="grid grid-cols-[1fr_0.85fr_0.85fr] gap-2.5 mb-3">
+        <div className="grid grid-cols-[1fr_0.85fr_0.85fr] gap-2.5 mb-3 flex-1 min-h-0 overflow-hidden">
           {/* Left Column - Design Preview Mockup */}
           <div className="border border-[var(--border-light)] rounded-lg overflow-hidden relative">
             {/* Design Canvas Header */}
@@ -1509,7 +1502,7 @@ function ContentAgentScreen() {
         </div>
 
         {/* Evaluation Pipeline */}
-        <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-100">
+        <div className="mb-3 p-2 bg-gray-50 rounded-lg border border-gray-100 flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
             <p className="text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
               Evaluation Pipeline
@@ -1563,7 +1556,7 @@ function ContentAgentScreen() {
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-6 gap-1.5">
+        <div className="grid grid-cols-6 gap-1.5 flex-shrink-0">
           {[
             { label: 'Rubrics', value: '3/6', extra: '✓', color: 'var(--accent-green)' },
             { label: 'Brand Match', value: '94.8%', color: 'var(--accent-green)' },

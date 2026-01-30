@@ -104,16 +104,18 @@ export function Navigation() {
               whileTap={{ scale: 0.98 }}
               className="px-4 py-2 text-[var(--text-secondary)] hover:text-[var(--foreground)] text-[15px] font-medium transition-colors rounded-lg hover:bg-[var(--bg-subtle)]"
             >
-              Login
+              Sign In
             </motion.button>
           </Link>
-          <motion.button
-            whileHover={{ scale: 1.02, y: -1 }}
-            whileTap={{ scale: 0.98 }}
-            className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg text-[15px] font-semibold transition-all shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/30"
-          >
-            Get Started
-          </motion.button>
+          <Link href="/signup">
+            <motion.button
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg text-[15px] font-semibold transition-all shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/30"
+            >
+              Start Free Trial
+            </motion.button>
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -160,12 +162,14 @@ export function Navigation() {
           <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-[var(--border-light)]">
             <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
               <button className="w-full py-3 text-[var(--foreground)] text-base font-semibold border border-[var(--border)] rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
-                Login
+                Sign In
               </button>
             </Link>
-            <button className="w-full py-3 bg-[var(--primary)] text-white rounded-lg text-base font-semibold hover:bg-[var(--primary-dark)] transition-colors">
-              Get Started
-            </button>
+            <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
+              <button className="w-full py-3 bg-[var(--primary)] text-white rounded-lg text-base font-semibold hover:bg-[var(--primary-dark)] transition-colors">
+                Start Free Trial
+              </button>
+            </Link>
           </div>
         </div>
       </motion.div>
