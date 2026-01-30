@@ -9,17 +9,17 @@ const pricingPlans = [
     price: '$0',
     period: '/month',
     description: 'Perfect for side projects and experimentation',
-    features: ['100 eval runs/month', '1 agent', '7-day data retention', 'Community support'],
+    features: ['10 eval runs/month', '1 agent', '7-day data retention', 'Community support'],
     cta: 'Start Free',
     featured: false,
   },
   {
     tier: 'Professional',
-    price: '$40',
+    price: '$20',
     period: '/month',
     description: 'For teams shipping production agents',
     features: [
-      '5,000 eval runs/month',
+      '100 eval runs/month',
       '10 agents',
       '90-day data retention',
       'A/B testing & data export',
@@ -80,10 +80,10 @@ export function Pricing() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -5 }}
-              className={`relative bg-white border rounded-2xl p-8 ${
+              className={`relative bg-white border rounded-2xl p-8 transition-all duration-300 flex flex-col h-full ${
                 plan.featured
                   ? 'border-[var(--primary)] shadow-lg shadow-[var(--primary)]/15'
-                  : 'border-[var(--border)]'
+                  : 'border-[var(--border)] hover:border-[var(--primary)] hover:shadow-lg hover:shadow-[var(--primary)]/15'
               }`}
             >
               {plan.featured && (
@@ -101,7 +101,7 @@ export function Pricing() {
                 {plan.description}
               </p>
 
-              <ul className="space-y-3 mb-6">
+              <ul className="space-y-3 mb-6 flex-grow">
                 {plan.features.map((feature) => (
                   <li
                     key={feature}
@@ -113,17 +113,28 @@ export function Pricing() {
                 ))}
               </ul>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all ${
-                  plan.featured
-                    ? 'bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white shadow-sm hover:shadow-md hover:shadow-[var(--primary)]/30'
-                    : 'bg-white hover:bg-[var(--bg-subtle)] text-[var(--foreground)] border border-[var(--border)]'
-                }`}
-              >
-                {plan.cta}
-              </motion.button>
+              {plan.cta === 'Contact Sales' ? (
+                <motion.a
+                  href="mailto:contact@tensoreval.com"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="block w-full py-2.5 rounded-lg font-semibold text-sm text-center transition-all bg-white hover:bg-[var(--primary)] text-[var(--foreground)] hover:text-white border border-[var(--border)] hover:border-[var(--primary)] hover:shadow-md hover:shadow-[var(--primary)]/30"
+                >
+                  {plan.cta}
+                </motion.a>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all ${
+                    plan.featured
+                      ? 'bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white shadow-sm hover:shadow-md hover:shadow-[var(--primary)]/30'
+                      : 'bg-white hover:bg-[var(--primary)] text-[var(--foreground)] hover:text-white border border-[var(--border)] hover:border-[var(--primary)] hover:shadow-md hover:shadow-[var(--primary)]/30'
+                  }`}
+                >
+                  {plan.cta}
+                </motion.button>
+              )}
             </motion.div>
           ))}
         </div>
