@@ -49,7 +49,10 @@ const pricingPlans = [
 
 export function Pricing() {
   return (
-    <section id="pricing" className="py-[100px] px-6 bg-[var(--background)] scroll-mt-20">
+    <section
+      id="pricing"
+      className="py-16 lg:py-[100px] px-4 lg:px-6 bg-[var(--background)] scroll-mt-20"
+    >
       <div className="max-w-[1200px] mx-auto">
         {/* Section Header */}
         <motion.div
@@ -57,21 +60,21 @@ export function Pricing() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          className="text-center mb-8 lg:mb-12"
         >
           <p className="text-base uppercase tracking-[0.2em] text-[var(--primary)] font-bold mb-4">
             Pricing
           </p>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 lg:mb-4 tracking-tight">
             Simple, transparent pricing
           </h2>
-          <p className="text-lg text-[var(--text-secondary)] max-w-[600px] mx-auto">
+          <p className="text-base lg:text-lg text-[var(--text-secondary)] max-w-[600px] mx-auto">
             Start free, scale as you grow. No surprise bills.
           </p>
         </motion.div>
 
         {/* Pricing Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-[1000px] mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 max-w-[1000px] mx-auto">
           {pricingPlans.map((plan, index) => (
             <motion.div
               key={plan.tier}
@@ -80,7 +83,7 @@ export function Pricing() {
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -5 }}
-              className={`relative bg-white border rounded-2xl p-8 transition-all duration-300 flex flex-col h-full ${
+              className={`relative bg-white border rounded-2xl p-5 lg:p-8 transition-all duration-300 flex flex-col h-full ${
                 plan.featured
                   ? 'border-[var(--primary)] shadow-lg shadow-[var(--primary)]/15'
                   : 'border-[var(--border)] hover:border-[var(--primary)] hover:shadow-lg hover:shadow-[var(--primary)]/15'

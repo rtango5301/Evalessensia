@@ -25,10 +25,10 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="bg-[var(--background)] border-t border-[var(--border-light)] pt-16 pb-10 px-6">
+    <footer className="bg-[var(--background)] border-t border-[var(--border-light)] pt-10 lg:pt-16 pb-8 lg:pb-10 px-6">
       <div className="max-w-[1200px] mx-auto">
         {/* Footer Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-12 mb-12">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr] gap-6 lg:gap-12 mb-8 lg:mb-12">
           {/* Brand */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
