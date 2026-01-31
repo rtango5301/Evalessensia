@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Important Rules
 
 - **Always ask for permission before running any git commands** (commit, push, checkout, merge, etc.)
+- **Always stop the dev server after every Playwright MCP test** - Use `pkill -f "next dev"` after completing E2E tests. If Turbopack cache gets corrupted, run `npm run dev:clean` to clear it
 
 ## Commands
 

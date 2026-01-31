@@ -123,7 +123,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex flex-1 flex-col h-full overflow-hidden relative">
+        <main className="flex flex-1 flex-col h-full overflow-clip relative">
           {/* Header */}
           <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-2 h-14 shrink-0 z-20">
             <div className="flex items-center gap-4">
@@ -160,7 +160,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </header>
 
           {/* Page Content */}
-          <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 lg:p-10 scroll-smooth">
+          <div className="flex-1 overflow-y-auto overflow-x-clip p-6 lg:p-10 overscroll-contain">
             <div className="max-w-7xl mx-auto">{children}</div>
           </div>
         </main>
