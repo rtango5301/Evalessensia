@@ -14,7 +14,7 @@ const features = [
   {
     icon: BarChart3,
     title: 'Multi-Metric Evaluation',
-    description: 'Task Completion, Accuracy, Latency, Cost, Safety, Efficiency.',
+    description: 'Task Completion, Accuracy, Latency, Plan Quality, Safety, Efficiency.',
   },
   {
     icon: GitCompare,
@@ -806,7 +806,7 @@ function ABTestingFeature() {
                 <CompareRow label="Task Completion" value="94.2%" change="up" winner />
                 <CompareRow label="Accuracy" value="94%" change="up" winner />
                 <CompareRow label="Latency" value="1.2s" change="down" winner />
-                <CompareRow label="Cost" value="$0.047" change="up" negative />
+                <CompareRow label="Plan Quality" value="$0.047" change="up" negative />
                 <CompareRow label="Safety" value="99.8%" change="up" winner />
                 <CompareRow label="Efficiency" value="86%" change="up" winner />
               </div>
