@@ -4,12 +4,12 @@ import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { OrDivider } from '@/components/ui/or-divider';
 
 // Schema preview mock data
 const schemaPreview = [
   { field: 'query', type: 'string', example: 'How do I reset my password?' },
   { field: 'category', type: 'string', example: 'account' },
-  { field: 'rubric', type: 'string', example: 'Response should include step-by-step instructions' },
 ];
 
 export default function NewDatasetPage() {
@@ -21,6 +21,8 @@ export default function NewDatasetPage() {
   const [uploadDatasetName, setUploadDatasetName] = useState('');
 
   // Generate state
+  const [generateDatasetName, setGenerateDatasetName] = useState('');
+  const [generateDatasetDescription, setGenerateDatasetDescription] = useState('');
   const [agentName, setAgentName] = useState('');
   const [agentDescription, setAgentDescription] = useState('');
   const [mcpServer, setMcpServer] = useState('');
@@ -70,7 +72,7 @@ export default function NewDatasetPage() {
   };
 
   const handleGenerateSubmit = () => {
-    if (agentName && agentDescription) {
+    if (generateDatasetName && agentName && agentDescription) {
       // In a real app, this would trigger the AI generation
       router.push('/datasets');
     }
@@ -95,8 +97,8 @@ export default function NewDatasetPage() {
         </p>
       </div>
 
-      {/* Side-by-Side Panels */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Stacked Panels with OrDivider */}
+      <div className="flex flex-col gap-6">
         {/* Panel A: Upload Dataset */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
@@ -243,12 +245,14 @@ export default function NewDatasetPage() {
           </div>
         </div>
 
+        <OrDivider className="my-2" />
+
         {/* Panel B: Generate Dataset */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
             <div className="flex items-center gap-3">
-              <div className="size-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                <span className="material-symbols-outlined text-purple-600">auto_awesome</span>
+              <div className="size-10 rounded-lg bg-[#135bec]/10 flex items-center justify-center">
+                <span className="material-symbols-outlined text-[#135bec]">auto_awesome</span>
               </div>
               <div>
                 <h2 className="text-lg font-bold text-slate-900">Generate Dataset</h2>
@@ -258,6 +262,41 @@ export default function NewDatasetPage() {
           </div>
 
           <div className="p-6 flex flex-col gap-5">
+            {/* Dataset Name */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                Dataset Name
+              </label>
+              <input
+                type="text"
+                value={generateDatasetName}
+                onChange={(e) => setGenerateDatasetName(e.target.value)}
+                placeholder="e.g., Customer Support Test Cases"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
+              />
+            </div>
+
+            {/* Dataset Description */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                Dataset Description <span className="text-slate-400 font-normal">(Optional)</span>
+              </label>
+              <textarea
+                value={generateDatasetDescription}
+                onChange={(e) => setGenerateDatasetDescription(e.target.value)}
+                placeholder="Describe the purpose of this dataset..."
+                rows={2}
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all resize-none"
+              />
+            </div>
+
+            {/* Divider */}
+            <div className="border-t border-slate-200 pt-2">
+              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+                Agent Information
+              </p>
+            </div>
+
             {/* Agent Name */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">Agent Name</label>
@@ -316,9 +355,17 @@ export default function NewDatasetPage() {
                   onChange={(e) => setQueryCount(Number(e.target.value))}
                   className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#135bec]"
                 />
-                <div className="w-20 px-3 py-2 bg-slate-100 rounded-lg text-center">
-                  <span className="text-sm font-bold text-slate-900">{queryCount}</span>
-                </div>
+                <input
+                  type="number"
+                  min={10}
+                  max={500}
+                  value={queryCount}
+                  onChange={(e) => {
+                    const val = Math.max(10, Math.min(500, Number(e.target.value) || 10));
+                    setQueryCount(val);
+                  }}
+                  className="w-20 px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-center text-sm font-bold text-slate-900 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
+                />
               </div>
               <p className="text-xs text-slate-500 mt-1.5">
                 More queries = better coverage but longer generation time
@@ -326,14 +373,14 @@ export default function NewDatasetPage() {
             </div>
 
             {/* Info Box */}
-            <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
+            <div className="bg-[#135bec]/5 rounded-lg p-4 border border-[#135bec]/20">
               <div className="flex gap-3">
-                <span className="material-symbols-outlined text-purple-600 text-lg shrink-0">
+                <span className="material-symbols-outlined text-[#135bec] text-lg shrink-0">
                   info
                 </span>
-                <div className="text-sm text-purple-800">
+                <div className="text-sm text-slate-800">
                   <p className="font-medium mb-1">AI-Powered Generation</p>
-                  <p className="text-purple-700">
+                  <p className="text-[#135bec]">
                     We&apos;ll analyze your agent description and generate diverse, realistic test
                     cases including edge cases and adversarial prompts.
                   </p>
@@ -344,11 +391,11 @@ export default function NewDatasetPage() {
             {/* Submit Button */}
             <button
               onClick={handleGenerateSubmit}
-              disabled={!agentName || !agentDescription}
+              disabled={!generateDatasetName || !agentName || !agentDescription}
               className={cn(
                 'w-full py-2.5 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2',
-                agentName && agentDescription
-                  ? 'bg-purple-600 text-white hover:bg-purple-700 shadow-sm shadow-purple-600/30'
+                generateDatasetName && agentName && agentDescription
+                  ? 'bg-[#135bec] text-white hover:bg-[#135bec]/90 shadow-sm shadow-[#135bec]/30'
                   : 'bg-slate-100 text-slate-400 cursor-not-allowed'
               )}
             >
