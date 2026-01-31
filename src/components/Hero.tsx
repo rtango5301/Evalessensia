@@ -33,7 +33,7 @@ const itemVariants = {
 
 export function Hero() {
   return (
-    <section className="pt-[120px] pb-[80px] px-6 bg-gradient-to-b from-[var(--bg-subtle)] to-[var(--background)] overflow-hidden">
+    <section className="pt-[80px] pb-[60px] px-6 bg-gradient-to-b from-[var(--bg-subtle)] to-[var(--background)] overflow-hidden">
       <div className="max-w-[1200px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-[40px] items-center">
           {/* Left Content */}
@@ -52,7 +52,7 @@ export function Hero() {
             {/* Headline - Big, Clean, Confident */}
             <motion.h1
               variants={itemVariants}
-              className="text-5xl md:text-[4rem] lg:text-[4.5rem] font-extrabold leading-[1.05] mb-6 tracking-tight"
+              className="text-5xl md:text-[4rem] lg:text-[4.5rem] font-extrabold leading-[1.05] mb-5 tracking-tight"
             >
               CI/CD for
               <br />
@@ -64,7 +64,7 @@ export function Hero() {
             {/* Subheadline */}
             <motion.div
               variants={itemVariants}
-              className="mb-8 max-w-[460px] px-5 py-4 rounded-lg bg-[#f0f0f5] border-l-[3px] border-l-[var(--primary)]"
+              className="mb-6 max-w-[460px] px-5 py-3 rounded-lg bg-[#f0f0f5] border-l-[3px] border-l-[var(--primary)]"
             >
               <p className="text-base text-[#6b7280] leading-relaxed">
                 Ship agent improvements in hours, not weeks. Automated evals. Instant feedback.{' '}
@@ -73,7 +73,7 @@ export function Hero() {
             </motion.div>
 
             {/* Features List - Emphasize titles, de-emphasize descriptions */}
-            <motion.div variants={itemVariants} className="space-y-4 mb-8 max-w-[460px]">
+            <motion.div variants={itemVariants} className="space-y-3 mb-6 max-w-[460px]">
               {[
                 {
                   icon: GitBranch,
