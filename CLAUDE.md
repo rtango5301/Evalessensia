@@ -29,11 +29,11 @@ npm run format:check # Check if code is formatted
 
 ## Architecture
 
-TensorEval is a Next.js 16 application for an AI agent CI/CD platform. It uses the App Router with React 19 and TypeScript.
+TensorEval is a Next.js 15 application for an AI agent CI/CD platform. It uses the App Router with React 19 and TypeScript.
 
 ### Tech Stack
 
-- **Framework**: Next.js 16.1.4 (App Router)
+- **Framework**: Next.js 15.5.10 (App Router)
 - **Styling**: Tailwind CSS 4 with CSS custom properties in `globals.css`
 - **Animations**: Framer Motion for scroll-triggered and interactive animations
 - **Components**: shadcn/ui pattern with Radix UI primitives
@@ -45,16 +45,15 @@ TensorEval is a Next.js 16 application for an AI agent CI/CD platform. It uses t
 
 - `/` - Landing page composed of section components
 - `/login` - Authentication page with OAuth and email options (includes signup toggle)
-- `/dashboard` - Main dashboard with agents overview and recent runs
+- `/dashboard` - Main dashboard with recent evaluation runs overview
   - `/dashboard/reports` - Reports & analytics with charts and metrics
   - `/dashboard/settings` - User settings (profile, notifications, team, appearance)
   - `/dashboard/api-keys` - API key management (create, revoke, list)
-- `/agents` - Agent management (separate top-level route with own layout)
-  - `/agents/new` - Step 1: Agent type selection
-  - `/agents/configure` - Step 2: Configuration settings
-  - `/agents/review` - Step 3: Review and create agent
+- `/datasets` - Dataset management (separate top-level route with own layout)
+  - `/datasets/new` - Create new dataset (upload or AI-generated)
+  - `/datasets/[id]` - View dataset details
 - `/evaluations` - Evaluation runs listing page
-  - `/evaluations/configure` - Configure evaluation settings
+  - `/evaluations/new` - New evaluation wizard (configure agent, select dataset, review)
   - `/evaluations/[id]` - View evaluation results with live streaming logs
 - `/not-found.tsx` - Custom 404 page
 
@@ -117,6 +116,6 @@ Follows shadcn/ui conventions with CVA (class-variance-authority) for variants:
 - Server components by default; `"use client"` directive for components with state/effects/animations
 - `cn()` utility from `src/lib/utils.ts` merges Tailwind classes (clsx + tailwind-merge)
 - Mobile-first responsive design using Tailwind breakpoints
-- URL params for passing state between wizard steps (e.g., `/agents/configure?name=...&type=...`)
+- URL params for passing state between wizard steps (e.g., `/evaluations/new?step=dataset`)
 - Mock data and TypeScript types are defined inline in page components
 - Error boundaries used for defensive error handling in complex pages

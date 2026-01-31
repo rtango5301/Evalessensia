@@ -2,13 +2,16 @@
 
 import Link from 'next/link';
 import { useState, useMemo } from 'react';
+import { cn } from '@/lib/utils';
 
 // Mock data for evaluation runs
 const evaluationRuns = [
   {
     id: '1024',
-    agentName: 'Support Bot v2.4',
+    name: 'Support Bot - Safety Eval',
     agentEmoji: '🤖',
+    datasetName: 'Customer Support Q&A',
+    datasetId: 'ds-001',
     status: 'running' as const,
     startedAt: '4 min ago',
     duration: '--',
@@ -18,8 +21,10 @@ const evaluationRuns = [
   },
   {
     id: '1023',
-    agentName: 'Data Analyst',
+    name: 'Data Analyst - Accuracy Test',
     agentEmoji: '📊',
+    datasetName: 'Financial Reports Dataset',
+    datasetId: 'ds-002',
     status: 'completed' as const,
     startedAt: '2 hours ago',
     duration: '5m 23s',
@@ -29,8 +34,10 @@ const evaluationRuns = [
   },
   {
     id: '1022',
-    agentName: 'Content Writer',
+    name: 'Content Writer - Quality Check',
     agentEmoji: '📝',
+    datasetName: 'Blog Posts Dataset',
+    datasetId: 'ds-003',
     status: 'failed' as const,
     startedAt: '5 hours ago',
     duration: '1m 12s',
@@ -40,8 +47,10 @@ const evaluationRuns = [
   },
   {
     id: '1021',
-    agentName: 'Code Reviewer',
+    name: 'Code Reviewer - Benchmark',
     agentEmoji: '🔍',
+    datasetName: 'Code Review Samples',
+    datasetId: 'ds-004',
     status: 'completed' as const,
     startedAt: '1 day ago',
     duration: '12m 45s',
@@ -51,8 +60,10 @@ const evaluationRuns = [
   },
   {
     id: '1020',
-    agentName: 'Translation Bot',
+    name: 'Translation Bot - Language Test',
     agentEmoji: '🌐',
+    datasetName: 'Multi-language Dataset',
+    datasetId: 'ds-005',
     status: 'completed' as const,
     startedAt: '1 day ago',
     duration: '3m 18s',
@@ -62,8 +73,10 @@ const evaluationRuns = [
   },
   {
     id: '1019',
-    agentName: 'Support Bot v2.3',
+    name: 'Support Bot - Regression',
     agentEmoji: '🤖',
+    datasetName: 'Customer Support Q&A',
+    datasetId: 'ds-001',
     status: 'failed' as const,
     startedAt: '2 days ago',
     duration: '2m 05s',
@@ -73,8 +86,10 @@ const evaluationRuns = [
   },
   {
     id: '1018',
-    agentName: 'Research Assistant',
+    name: 'Research Assistant - Eval',
     agentEmoji: '📚',
+    datasetName: 'Safety Test Cases',
+    datasetId: 'ds-006',
     status: 'completed' as const,
     startedAt: '3 days ago',
     duration: '8m 32s',
@@ -84,8 +99,10 @@ const evaluationRuns = [
   },
   {
     id: '1017',
-    agentName: 'Email Classifier',
+    name: 'Email Classifier - Test',
     agentEmoji: '📧',
+    datasetName: 'Edge Cases Collection',
+    datasetId: 'ds-007',
     status: 'running' as const,
     startedAt: '1 min ago',
     duration: '--',
@@ -135,7 +152,8 @@ export default function EvaluationsPage() {
       // Filter by search query
       const matchesSearch =
         searchQuery === '' ||
-        run.agentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        run.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        run.datasetName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         run.id.includes(searchQuery);
 
       // Filter by status
@@ -156,7 +174,7 @@ export default function EvaluationsPage() {
           </p>
         </div>
         <Link
-          href="/evaluations/configure"
+          href="/evaluations/new"
           className="flex items-center gap-2 bg-[#135bec] hover:bg-[#135bec]/90 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-sm shadow-[#135bec]/30 w-fit"
         >
           <span className="material-symbols-outlined text-xl">add</span>
@@ -175,7 +193,7 @@ export default function EvaluationsPage() {
             </div>
             <input
               type="text"
-              placeholder="Search by agent name or ID..."
+              placeholder="Search by name, dataset, or ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="block w-full pl-10 pr-3 py-2.5 border-none rounded-lg bg-slate-100 text-slate-900 text-sm placeholder-slate-500 focus:ring-2 focus:ring-[#135bec] focus:bg-white transition-all"
@@ -214,7 +232,10 @@ export default function EvaluationsPage() {
                   ID
                 </th>
                 <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Agent Name
+                  Evaluation Name
+                </th>
+                <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Dataset
                 </th>
                 <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Status
@@ -226,7 +247,7 @@ export default function EvaluationsPage() {
                   Duration
                 </th>
                 <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
-                  Pass Rate
+                  Score
                 </th>
                 <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
                   Actions
@@ -236,7 +257,7 @@ export default function EvaluationsPage() {
             <tbody className="divide-y divide-slate-200">
               {filteredRuns.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center">
+                  <td colSpan={8} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <span className="material-symbols-outlined text-4xl text-slate-300">
                         search_off
@@ -257,12 +278,24 @@ export default function EvaluationsPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <span className="text-lg">{run.agentEmoji}</span>
-                        <span className="text-sm font-medium text-slate-900">{run.agentName}</span>
+                        <span className="text-sm font-medium text-slate-900">{run.name}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
+                      <Link
+                        href={`/datasets/${run.datasetId}`}
+                        className="text-sm text-[#135bec] hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {run.datasetName}
+                      </Link>
+                    </td>
+                    <td className="px-6 py-4">
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusBadgeStyles(run.status)}`}
+                        className={cn(
+                          'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
+                          getStatusBadgeStyles(run.status)
+                        )}
                       >
                         {run.status === 'running' && (
                           <span className="relative flex h-2 w-2">
@@ -311,7 +344,7 @@ export default function EvaluationsPage() {
                         href={`/evaluations/${run.id}`}
                         className="inline-flex items-center gap-1 text-sm font-medium text-[#135bec] hover:text-[#0f4bcc] transition-colors"
                       >
-                        View Details
+                        View
                         <span className="material-symbols-outlined text-base">arrow_forward</span>
                       </Link>
                     </td>

@@ -6,7 +6,8 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
-  { href: '/agents', label: 'Agents', icon: 'smart_toy' },
+  { href: '/datasets', label: 'Datasets', icon: 'folder_open' },
+  { href: '/evaluations', label: 'Evaluations', icon: 'science' },
   { href: '/dashboard/reports', label: 'Reports', icon: 'description' },
 ];
 
@@ -15,7 +16,7 @@ const secondaryNavItems = [
   { href: '/dashboard/api-keys', label: 'API Keys', icon: 'key' },
 ];
 
-export default function AgentsLayout({ children }: { children: React.ReactNode }) {
+export default function DatasetsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
@@ -52,7 +53,11 @@ export default function AgentsLayout({ children }: { children: React.ReactNode }
             <nav className="flex flex-col gap-1 flex-1">
               {navItems.map((item) => {
                 const isActive =
-                  item.href === '/agents' ? pathname.startsWith('/agents') : pathname === item.href;
+                  item.href === '/datasets'
+                    ? pathname.startsWith('/datasets')
+                    : item.href === '/evaluations'
+                      ? pathname.startsWith('/evaluations')
+                      : pathname === item.href;
                 return (
                   <Link
                     key={item.href}
@@ -130,7 +135,7 @@ export default function AgentsLayout({ children }: { children: React.ReactNode }
               <button className="md:hidden text-slate-500 hover:text-slate-700">
                 <span className="material-symbols-outlined">menu</span>
               </button>
-              <h2 className="text-slate-900 text-base font-bold leading-tight">Agents</h2>
+              <h2 className="text-slate-900 text-base font-bold leading-tight">Datasets</h2>
             </div>
 
             <div className="flex items-center gap-6">
@@ -141,7 +146,7 @@ export default function AgentsLayout({ children }: { children: React.ReactNode }
                 </span>
                 <input
                   className="w-full pl-9 pr-4 py-1.5 bg-slate-100 border-none rounded-md text-sm text-slate-900 placeholder-slate-500 focus:ring-2 focus:ring-[#135bec] focus:outline-none transition-all"
-                  placeholder="Search agents..."
+                  placeholder="Search datasets..."
                   type="text"
                 />
               </div>
