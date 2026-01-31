@@ -44,13 +44,16 @@ TensorEval is a Next.js 16 application for an AI agent CI/CD platform. It uses t
 **Routes** (`src/app/`):
 
 - `/` - Landing page composed of section components
-- `/login` - Authentication page with OAuth and email options
-- `/signup` - User registration page
+- `/login` - Authentication page with OAuth and email options (includes signup toggle)
 - `/dashboard` - Main dashboard with agents overview and recent runs
 - `/agents` - Agent management (separate top-level route with own layout)
   - `/agents/new` - Step 1: Agent type selection
   - `/agents/configure` - Step 2: Configuration settings
   - `/agents/review` - Step 3: Review and create agent
+- `/evaluations` - Evaluation runs listing page
+  - `/evaluations/configure` - Configure evaluation settings
+  - `/evaluations/[id]` - View evaluation results with live streaming logs
+- `/not-found.tsx` - Custom 404 page
 
 **Landing Page Components** (`src/components/`):
 
@@ -65,18 +68,6 @@ TensorEval is a Next.js 16 application for an AI agent CI/CD platform. It uses t
 - `Footer.tsx` - Site footer
 
 All section components are client components using Framer Motion for animations.
-
-**Dashboard Components** (`src/components/dashboard/`):
-
-- `app-navigation.tsx` - App-style navigation (differs from marketing nav)
-- `dashboard-footer.tsx` - Simplified footer for app pages
-
-**Evaluation Components** (`src/components/evaluation/`):
-
-- `EvaluationHeader.tsx` - Breadcrumb, title, status badge, action buttons
-- `MetricCards.tsx` - Overall score, test pass rate, avg latency cards
-- `PerformanceComparison.tsx` - Radar chart with baseline comparison
-- `TestCasesTable.tsx` - Searchable, filterable, paginated test results table
 
 **UI Primitives** (`src/components/ui/`):
 
@@ -94,14 +85,6 @@ Follows shadcn/ui conventions with CVA (class-variance-authority) for variants:
 - `radar-chart.tsx` - Reusable radar/spider chart
 - `breadcrumb.tsx` - Navigation breadcrumb
 - `skeleton.tsx` - Loading skeleton component
-
-**Mock Data** (`src/lib/mock-data/`):
-
-- `evaluation.ts` - Static mock data for evaluation results
-
-**Types** (`src/types/`):
-
-- `evaluation.ts` - TypeScript interfaces for evaluation data structures
 
 **Design Reference** (`stitch/`):
 
@@ -132,3 +115,5 @@ Follows shadcn/ui conventions with CVA (class-variance-authority) for variants:
 - `cn()` utility from `src/lib/utils.ts` merges Tailwind classes (clsx + tailwind-merge)
 - Mobile-first responsive design using Tailwind breakpoints
 - URL params for passing state between wizard steps (e.g., `/agents/configure?name=...&type=...`)
+- Mock data and TypeScript types are defined inline in page components
+- Error boundaries used for defensive error handling in complex pages
