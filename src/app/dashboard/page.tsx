@@ -235,9 +235,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-
-      {/* Bottom spacing */}
-      <div className="h-10"></div>
     </div>
   );
 }

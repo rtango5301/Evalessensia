@@ -77,7 +77,9 @@ export function UseCases() {
                     <Icon className="w-10 h-10 text-[var(--primary)]" />
                   </div>
                   <h4 className="font-bold text-lg mb-2">{useCase.title}</h4>
-                  <p className="text-[15px] text-[var(--text-secondary)] leading-relaxed">{useCase.description}</p>
+                  <p className="text-[15px] text-[var(--text-secondary)] leading-relaxed">
+                    {useCase.description}
+                  </p>
                 </motion.div>
               );
             })}
@@ -127,7 +129,11 @@ function BrowserAgentScreen() {
     { action: 'Navigate to amazon.com', importance: 10, status: 'pass' as const },
     { action: 'Type "MacBook Pro" in search bar', importance: 10, status: 'pass' as const },
     { action: 'Click search button', importance: 8, status: 'pass' as const },
-    { action: 'Select MacBook Pro 14" from results', importance: 10, status: 'evaluating' as const },
+    {
+      action: 'Select MacBook Pro 14" from results',
+      importance: 10,
+      status: 'evaluating' as const,
+    },
     { action: 'Add to cart', importance: 10, status: 'pending' as const },
     { action: 'Proceed to checkout', importance: 9, status: 'pending' as const },
   ];
@@ -285,9 +291,7 @@ function BrowserAgentScreen() {
               transition={{ delay: 0.3 }}
               className="absolute bottom-1 left-1 bg-white/95 backdrop-blur rounded shadow-md p-1.5 border text-[7px]"
             >
-              <p className="font-semibold text-[var(--text-muted)] uppercase mb-1">
-                DOM Actions
-              </p>
+              <p className="font-semibold text-[var(--text-muted)] uppercase mb-1">DOM Actions</p>
               <div className="space-y-0.5">
                 {domActions.map((item, idx) => (
                   <motion.div
@@ -333,21 +337,30 @@ function BrowserAgentScreen() {
                       call.status === 'running' ? 'bg-[var(--primary)]/5' : ''
                     }`}
                   >
-                    <div className={`w-1.5 h-1.5 rounded-full ${
-                      call.status === 'captured' ? 'bg-[var(--accent-green)]' : 'bg-[var(--primary)] animate-pulse'
-                    }`} />
+                    <div
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        call.status === 'captured'
+                          ? 'bg-[var(--accent-green)]'
+                          : 'bg-[var(--primary)] animate-pulse'
+                      }`}
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="text-[8px] font-mono font-medium truncate">{call.tool}</p>
                       <p className="text-[7px] text-[var(--text-muted)] truncate">{call.args}</p>
                     </div>
-                    <span className={`text-[7px] ${
-                      call.status === 'running' ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'
-                    }`}>{call.time}</span>
+                    <span
+                      className={`text-[7px] ${
+                        call.status === 'running'
+                          ? 'text-[var(--primary)]'
+                          : 'text-[var(--text-muted)]'
+                      }`}
+                    >
+                      {call.time}
+                    </span>
                   </motion.div>
                 ))}
               </div>
             </div>
-
           </div>
 
           {/* Right Column - Evaluation Rubrics */}
@@ -395,19 +408,23 @@ function BrowserAgentScreen() {
 
                   {/* Action */}
                   <div className="flex-1 min-w-0">
-                    <p className={`text-[7px] truncate ${rubric.status === 'pending' ? 'text-[var(--text-muted)]' : ''}`}>
+                    <p
+                      className={`text-[7px] truncate ${rubric.status === 'pending' ? 'text-[var(--text-muted)]' : ''}`}
+                    >
                       {rubric.action}
                     </p>
                   </div>
 
                   {/* Weight Badge */}
-                  <span className={`text-[6px] font-semibold px-1 py-0.5 rounded ${
-                    rubric.status === 'pass'
-                      ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
-                      : rubric.status === 'evaluating'
-                      ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                      : 'bg-gray-100 text-gray-500'
-                  }`}>
+                  <span
+                    className={`text-[6px] font-semibold px-1 py-0.5 rounded ${
+                      rubric.status === 'pass'
+                        ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
+                        : rubric.status === 'evaluating'
+                          ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+                          : 'bg-gray-100 text-gray-500'
+                    }`}
+                  >
                     {rubric.importance}/10
                   </span>
                 </motion.div>
@@ -451,19 +468,29 @@ function BrowserAgentScreen() {
                     step.done
                       ? 'bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30'
                       : step.active
-                      ? 'bg-[var(--primary)]/10 border border-[var(--primary)]/30'
-                      : 'bg-white border border-gray-200'
+                        ? 'bg-[var(--primary)]/10 border border-[var(--primary)]/30'
+                        : 'bg-white border border-gray-200'
                   }`}
                 >
-                  <p className={`text-[8px] font-semibold ${
-                    step.done ? 'text-[var(--accent-green)]' : step.active ? 'text-[var(--primary)]' : 'text-gray-400'
-                  }`}>{step.label}</p>
+                  <p
+                    className={`text-[8px] font-semibold ${
+                      step.done
+                        ? 'text-[var(--accent-green)]'
+                        : step.active
+                          ? 'text-[var(--primary)]'
+                          : 'text-gray-400'
+                    }`}
+                  >
+                    {step.label}
+                  </p>
                   <p className="text-[6px] text-[var(--text-muted)]">{step.desc}</p>
                 </motion.div>
                 {idx < 3 && (
-                  <div className={`w-3 h-0.5 ${
-                    step.done ? 'bg-[var(--accent-green)]' : 'bg-gray-200'
-                  }`} />
+                  <div
+                    className={`w-3 h-0.5 ${
+                      step.done ? 'bg-[var(--accent-green)]' : 'bg-gray-200'
+                    }`}
+                  />
                 )}
               </div>
             ))}
@@ -493,7 +520,9 @@ function BrowserAgentScreen() {
               <p className="text-[10px] font-bold" style={{ color: metric.color }}>
                 {metric.value}
                 {metric.extra && (
-                  <span className="text-[var(--accent-green)] text-[8px] ml-0.5">{metric.extra}</span>
+                  <span className="text-[var(--accent-green)] text-[8px] ml-0.5">
+                    {metric.extra}
+                  </span>
                 )}
               </p>
             </motion.div>
@@ -522,22 +551,115 @@ function DataAgentScreen() {
   ];
 
   const pythonLines = [
-    { num: 1, code: <><span className="text-[#c678dd]">import</span> <span className="text-[#e5c07b]">pandas</span> <span className="text-[#c678dd]">as</span> <span className="text-[#e5c07b]">pd</span></> },
+    {
+      num: 1,
+      code: (
+        <>
+          <span className="text-[#c678dd]">import</span>{' '}
+          <span className="text-[#e5c07b]">pandas</span> <span className="text-[#c678dd]">as</span>{' '}
+          <span className="text-[#e5c07b]">pd</span>
+        </>
+      ),
+    },
     { num: 2, code: <></> },
-    { num: 3, code: <><span className="text-[#7f848e]"># Load datasets</span></> },
-    { num: 4, code: <>users = pd.<span className="text-[#61afef]">read_csv</span>(<span className="text-[#98c379]">&apos;users.csv&apos;</span>)</> },
-    { num: 5, code: <>orders = pd.<span className="text-[#61afef]">read_csv</span>(<span className="text-[#98c379]">&apos;orders.csv&apos;</span>)</> },
+    {
+      num: 3,
+      code: (
+        <>
+          <span className="text-[#7f848e]"># Load datasets</span>
+        </>
+      ),
+    },
+    {
+      num: 4,
+      code: (
+        <>
+          users = pd.<span className="text-[#61afef]">read_csv</span>(
+          <span className="text-[#98c379]">&apos;users.csv&apos;</span>)
+        </>
+      ),
+    },
+    {
+      num: 5,
+      code: (
+        <>
+          orders = pd.<span className="text-[#61afef]">read_csv</span>(
+          <span className="text-[#98c379]">&apos;orders.csv&apos;</span>)
+        </>
+      ),
+    },
     { num: 6, code: <></> },
-    { num: 7, code: <><span className="text-[#7f848e]"># Filter Jan 2024 signups</span></> },
+    {
+      num: 7,
+      code: (
+        <>
+          <span className="text-[#7f848e]"># Filter Jan 2024 signups</span>
+        </>
+      ),
+    },
     { num: 8, code: <>jan_users = users[</> },
-    { num: 9, code: <>    (users[<span className="text-[#98c379]">&apos;signup_date&apos;</span>] &gt;= <span className="text-[#98c379]">&apos;2024-01-01&apos;</span>) &amp;</> },
-    { num: 10, code: <>    (users[<span className="text-[#98c379]">&apos;signup_date&apos;</span>] &lt;= <span className="text-[#98c379]">&apos;2024-01-31&apos;</span>)</> },
+    {
+      num: 9,
+      code: (
+        <>
+          {' '}
+          (users[<span className="text-[#98c379]">&apos;signup_date&apos;</span>] &gt;={' '}
+          <span className="text-[#98c379]">&apos;2024-01-01&apos;</span>) &amp;
+        </>
+      ),
+    },
+    {
+      num: 10,
+      code: (
+        <>
+          {' '}
+          (users[<span className="text-[#98c379]">&apos;signup_date&apos;</span>] &lt;={' '}
+          <span className="text-[#98c379]">&apos;2024-01-31&apos;</span>)
+        </>
+      ),
+    },
     { num: 11, code: <>]</> },
     { num: 12, code: <></> },
-    { num: 13, code: <><span className="text-[#7f848e]"># Merge and calculate LTV</span></> },
-    { num: 14, code: <>merged = pd.<span className="text-[#61afef]">merge</span>(jan_users, orders, <span className="text-[#d19a66]">on</span>=<span className="text-[#98c379]">&apos;user_id&apos;</span>)</> },
-    { num: 15, code: <>ltv = merged.<span className="text-[#61afef]">groupby</span>(<span className="text-[#98c379]">&apos;user_id&apos;</span>)[<span className="text-[#98c379]">&apos;order_total&apos;</span>]</> },
-    { num: 16, code: <>           .<span className="text-[#61afef]">sum</span>().<span className="text-[#61afef]">sort_values</span>(<span className="text-[#d19a66]">ascending</span>=<span className="text-[#d19a66]">False</span>)</> },
+    {
+      num: 13,
+      code: (
+        <>
+          <span className="text-[#7f848e]"># Merge and calculate LTV</span>
+        </>
+      ),
+    },
+    {
+      num: 14,
+      code: (
+        <>
+          merged = pd.<span className="text-[#61afef]">merge</span>(jan_users, orders,{' '}
+          <span className="text-[#d19a66]">on</span>=
+          <span className="text-[#98c379]">&apos;user_id&apos;</span>)
+        </>
+      ),
+    },
+    {
+      num: 15,
+      code: (
+        <>
+          ltv = merged.<span className="text-[#61afef]">groupby</span>(
+          <span className="text-[#98c379]">&apos;user_id&apos;</span>)[
+          <span className="text-[#98c379]">&apos;order_total&apos;</span>]
+        </>
+      ),
+    },
+    {
+      num: 16,
+      code: (
+        <>
+          {' '}
+          .<span className="text-[#61afef]">sum</span>().
+          <span className="text-[#61afef]">sort_values</span>(
+          <span className="text-[#d19a66]">ascending</span>=
+          <span className="text-[#d19a66]">False</span>)
+        </>
+      ),
+    },
   ];
 
   return (
@@ -566,7 +688,9 @@ function DataAgentScreen() {
             <p className="text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
               Input Query
             </p>
-            <p className="text-sm font-medium">&quot;Calculate the LTV of users who signed up in Jan 2024&quot;</p>
+            <p className="text-sm font-medium">
+              &quot;Calculate the LTV of users who signed up in Jan 2024&quot;
+            </p>
           </div>
           <motion.button
             whileHover={{ boxShadow: '0 6px 20px rgba(34, 197, 94, 0.4)' }}
@@ -670,21 +794,30 @@ function DataAgentScreen() {
                       call.status === 'running' ? 'bg-[var(--primary)]/5' : ''
                     }`}
                   >
-                    <div className={`w-1.5 h-1.5 rounded-full ${
-                      call.status === 'captured' ? 'bg-[var(--accent-green)]' : 'bg-[var(--primary)] animate-pulse'
-                    }`} />
+                    <div
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        call.status === 'captured'
+                          ? 'bg-[var(--accent-green)]'
+                          : 'bg-[var(--primary)] animate-pulse'
+                      }`}
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="text-[8px] font-mono font-medium truncate">{call.tool}</p>
                       <p className="text-[7px] text-[var(--text-muted)] truncate">{call.args}</p>
                     </div>
-                    <span className={`text-[7px] ${
-                      call.status === 'running' ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'
-                    }`}>{call.time}</span>
+                    <span
+                      className={`text-[7px] ${
+                        call.status === 'running'
+                          ? 'text-[var(--primary)]'
+                          : 'text-[var(--text-muted)]'
+                      }`}
+                    >
+                      {call.time}
+                    </span>
                   </motion.div>
                 ))}
               </div>
             </div>
-
           </div>
 
           {/* Right Column - Evaluation Rubrics */}
@@ -732,19 +865,23 @@ function DataAgentScreen() {
 
                   {/* Action */}
                   <div className="flex-1 min-w-0">
-                    <p className={`text-[7px] truncate ${rubric.status === 'pending' ? 'text-[var(--text-muted)]' : ''}`}>
+                    <p
+                      className={`text-[7px] truncate ${rubric.status === 'pending' ? 'text-[var(--text-muted)]' : ''}`}
+                    >
                       {rubric.action}
                     </p>
                   </div>
 
                   {/* Weight Badge */}
-                  <span className={`text-[6px] font-semibold px-1 py-0.5 rounded ${
-                    rubric.status === 'pass'
-                      ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
-                      : rubric.status === 'evaluating'
-                      ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                      : 'bg-gray-100 text-gray-500'
-                  }`}>
+                  <span
+                    className={`text-[6px] font-semibold px-1 py-0.5 rounded ${
+                      rubric.status === 'pass'
+                        ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
+                        : rubric.status === 'evaluating'
+                          ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+                          : 'bg-gray-100 text-gray-500'
+                    }`}
+                  >
                     {rubric.importance}/10
                   </span>
                 </motion.div>
@@ -788,19 +925,29 @@ function DataAgentScreen() {
                     step.done
                       ? 'bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30'
                       : step.active
-                      ? 'bg-[var(--primary)]/10 border border-[var(--primary)]/30'
-                      : 'bg-white border border-gray-200'
+                        ? 'bg-[var(--primary)]/10 border border-[var(--primary)]/30'
+                        : 'bg-white border border-gray-200'
                   }`}
                 >
-                  <p className={`text-[8px] font-semibold ${
-                    step.done ? 'text-[var(--accent-green)]' : step.active ? 'text-[var(--primary)]' : 'text-gray-400'
-                  }`}>{step.label}</p>
+                  <p
+                    className={`text-[8px] font-semibold ${
+                      step.done
+                        ? 'text-[var(--accent-green)]'
+                        : step.active
+                          ? 'text-[var(--primary)]'
+                          : 'text-gray-400'
+                    }`}
+                  >
+                    {step.label}
+                  </p>
                   <p className="text-[6px] text-[var(--text-muted)]">{step.desc}</p>
                 </motion.div>
                 {idx < 3 && (
-                  <div className={`w-3 h-0.5 ${
-                    step.done ? 'bg-[var(--accent-green)]' : 'bg-gray-200'
-                  }`} />
+                  <div
+                    className={`w-3 h-0.5 ${
+                      step.done ? 'bg-[var(--accent-green)]' : 'bg-gray-200'
+                    }`}
+                  />
                 )}
               </div>
             ))}
@@ -830,7 +977,9 @@ function DataAgentScreen() {
               <p className="text-[10px] font-bold" style={{ color: metric.color }}>
                 {metric.value}
                 {metric.extra && (
-                  <span className="text-[var(--accent-green)] text-[8px] ml-0.5">{metric.extra}</span>
+                  <span className="text-[var(--accent-green)] text-[8px] ml-0.5">
+                    {metric.extra}
+                  </span>
                 )}
               </p>
             </motion.div>
@@ -852,7 +1001,12 @@ function SupportAgentScreen() {
   ];
 
   const toolCalls = [
-    { tool: 'analyze_sentiment', args: 'input_text', status: 'captured', result: 'angry, frustrated' },
+    {
+      tool: 'analyze_sentiment',
+      args: 'input_text',
+      status: 'captured',
+      result: 'angry, frustrated',
+    },
     { tool: 'lookup_customer', args: 'email', status: 'captured', result: 'CUS-8472' },
     { tool: 'check_policy', args: 'refund_eligible', status: 'captured', result: 'true' },
     { tool: 'process_refund', args: 'order_id', status: 'running', result: '...' },
@@ -891,7 +1045,9 @@ function SupportAgentScreen() {
             <p className="text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
               Customer Query
             </p>
-            <p className="text-sm font-medium">&quot;I want a refund, this product sucks and I&apos;m really angry...&quot;</p>
+            <p className="text-sm font-medium">
+              &quot;I want a refund, this product sucks and I&apos;m really angry...&quot;
+            </p>
           </div>
           <motion.button
             whileHover={{ boxShadow: '0 6px 20px rgba(34, 197, 94, 0.4)' }}
@@ -936,7 +1092,8 @@ function SupportAgentScreen() {
                 </div>
                 <div className="bg-white border border-gray-200 rounded-lg p-1.5 max-w-[85%]">
                   <p className="text-[7px] text-gray-800 leading-relaxed">
-                    I want a refund, this product sucks and I&apos;m really angry. I&apos;ve tried reaching out three times and no one responds. This is unacceptable.
+                    I want a refund, this product sucks and I&apos;m really angry. I&apos;ve tried
+                    reaching out three times and no one responds. This is unacceptable.
                   </p>
                   <p className="text-[6px] text-gray-400 mt-0.5">2:34 PM</p>
                 </div>
@@ -951,7 +1108,9 @@ function SupportAgentScreen() {
               >
                 <div className="bg-[var(--primary)]/10 border border-[var(--primary)]/30 rounded-lg p-1.5 max-w-[85%]">
                   <p className="text-[7px] text-gray-800 leading-relaxed">
-                    I&apos;m truly sorry to hear about your frustrating experience. I completely understand how upsetting this must be, especially after multiple attempts to reach us.
+                    I&apos;m truly sorry to hear about your frustrating experience. I completely
+                    understand how upsetting this must be, especially after multiple attempts to
+                    reach us.
                   </p>
                   <motion.p
                     animate={{ opacity: [1, 0.5, 1] }}
@@ -1047,21 +1206,30 @@ function SupportAgentScreen() {
                       call.status === 'running' ? 'bg-[var(--primary)]/5' : ''
                     }`}
                   >
-                    <div className={`w-1.5 h-1.5 rounded-full ${
-                      call.status === 'captured' ? 'bg-[var(--accent-green)]' : 'bg-[var(--primary)] animate-pulse'
-                    }`} />
+                    <div
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        call.status === 'captured'
+                          ? 'bg-[var(--accent-green)]'
+                          : 'bg-[var(--primary)] animate-pulse'
+                      }`}
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="text-[8px] font-mono font-medium truncate">{call.tool}</p>
                       <p className="text-[7px] text-[var(--text-muted)] truncate">{call.args}</p>
                     </div>
-                    <span className={`text-[7px] font-mono ${
-                      call.status === 'running' ? 'text-[var(--primary)]' : 'text-[var(--accent-green)]'
-                    }`}>{call.result}</span>
+                    <span
+                      className={`text-[7px] font-mono ${
+                        call.status === 'running'
+                          ? 'text-[var(--primary)]'
+                          : 'text-[var(--accent-green)]'
+                      }`}
+                    >
+                      {call.result}
+                    </span>
                   </motion.div>
                 ))}
               </div>
             </div>
-
           </div>
 
           {/* Right Column - Evaluation Rubrics */}
@@ -1109,19 +1277,23 @@ function SupportAgentScreen() {
 
                   {/* Action */}
                   <div className="flex-1 min-w-0">
-                    <p className={`text-[7px] truncate ${rubric.status === 'pending' ? 'text-[var(--text-muted)]' : ''}`}>
+                    <p
+                      className={`text-[7px] truncate ${rubric.status === 'pending' ? 'text-[var(--text-muted)]' : ''}`}
+                    >
                       {rubric.action}
                     </p>
                   </div>
 
                   {/* Weight Badge */}
-                  <span className={`text-[6px] font-semibold px-1 py-0.5 rounded ${
-                    rubric.status === 'pass'
-                      ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
-                      : rubric.status === 'evaluating'
-                      ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                      : 'bg-gray-100 text-gray-500'
-                  }`}>
+                  <span
+                    className={`text-[6px] font-semibold px-1 py-0.5 rounded ${
+                      rubric.status === 'pass'
+                        ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
+                        : rubric.status === 'evaluating'
+                          ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+                          : 'bg-gray-100 text-gray-500'
+                    }`}
+                  >
                     {rubric.importance}/10
                   </span>
                 </motion.div>
@@ -1165,19 +1337,29 @@ function SupportAgentScreen() {
                     step.done
                       ? 'bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30'
                       : step.active
-                      ? 'bg-[var(--primary)]/10 border border-[var(--primary)]/30'
-                      : 'bg-white border border-gray-200'
+                        ? 'bg-[var(--primary)]/10 border border-[var(--primary)]/30'
+                        : 'bg-white border border-gray-200'
                   }`}
                 >
-                  <p className={`text-[8px] font-semibold ${
-                    step.done ? 'text-[var(--accent-green)]' : step.active ? 'text-[var(--primary)]' : 'text-gray-400'
-                  }`}>{step.label}</p>
+                  <p
+                    className={`text-[8px] font-semibold ${
+                      step.done
+                        ? 'text-[var(--accent-green)]'
+                        : step.active
+                          ? 'text-[var(--primary)]'
+                          : 'text-gray-400'
+                    }`}
+                  >
+                    {step.label}
+                  </p>
                   <p className="text-[6px] text-[var(--text-muted)]">{step.desc}</p>
                 </motion.div>
                 {idx < 3 && (
-                  <div className={`w-3 h-0.5 ${
-                    step.done ? 'bg-[var(--accent-green)]' : 'bg-gray-200'
-                  }`} />
+                  <div
+                    className={`w-3 h-0.5 ${
+                      step.done ? 'bg-[var(--accent-green)]' : 'bg-gray-200'
+                    }`}
+                  />
                 )}
               </div>
             ))}
@@ -1207,7 +1389,9 @@ function SupportAgentScreen() {
               <p className="text-[10px] font-bold" style={{ color: metric.color }}>
                 {metric.value}
                 {metric.extra && (
-                  <span className="text-[var(--accent-green)] text-[8px] ml-0.5">{metric.extra}</span>
+                  <span className="text-[var(--accent-green)] text-[8px] ml-0.5">
+                    {metric.extra}
+                  </span>
                 )}
               </p>
             </motion.div>
@@ -1221,7 +1405,11 @@ function SupportAgentScreen() {
 function ContentAgentScreen() {
   const rubrics = [
     { action: 'Generate headline copy from brief', importance: 10, status: 'pass' as const },
-    { action: 'Apply brand color palette (#2563EB, #22C55E)', importance: 10, status: 'pass' as const },
+    {
+      action: 'Apply brand color palette (#2563EB, #22C55E)',
+      importance: 10,
+      status: 'pass' as const,
+    },
     { action: 'Include product name "Smart Sync"', importance: 9, status: 'pass' as const },
     { action: 'Add CTA button with action text', importance: 9, status: 'evaluating' as const },
     { action: 'Ensure text contrast ratio >= 4.5:1', importance: 8, status: 'pending' as const },
@@ -1268,7 +1456,9 @@ function ContentAgentScreen() {
             <p className="text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-wider">
               Target Task
             </p>
-            <p className="text-sm font-medium">&quot;Design a product banner for Smart Sync launch&quot;</p>
+            <p className="text-sm font-medium">
+              &quot;Design a product banner for Smart Sync launch&quot;
+            </p>
           </div>
           <motion.button
             whileHover={{ boxShadow: '0 6px 20px rgba(34, 197, 94, 0.4)' }}
@@ -1301,10 +1491,14 @@ function ContentAgentScreen() {
             {/* Banner Preview */}
             <div className="bg-gradient-to-br from-[#2563EB] via-[#3b82f6] to-[#1d4ed8] p-3 min-h-[120px] relative">
               {/* Grid overlay for design feel */}
-              <div className="absolute inset-0 opacity-10" style={{
-                backgroundImage: 'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)',
-                backgroundSize: '20px 20px'
-              }} />
+              <div
+                className="absolute inset-0 opacity-10"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)',
+                  backgroundSize: '20px 20px',
+                }}
+              />
 
               {/* Banner Content */}
               <div className="relative z-10">
@@ -1313,9 +1507,7 @@ function ContentAgentScreen() {
                   animate={{ opacity: 1, y: 0 }}
                   className="mb-2"
                 >
-                  <p className="text-[11px] font-bold text-white leading-tight">
-                    Smart Sync
-                  </p>
+                  <p className="text-[11px] font-bold text-white leading-tight">Smart Sync</p>
                   <p className="text-[8px] text-white/90 mt-0.5">
                     Your data, everywhere. Instantly.
                   </p>
@@ -1418,21 +1610,30 @@ function ContentAgentScreen() {
                       call.status === 'running' ? 'bg-[var(--primary)]/5' : ''
                     }`}
                   >
-                    <div className={`w-1.5 h-1.5 rounded-full ${
-                      call.status === 'captured' ? 'bg-[var(--accent-green)]' : 'bg-[var(--primary)] animate-pulse'
-                    }`} />
+                    <div
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        call.status === 'captured'
+                          ? 'bg-[var(--accent-green)]'
+                          : 'bg-[var(--primary)] animate-pulse'
+                      }`}
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="text-[8px] font-mono font-medium truncate">{call.tool}</p>
                       <p className="text-[7px] text-[var(--text-muted)] truncate">{call.args}</p>
                     </div>
-                    <span className={`text-[7px] ${
-                      call.status === 'running' ? 'text-[var(--primary)]' : 'text-[var(--text-muted)]'
-                    }`}>{call.time}</span>
+                    <span
+                      className={`text-[7px] ${
+                        call.status === 'running'
+                          ? 'text-[var(--primary)]'
+                          : 'text-[var(--text-muted)]'
+                      }`}
+                    >
+                      {call.time}
+                    </span>
                   </motion.div>
                 ))}
               </div>
             </div>
-
           </div>
 
           {/* Right Column - Evaluation Rubrics */}
@@ -1480,19 +1681,23 @@ function ContentAgentScreen() {
 
                   {/* Action */}
                   <div className="flex-1 min-w-0">
-                    <p className={`text-[7px] truncate ${rubric.status === 'pending' ? 'text-[var(--text-muted)]' : ''}`}>
+                    <p
+                      className={`text-[7px] truncate ${rubric.status === 'pending' ? 'text-[var(--text-muted)]' : ''}`}
+                    >
                       {rubric.action}
                     </p>
                   </div>
 
                   {/* Weight Badge */}
-                  <span className={`text-[6px] font-semibold px-1 py-0.5 rounded ${
-                    rubric.status === 'pass'
-                      ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
-                      : rubric.status === 'evaluating'
-                      ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
-                      : 'bg-gray-100 text-gray-500'
-                  }`}>
+                  <span
+                    className={`text-[6px] font-semibold px-1 py-0.5 rounded ${
+                      rubric.status === 'pass'
+                        ? 'bg-[var(--accent-green)]/10 text-[var(--accent-green)]'
+                        : rubric.status === 'evaluating'
+                          ? 'bg-[var(--primary)]/10 text-[var(--primary)]'
+                          : 'bg-gray-100 text-gray-500'
+                    }`}
+                  >
                     {rubric.importance}/10
                   </span>
                 </motion.div>
@@ -1536,19 +1741,29 @@ function ContentAgentScreen() {
                     step.done
                       ? 'bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30'
                       : step.active
-                      ? 'bg-[var(--primary)]/10 border border-[var(--primary)]/30'
-                      : 'bg-white border border-gray-200'
+                        ? 'bg-[var(--primary)]/10 border border-[var(--primary)]/30'
+                        : 'bg-white border border-gray-200'
                   }`}
                 >
-                  <p className={`text-[8px] font-semibold ${
-                    step.done ? 'text-[var(--accent-green)]' : step.active ? 'text-[var(--primary)]' : 'text-gray-400'
-                  }`}>{step.label}</p>
+                  <p
+                    className={`text-[8px] font-semibold ${
+                      step.done
+                        ? 'text-[var(--accent-green)]'
+                        : step.active
+                          ? 'text-[var(--primary)]'
+                          : 'text-gray-400'
+                    }`}
+                  >
+                    {step.label}
+                  </p>
                   <p className="text-[6px] text-[var(--text-muted)]">{step.desc}</p>
                 </motion.div>
                 {idx < 3 && (
-                  <div className={`w-3 h-0.5 ${
-                    step.done ? 'bg-[var(--accent-green)]' : 'bg-gray-200'
-                  }`} />
+                  <div
+                    className={`w-3 h-0.5 ${
+                      step.done ? 'bg-[var(--accent-green)]' : 'bg-gray-200'
+                    }`}
+                  />
                 )}
               </div>
             ))}
@@ -1578,7 +1793,9 @@ function ContentAgentScreen() {
               <p className="text-[10px] font-bold" style={{ color: metric.color }}>
                 {metric.value}
                 {metric.extra && (
-                  <span className="text-[var(--accent-green)] text-[8px] ml-0.5">{metric.extra}</span>
+                  <span className="text-[var(--accent-green)] text-[8px] ml-0.5">
+                    {metric.extra}
+                  </span>
                 )}
               </p>
             </motion.div>
