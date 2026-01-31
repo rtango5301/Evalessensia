@@ -37,7 +37,7 @@ TensorEval is a Next.js 16 application for an AI agent CI/CD platform. It uses t
 - **Styling**: Tailwind CSS 4 with CSS custom properties in `globals.css`
 - **Animations**: Framer Motion for scroll-triggered and interactive animations
 - **Components**: shadcn/ui pattern with Radix UI primitives
-- **Icons**: Google Material Symbols
+- **Icons**: Lucide React
 
 ### Structure
 
@@ -46,6 +46,9 @@ TensorEval is a Next.js 16 application for an AI agent CI/CD platform. It uses t
 - `/` - Landing page composed of section components
 - `/login` - Authentication page with OAuth and email options (includes signup toggle)
 - `/dashboard` - Main dashboard with agents overview and recent runs
+  - `/dashboard/reports` - Reports & analytics with charts and metrics
+  - `/dashboard/settings` - User settings (profile, notifications, team, appearance)
+  - `/dashboard/api-keys` - API key management (create, revoke, list)
 - `/agents` - Agent management (separate top-level route with own layout)
   - `/agents/new` - Step 1: Agent type selection
   - `/agents/configure` - Step 2: Configuration settings
