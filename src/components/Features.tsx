@@ -100,7 +100,9 @@ export function Features() {
                     <Icon className="w-6 h-6 text-[var(--primary)]" />
                   </div>
                   <h4 className="font-semibold mb-1.5">{feature.title}</h4>
-                  <p className="text-sm text-[var(--text-secondary)] line-clamp-2">{feature.description}</p>
+                  <p className="text-sm text-[var(--text-secondary)] line-clamp-2">
+                    {feature.description}
+                  </p>
                 </motion.div>
               );
             })}
@@ -196,13 +198,15 @@ function QueryGeneratorFeature() {
       type: 'EDGE CASE',
       typeColor: '#f59e0b',
       realism: 0.98,
-      query: '"What is the policy for returning electronics after 14 days if the seal is broken but device is faulty?"',
+      query:
+        '"What is the policy for returning electronics after 14 days if the seal is broken but device is faulty?"',
     },
     {
       type: 'STANDARD',
       typeColor: '#4F46E5',
       realism: 0.96,
-      query: '"How do I track my order for a customized laptop and can I change the delivery address?"',
+      query:
+        '"How do I track my order for a customized laptop and can I change the delivery address?"',
     },
     {
       type: 'ADVERSARIAL',
@@ -332,15 +336,29 @@ function QueryGeneratorFeature() {
 
             {/* Animated flowing lines to hub */}
             <div className="flex-1 flex items-center justify-center relative h-full">
-              <svg className="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <svg
+                className="absolute w-full h-full"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+              >
                 {/* Animated gradient definition */}
                 <defs>
                   <linearGradient id="flowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="#e5e7eb" />
                     <stop offset="50%" stopColor="#4F46E5" />
                     <stop offset="100%" stopColor="#e5e7eb" />
-                    <animate attributeName="x1" values="-100%;100%" dur="2s" repeatCount="indefinite" />
-                    <animate attributeName="x2" values="0%;200%" dur="2s" repeatCount="indefinite" />
+                    <animate
+                      attributeName="x1"
+                      values="-100%;100%"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                    <animate
+                      attributeName="x2"
+                      values="0%;200%"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
                   </linearGradient>
                 </defs>
                 <motion.path
@@ -406,7 +424,11 @@ function QueryGeneratorFeature() {
 
             {/* Animated flowing lines to network */}
             <div className="flex-1 flex items-center justify-center relative h-full">
-              <svg className="absolute w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <svg
+                className="absolute w-full h-full"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+              >
                 <motion.path
                   initial={{ pathLength: 0, opacity: 0 }}
                   animate={{ pathLength: 1, opacity: 1 }}
@@ -446,7 +468,10 @@ function QueryGeneratorFeature() {
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
                   transition={{ delay: 2.5, duration: 0.5 }}
-                  x1="20" y1="30" x2="50" y2="35"
+                  x1="20"
+                  y1="30"
+                  x2="50"
+                  y2="35"
                   stroke="#c7d2fe"
                   strokeWidth="1.5"
                   strokeDasharray="3 2"
@@ -455,7 +480,10 @@ function QueryGeneratorFeature() {
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
                   transition={{ delay: 2.6, duration: 0.5 }}
-                  x1="40" y1="12" x2="50" y2="35"
+                  x1="40"
+                  y1="12"
+                  x2="50"
+                  y2="35"
                   stroke="#c7d2fe"
                   strokeWidth="1.5"
                   strokeDasharray="3 2"
@@ -464,7 +492,10 @@ function QueryGeneratorFeature() {
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
                   transition={{ delay: 2.7, duration: 0.5 }}
-                  x1="50" y1="35" x2="70" y2="20"
+                  x1="50"
+                  y1="35"
+                  x2="70"
+                  y2="20"
                   stroke="#c7d2fe"
                   strokeWidth="1.5"
                   strokeDasharray="3 2"
@@ -473,7 +504,10 @@ function QueryGeneratorFeature() {
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
                   transition={{ delay: 2.8, duration: 0.5 }}
-                  x1="70" y1="20" x2="85" y2="42"
+                  x1="70"
+                  y1="20"
+                  x2="85"
+                  y2="42"
                   stroke="#c7d2fe"
                   strokeWidth="1.5"
                   strokeDasharray="3 2"
@@ -482,7 +516,10 @@ function QueryGeneratorFeature() {
                   initial={{ pathLength: 0 }}
                   animate={{ pathLength: 1 }}
                   transition={{ delay: 2.9, duration: 0.5 }}
-                  x1="50" y1="35" x2="85" y2="42"
+                  x1="50"
+                  y1="35"
+                  x2="85"
+                  y2="42"
                   stroke="#c7d2fe"
                   strokeWidth="1.5"
                   strokeDasharray="3 2"
@@ -493,31 +530,46 @@ function QueryGeneratorFeature() {
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 2.3, type: 'spring' }}
-                  cx="20" cy="30" r="5" fill="#e0e7ff"
+                  cx="20"
+                  cy="30"
+                  r="5"
+                  fill="#e0e7ff"
                 />
                 <motion.circle
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 2.35, type: 'spring' }}
-                  cx="40" cy="12" r="4" fill="#e0e7ff"
+                  cx="40"
+                  cy="12"
+                  r="4"
+                  fill="#e0e7ff"
                 />
                 <motion.circle
                   initial={{ scale: 0 }}
                   animate={{ scale: [1, 1.3, 1] }}
                   transition={{ delay: 2.4, duration: 1.5, repeat: Infinity }}
-                  cx="50" cy="35" r="8" fill="#4F46E5"
+                  cx="50"
+                  cy="35"
+                  r="8"
+                  fill="#4F46E5"
                 />
                 <motion.circle
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 2.45, type: 'spring' }}
-                  cx="70" cy="20" r="5" fill="#e0e7ff"
+                  cx="70"
+                  cy="20"
+                  r="5"
+                  fill="#e0e7ff"
                 />
                 <motion.circle
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 2.5, type: 'spring' }}
-                  cx="85" cy="42" r="4" fill="#e0e7ff"
+                  cx="85"
+                  cy="42"
+                  r="4"
+                  fill="#e0e7ff"
                 />
               </svg>
               <motion.div
@@ -554,10 +606,7 @@ function QueryGeneratorFeature() {
                   transition={{ delay: 3.2 + idx * 0.1 }}
                   className="flex items-center gap-1.5"
                 >
-                  <span
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: s.color }}
-                  />
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
                   <span className="text-[10px] text-gray-500 font-medium">
                     {s.name} ({s.count})
                   </span>
@@ -646,7 +695,6 @@ function QueryGeneratorFeature() {
   );
 }
 
-
 function MetricsDashboardFeature() {
   return (
     <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg h-[540px] flex flex-col">
@@ -693,9 +741,24 @@ function MetricsDashboardFeature() {
             </span>
           </div>
           <div className="space-y-2">
-            <EvalRow name="Support Agent v2.1 (GPT-4 Turbo)" score="94%" status="passed" time="2m ago" />
-            <EvalRow name="Booking Agent v1.3 (Claude Sonnet)" score="88%" status="passed" time="14m ago" />
-            <EvalRow name="Research Agent v1.0 (Llama 70B)" score="72%" status="failed" time="1h ago" />
+            <EvalRow
+              name="Support Agent v2.1 (GPT-4 Turbo)"
+              score="94%"
+              status="passed"
+              time="2m ago"
+            />
+            <EvalRow
+              name="Booking Agent v1.3 (Claude Sonnet)"
+              score="88%"
+              status="passed"
+              time="14m ago"
+            />
+            <EvalRow
+              name="Research Agent v1.0 (Llama 70B)"
+              score="72%"
+              status="failed"
+              time="1h ago"
+            />
           </div>
         </div>
       </div>
@@ -1132,15 +1195,7 @@ function SixAxisRadar() {
   );
 }
 
-function MetricTile({
-  label,
-  value,
-  failed,
-}: {
-  label: string;
-  value: string;
-  failed?: boolean;
-}) {
+function MetricTile({ label, value, failed }: { label: string; value: string; failed?: boolean }) {
   return (
     <div
       className={`rounded-xl p-4 text-center ${

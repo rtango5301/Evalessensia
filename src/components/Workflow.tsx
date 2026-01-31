@@ -368,13 +368,15 @@ function QueryGeneratorScreen() {
       type: 'EDGE CASE',
       typeColor: '#22c55e',
       realism: 0.98,
-      query: '"What is the policy for returning electronics after 14 days if the seal is broken but device is faulty?"',
+      query:
+        '"What is the policy for returning electronics after 14 days if the seal is broken but device is faulty?"',
     },
     {
       type: 'STANDARD',
       typeColor: '#4f7bec',
       realism: 0.96,
-      query: '"How do I track my order for a customized laptop and can I change the delivery address?"',
+      query:
+        '"How do I track my order for a customized laptop and can I change the delivery address?"',
     },
     {
       type: 'ADVERSARIAL',
@@ -469,166 +471,166 @@ function QueryGeneratorScreen() {
 
           {/* Graph Visualization */}
           <div className="relative h-[120px] flex items-center justify-center">
-          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 500 140">
-            {/* Dashed connection lines */}
-            <motion.path
-              d="M 50 70 Q 100 40, 150 45"
-              fill="none"
-              stroke="#e0e0e0"
-              strokeWidth="1.5"
-              strokeDasharray="4 4"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 1 }}
-            />
-            <motion.path
-              d="M 150 45 Q 200 30, 250 70"
-              fill="none"
-              stroke="#e0e0e0"
-              strokeWidth="1.5"
-              strokeDasharray="4 4"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 1, delay: 0.2 }}
-            />
-            <motion.path
-              d="M 150 45 Q 180 80, 150 100"
-              fill="none"
-              stroke="#e0e0e0"
-              strokeWidth="1.5"
-              strokeDasharray="4 4"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 1, delay: 0.3 }}
-            />
-            <motion.path
-              d="M 250 70 Q 300 50, 350 45"
-              fill="none"
-              stroke="#e0e0e0"
-              strokeWidth="1.5"
-              strokeDasharray="4 4"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 1, delay: 0.4 }}
-            />
-            <motion.path
-              d="M 250 70 Q 280 90, 300 85"
-              fill="none"
-              stroke="#e0e0e0"
-              strokeWidth="1.5"
-              strokeDasharray="4 4"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 1, delay: 0.5 }}
-            />
-            <motion.path
-              d="M 350 45 Q 400 35, 430 60"
-              fill="none"
-              stroke="#e0e0e0"
-              strokeWidth="1.5"
-              strokeDasharray="4 4"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 1, delay: 0.6 }}
-            />
-            <motion.path
-              d="M 300 85 Q 350 95, 380 75"
-              fill="none"
-              stroke="#e0e0e0"
-              strokeWidth="1.5"
-              strokeDasharray="4 4"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 1, delay: 0.7 }}
-            />
-          </svg>
+            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 500 140">
+              {/* Dashed connection lines */}
+              <motion.path
+                d="M 50 70 Q 100 40, 150 45"
+                fill="none"
+                stroke="#e0e0e0"
+                strokeWidth="1.5"
+                strokeDasharray="4 4"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1 }}
+              />
+              <motion.path
+                d="M 150 45 Q 200 30, 250 70"
+                fill="none"
+                stroke="#e0e0e0"
+                strokeWidth="1.5"
+                strokeDasharray="4 4"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1, delay: 0.2 }}
+              />
+              <motion.path
+                d="M 150 45 Q 180 80, 150 100"
+                fill="none"
+                stroke="#e0e0e0"
+                strokeWidth="1.5"
+                strokeDasharray="4 4"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1, delay: 0.3 }}
+              />
+              <motion.path
+                d="M 250 70 Q 300 50, 350 45"
+                fill="none"
+                stroke="#e0e0e0"
+                strokeWidth="1.5"
+                strokeDasharray="4 4"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1, delay: 0.4 }}
+              />
+              <motion.path
+                d="M 250 70 Q 280 90, 300 85"
+                fill="none"
+                stroke="#e0e0e0"
+                strokeWidth="1.5"
+                strokeDasharray="4 4"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1, delay: 0.5 }}
+              />
+              <motion.path
+                d="M 350 45 Q 400 35, 430 60"
+                fill="none"
+                stroke="#e0e0e0"
+                strokeWidth="1.5"
+                strokeDasharray="4 4"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1, delay: 0.6 }}
+              />
+              <motion.path
+                d="M 300 85 Q 350 95, 380 75"
+                fill="none"
+                stroke="#e0e0e0"
+                strokeWidth="1.5"
+                strokeDasharray="4 4"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 1, delay: 0.7 }}
+              />
+            </svg>
 
-          {/* Start node (large blue) */}
-          <motion.div
-            className="absolute left-[8%] top-1/2 -translate-y-1/2"
-            animate={{ scale: activeNode === 0 ? [1, 1.15, 1] : 1 }}
-            transition={{ duration: 1, repeat: activeNode === 0 ? Infinity : 0 }}
-          >
-            <div className="w-6 h-6 rounded-full bg-[#4f7bec] shadow-md shadow-[#4f7bec]/30" />
-          </motion.div>
-
-          {/* Policy_Fetch node */}
-          <motion.div
-            className="absolute left-[22%] top-[20%]"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <div className="flex items-center gap-1">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#4f7bec]" />
-              <span className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-medium text-gray-600 shadow-sm">
-                Policy_Fetch
-              </span>
-            </div>
-          </motion.div>
-
-          {/* Edge_Case_Heuristic node */}
-          <motion.div
-            className="absolute left-[22%] bottom-[12%]"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-[#4f7bec]" />
-              <span className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-medium text-gray-600 shadow-sm">
-                Edge_Case_Heuristic
-              </span>
-            </div>
-          </motion.div>
-
-          {/* SYNTHESIZING_QUERY node (center, highlighted) */}
-          <motion.div
-            className="absolute left-1/2 top-[45%] -translate-x-1/2 -translate-y-1/2"
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.4, type: 'spring' }}
-          >
+            {/* Start node (large blue) */}
             <motion.div
-              animate={{ scale: activeNode === 2 ? [1, 1.05, 1] : 1 }}
-              transition={{ duration: 1.5, repeat: activeNode === 2 ? Infinity : 0 }}
-              className="relative"
+              className="absolute left-[8%] top-1/2 -translate-y-1/2"
+              animate={{ scale: activeNode === 0 ? [1, 1.15, 1] : 1 }}
+              transition={{ duration: 1, repeat: activeNode === 0 ? Infinity : 0 }}
             >
-              <div className="w-8 h-8 rounded-full bg-[#4f7bec]/20 absolute -inset-1.5" />
-              <div className="w-5 h-5 rounded-full bg-[#4f7bec] shadow-md shadow-[#4f7bec]/40" />
-              <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 px-2 py-1 bg-[#4f7bec] text-white rounded text-[8px] font-semibold uppercase tracking-wide whitespace-nowrap shadow-md">
-                SYNTHESIZING_QUERY
-              </span>
+              <div className="w-6 h-6 rounded-full bg-[#4f7bec] shadow-md shadow-[#4f7bec]/30" />
             </motion.div>
-          </motion.div>
 
-          {/* Small nodes on right side */}
-          <motion.div
-            className="absolute right-[32%] top-[22%]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-          >
-            <div className="w-2 h-2 rounded-full bg-gray-300" />
-          </motion.div>
-          <motion.div
-            className="absolute right-[25%] bottom-[30%]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
-          >
-            <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />
-          </motion.div>
-          <motion.div
-            className="absolute right-[12%] top-[32%]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-          >
-            <div className="w-3.5 h-3.5 rounded-full bg-gray-200 border-2 border-gray-300" />
-          </motion.div>
+            {/* Policy_Fetch node */}
+            <motion.div
+              className="absolute left-[22%] top-[20%]"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <div className="flex items-center gap-1">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#4f7bec]" />
+                <span className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-medium text-gray-600 shadow-sm">
+                  Policy_Fetch
+                </span>
+              </div>
+            </motion.div>
+
+            {/* Edge_Case_Heuristic node */}
+            <motion.div
+              className="absolute left-[22%] bottom-[12%]"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full bg-[#4f7bec]" />
+                <span className="px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[9px] font-medium text-gray-600 shadow-sm">
+                  Edge_Case_Heuristic
+                </span>
+              </div>
+            </motion.div>
+
+            {/* SYNTHESIZING_QUERY node (center, highlighted) */}
+            <motion.div
+              className="absolute left-1/2 top-[45%] -translate-x-1/2 -translate-y-1/2"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4, type: 'spring' }}
+            >
+              <motion.div
+                animate={{ scale: activeNode === 2 ? [1, 1.05, 1] : 1 }}
+                transition={{ duration: 1.5, repeat: activeNode === 2 ? Infinity : 0 }}
+                className="relative"
+              >
+                <div className="w-8 h-8 rounded-full bg-[#4f7bec]/20 absolute -inset-1.5" />
+                <div className="w-5 h-5 rounded-full bg-[#4f7bec] shadow-md shadow-[#4f7bec]/40" />
+                <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1.5 px-2 py-1 bg-[#4f7bec] text-white rounded text-[8px] font-semibold uppercase tracking-wide whitespace-nowrap shadow-md">
+                  SYNTHESIZING_QUERY
+                </span>
+              </motion.div>
+            </motion.div>
+
+            {/* Small nodes on right side */}
+            <motion.div
+              className="absolute right-[32%] top-[22%]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+            >
+              <div className="w-2 h-2 rounded-full bg-gray-300" />
+            </motion.div>
+            <motion.div
+              className="absolute right-[25%] bottom-[30%]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+            >
+              <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />
+            </motion.div>
+            <motion.div
+              className="absolute right-[12%] top-[32%]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+            >
+              <div className="w-3.5 h-3.5 rounded-full bg-gray-200 border-2 border-gray-300" />
+            </motion.div>
+          </div>
         </div>
-      </div>
 
         {/* Scenario Distribution */}
         <div className="mx-3 mt-2 shrink-0">
@@ -686,13 +688,17 @@ function QueryGeneratorScreen() {
                     {scenario.type}
                   </span>
                   <div className="text-right">
-                    <span className="text-[8px] text-gray-400 uppercase tracking-wide block">Realism</span>
+                    <span className="text-[8px] text-gray-400 uppercase tracking-wide block">
+                      Realism
+                    </span>
                     <p className="text-xs font-bold" style={{ color: scenario.typeColor }}>
                       {scenario.realism.toFixed(2)}
                     </p>
                   </div>
                 </div>
-                <p className="text-[10px] text-gray-600 leading-snug line-clamp-3 flex-1">{scenario.query}</p>
+                <p className="text-[10px] text-gray-600 leading-snug line-clamp-3 flex-1">
+                  {scenario.query}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -702,14 +708,19 @@ function QueryGeneratorScreen() {
   );
 }
 
-function DomainAnalysisPanel({ topics }: { topics: { name: string; count: string; color: string }[] }) {
+function DomainAnalysisPanel({
+  topics,
+}: {
+  topics: { name: string; count: string; color: string }[];
+}) {
   const [typedText, setTypedText] = useState('');
   const [showCursor, setShowCursor] = useState(true);
   const [highlightedWords, setHighlightedWords] = useState<string[]>([]);
   const [visibleTopics, setVisibleTopics] = useState<number>(0);
   const [isComplete, setIsComplete] = useState(false);
 
-  const fullText = 'Customer support agent for e-commerce. Handles orders, refunds, shipping, and account questions...';
+  const fullText =
+    'Customer support agent for e-commerce. Handles orders, refunds, shipping, and account questions...';
   const keywords = ['orders', 'refunds', 'shipping', 'account'];
 
   useEffect(() => {
@@ -731,16 +742,22 @@ function DomainAnalysisPanel({ topics }: { topics: { name: string; count: string
 
     // Keyword highlighting (staggered from 0.5s)
     keywords.forEach((keyword, idx) => {
-      setTimeout(() => {
-        setHighlightedWords((prev) => [...prev, keyword]);
-      }, 500 + idx * 200);
+      setTimeout(
+        () => {
+          setHighlightedWords((prev) => [...prev, keyword]);
+        },
+        500 + idx * 200
+      );
     });
 
     // Topic tags appearing (from 1.0s)
     topics.forEach((_, idx) => {
-      setTimeout(() => {
-        setVisibleTopics((prev) => prev + 1);
-      }, 1000 + idx * 100);
+      setTimeout(
+        () => {
+          setVisibleTopics((prev) => prev + 1);
+        },
+        1000 + idx * 100
+      );
     });
 
     // Complete badge (at 1.5s)
@@ -759,7 +776,10 @@ function DomainAnalysisPanel({ topics }: { topics: { name: string; count: string
     let result = text;
     highlightedWords.forEach((word) => {
       const regex = new RegExp(`(${word})`, 'gi');
-      result = result.replace(regex, `<span class="text-[var(--primary)] font-semibold bg-[var(--primary)]/10 px-0.5 rounded">$1</span>`);
+      result = result.replace(
+        regex,
+        `<span class="text-[var(--primary)] font-semibold bg-[var(--primary)]/10 px-0.5 rounded">$1</span>`
+      );
     });
     return result;
   };
@@ -786,7 +806,9 @@ function DomainAnalysisPanel({ topics }: { topics: { name: string; count: string
       {/* Code block with typing */}
       <div className="bg-[var(--bg-subtle)] rounded-md p-2 mb-2 font-mono text-[11px] text-[var(--text-secondary)] border border-[var(--border-light)]">
         <span dangerouslySetInnerHTML={{ __html: highlightKeywords(typedText) }} />
-        <span className={`${showCursor ? 'opacity-100' : 'opacity-0'} text-[var(--primary)]`}>|</span>
+        <span className={`${showCursor ? 'opacity-100' : 'opacity-0'} text-[var(--primary)]`}>
+          |
+        </span>
       </div>
 
       {/* Topic tags */}
@@ -829,31 +851,37 @@ function MultiTurnReasoningPanel({
     // Animate stages from 1.0s
     const stageTimers: NodeJS.Timeout[] = [];
     stages.forEach((stage, idx) => {
-      const timer = setTimeout(() => {
-        setActiveStage(idx);
-        // Animate progress for this stage
-        let progress = 0;
-        const progressInterval = setInterval(() => {
-          progress += 5;
-          if (progress >= stage.progress) {
-            progress = stage.progress;
-            clearInterval(progressInterval);
-          }
-          setStageProgress((prev) => {
-            const updated = [...prev];
-            updated[idx] = progress;
-            return updated;
-          });
-        }, 30);
-      }, 1000 + idx * 400);
+      const timer = setTimeout(
+        () => {
+          setActiveStage(idx);
+          // Animate progress for this stage
+          let progress = 0;
+          const progressInterval = setInterval(() => {
+            progress += 5;
+            if (progress >= stage.progress) {
+              progress = stage.progress;
+              clearInterval(progressInterval);
+            }
+            setStageProgress((prev) => {
+              const updated = [...prev];
+              updated[idx] = progress;
+              return updated;
+            });
+          }, 30);
+        },
+        1000 + idx * 400
+      );
       stageTimers.push(timer);
     });
 
     // Show insights from 2.5s
     insights.forEach((_, idx) => {
-      setTimeout(() => {
-        setVisibleInsights((prev) => prev + 1);
-      }, 2500 + idx * 200);
+      setTimeout(
+        () => {
+          setVisibleInsights((prev) => prev + 1);
+        },
+        2500 + idx * 200
+      );
     });
 
     // Animate overall confidence from 2.5s
@@ -909,7 +937,9 @@ function MultiTurnReasoningPanel({
                       : 'border-[var(--border-light)] bg-white'
                 }`}
               >
-                <p className="text-[9px] font-medium text-[var(--foreground)] whitespace-nowrap">{stage.name}</p>
+                <p className="text-[9px] font-medium text-[var(--foreground)] whitespace-nowrap">
+                  {stage.name}
+                </p>
                 {/* Mini progress bar */}
                 <div className="h-1 bg-gray-100 rounded-full mt-1 overflow-hidden">
                   <motion.div
@@ -956,7 +986,9 @@ function MultiTurnReasoningPanel({
           <p className="text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">
             Confidence
           </p>
-          <motion.p className="text-lg font-bold text-[var(--primary)]">{overallConfidence}%</motion.p>
+          <motion.p className="text-lg font-bold text-[var(--primary)]">
+            {overallConfidence}%
+          </motion.p>
           <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-[var(--primary)] rounded-full"
@@ -1011,15 +1043,21 @@ function ScenarioGenerationPanel({
 
     // Queries stream in from 3.0s
     queries.forEach((_, idx) => {
-      setTimeout(() => {
-        setVisibleQueries((prev) => prev + 1);
-      }, 3000 + idx * 400);
+      setTimeout(
+        () => {
+          setVisibleQueries((prev) => prev + 1);
+        },
+        3000 + idx * 400
+      );
     });
 
     // Typing indicator after all queries
-    setTimeout(() => {
-      setIsTyping(true);
-    }, 3000 + queries.length * 400);
+    setTimeout(
+      () => {
+        setIsTyping(true);
+      },
+      3000 + queries.length * 400
+    );
 
     return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1063,19 +1101,31 @@ function ScenarioGenerationPanel({
         <div className="h-2 bg-gray-100 rounded-full overflow-hidden flex">
           <motion.div
             className="h-full"
-            style={{ backgroundColor: categories[0].color, width: `${(categories[0].pct / 100) * barProgress}%` }}
+            style={{
+              backgroundColor: categories[0].color,
+              width: `${(categories[0].pct / 100) * barProgress}%`,
+            }}
           />
           <motion.div
             className="h-full"
-            style={{ backgroundColor: categories[1].color, width: `${(categories[1].pct / 100) * barProgress}%` }}
+            style={{
+              backgroundColor: categories[1].color,
+              width: `${(categories[1].pct / 100) * barProgress}%`,
+            }}
           />
           <motion.div
             className="h-full"
-            style={{ backgroundColor: categories[2].color, width: `${(categories[2].pct / 100) * barProgress}%` }}
+            style={{
+              backgroundColor: categories[2].color,
+              width: `${(categories[2].pct / 100) * barProgress}%`,
+            }}
           />
           <motion.div
             className="h-full"
-            style={{ backgroundColor: categories[3].color, width: `${(categories[3].pct / 100) * barProgress}%` }}
+            style={{
+              backgroundColor: categories[3].color,
+              width: `${(categories[3].pct / 100) * barProgress}%`,
+            }}
           />
         </div>
       </div>
@@ -1105,9 +1155,13 @@ function ScenarioGenerationPanel({
                   >
                     {q.type}
                   </span>
-                  <span className="text-[var(--text-secondary)] truncate">&quot;{q.query}&quot;</span>
+                  <span className="text-[var(--text-secondary)] truncate">
+                    &quot;{q.query}&quot;
+                  </span>
                 </div>
-                <span className="text-[10px] font-medium text-[var(--text-muted)] shrink-0">{q.score.toFixed(2)}</span>
+                <span className="text-[10px] font-medium text-[var(--text-muted)] shrink-0">
+                  {q.score.toFixed(2)}
+                </span>
               </motion.div>
             ))}
             {isTyping && (
@@ -1237,7 +1291,9 @@ function RunningScreen() {
                             : 'bg-[var(--primary)]/10 text-[var(--primary)]'
                         }`}
                       >
-                        {call.status === 'complete' ? '✓' : (
+                        {call.status === 'complete' ? (
+                          '✓'
+                        ) : (
                           <motion.span
                             animate={{ rotate: 360 }}
                             transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
@@ -1249,7 +1305,9 @@ function RunningScreen() {
                       <div className="flex-1 min-w-0">
                         <p className="text-[10px] font-mono font-medium truncate">{call.tool}()</p>
                         {call.result && (
-                          <p className="text-[9px] text-[var(--text-muted)] truncate">{call.result}</p>
+                          <p className="text-[9px] text-[var(--text-muted)] truncate">
+                            {call.result}
+                          </p>
                         )}
                       </div>
                     </motion.div>
@@ -1293,7 +1351,13 @@ function RunningScreen() {
                             : 'bg-[var(--primary)]/10 text-[var(--primary)]'
                         }`}
                       >
-                        {call.status === 'complete' ? (call.passed ? '✓' : '✗') : (
+                        {call.status === 'complete' ? (
+                          call.passed ? (
+                            '✓'
+                          ) : (
+                            '✗'
+                          )
+                        ) : (
                           <motion.span
                             animate={{ rotate: 360 }}
                             transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
@@ -1328,7 +1392,9 @@ function RunningScreen() {
             {/* MCP Tools Connected */}
             <div className="mt-2 pt-2 border-t border-[var(--border-light)] flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-[9px] font-semibold text-[var(--text-muted)] uppercase">MCP Tools:</span>
+                <span className="text-[9px] font-semibold text-[var(--text-muted)] uppercase">
+                  MCP Tools:
+                </span>
                 <div className="flex gap-1">
                   {['search_orders', 'get_customer', 'refunds'].map((tool) => (
                     <span
@@ -1389,7 +1455,9 @@ function RunningScreen() {
                         >
                           Running
                         </motion.span>
-                      ) : test.status}
+                      ) : (
+                        test.status
+                      )}
                     </span>
                   </div>
                   {test.tools > 0 && (
@@ -1525,126 +1593,129 @@ function MetricsScreen() {
     <>
       <WindowHeader title="Evaluation Results" />
       <div className="p-4">
-      {/* Header */}
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <h3 className="text-lg font-bold">Support Bot v2.4</h3>
-            <span className="px-2 py-0.5 bg-[var(--accent-green)]/10 text-[var(--accent-green)] rounded text-[10px] font-semibold uppercase">
-              Passed
+        {/* Header */}
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="text-lg font-bold">Support Bot v2.4</h3>
+              <span className="px-2 py-0.5 bg-[var(--accent-green)]/10 text-[var(--accent-green)] rounded text-[10px] font-semibold uppercase">
+                Passed
+              </span>
+            </div>
+            <p className="text-xs text-[var(--text-muted)]">Run #2847 completed • Feb 24, 2024</p>
+          </div>
+          <div className="flex gap-2">
+            <motion.button
+              whileHover={{ scale: 1.05, backgroundColor: '#f9fafb' }}
+              whileTap={{ scale: 0.95 }}
+              className="px-3 py-1.5 bg-white border border-[var(--border)] rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm hover:shadow transition-all"
+            >
+              <motion.span whileHover={{ y: [0, -2, 0] }} transition={{ duration: 0.3 }}>
+                📥
+              </motion.span>{' '}
+              Export PDF Report
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05, boxShadow: '0 6px 16px rgba(99, 102, 241, 0.35)' }}
+              whileTap={{ scale: 0.95 }}
+              className="px-3 py-1.5 bg-[var(--primary)] text-white rounded-lg text-xs font-medium flex items-center gap-1 shadow-md shadow-[var(--primary)]/25 transition-all"
+            >
+              Compare Versions
+              <motion.span
+                animate={{ x: [0, 3, 0] }}
+                transition={{ duration: 1, repeat: Infinity }}
+              >
+                →
+              </motion.span>
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Table Header */}
+        <div className="grid grid-cols-[1.3fr_0.8fr_0.6fr_1fr] gap-2 px-3 py-2 text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border-light)]">
+          <span>Metric</span>
+          <span>Current Score</span>
+          <span>Status</span>
+          <span className="text-right">Trend (Last 10 Runs)</span>
+        </div>
+
+        {/* Metrics Rows */}
+        <div className="divide-y divide-[var(--border-light)]">
+          {metrics.map((metric, idx) => (
+            <motion.div
+              key={metric.name}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              className="grid grid-cols-[1.3fr_0.8fr_0.6fr_1fr] gap-2 px-3 py-2.5 items-center"
+            >
+              {/* Metric Info */}
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm"
+                  style={{ backgroundColor: metric.iconBg }}
+                >
+                  {metric.icon}
+                </div>
+                <div>
+                  <div className="text-sm font-medium">{metric.name}</div>
+                  <div className="text-[10px] text-[var(--text-muted)]">{metric.desc}</div>
+                </div>
+              </div>
+
+              {/* Score */}
+              <div>
+                <span className="text-lg font-bold">{metric.value}</span>
+                {metric.change && (
+                  <span
+                    className={`text-[10px] ml-1 ${metric.change.startsWith('+') ? 'text-[var(--accent-green)]' : 'text-[var(--primary)]'}`}
+                  >
+                    {metric.change.startsWith('-') ? '↓' : '↑'} {metric.change}
+                  </span>
+                )}
+              </div>
+
+              {/* Status */}
+              <span
+                className="px-2 py-1 rounded text-[9px] font-semibold uppercase text-center"
+                style={{
+                  color: metric.statusColor,
+                  backgroundColor: `color-mix(in srgb, ${metric.statusColor} 10%, transparent)`,
+                }}
+              >
+                {metric.status}
+              </span>
+
+              {/* Trend Chart */}
+              <div className="flex justify-end">
+                <TrendLine color={metric.trendColor} flat={metric.flat} />
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-between items-center mt-3 pt-3 border-t border-[var(--border-light)]">
+          <div className="flex gap-4 text-[10px] text-[var(--text-secondary)]">
+            <span className="flex items-center gap-1">
+              <motion.span
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)]"
+              />{' '}
+              47/47 queries safe
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)]" /> 0 jailbreak
+              successes
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)]" /> 0 PII leaks
             </span>
           </div>
-          <p className="text-xs text-[var(--text-muted)]">Run #2847 completed • Feb 24, 2024</p>
-        </div>
-        <div className="flex gap-2">
-          <motion.button
-            whileHover={{ scale: 1.05, backgroundColor: '#f9fafb' }}
-            whileTap={{ scale: 0.95 }}
-            className="px-3 py-1.5 bg-white border border-[var(--border)] rounded-lg text-xs font-medium flex items-center gap-1.5 shadow-sm hover:shadow transition-all"
-          >
-            <motion.span whileHover={{ y: [0, -2, 0] }} transition={{ duration: 0.3 }}>
-              📥
-            </motion.span>{' '}
-            Export PDF Report
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05, boxShadow: '0 6px 16px rgba(99, 102, 241, 0.35)' }}
-            whileTap={{ scale: 0.95 }}
-            className="px-3 py-1.5 bg-[var(--primary)] text-white rounded-lg text-xs font-medium flex items-center gap-1 shadow-md shadow-[var(--primary)]/25 transition-all"
-          >
-            Compare Versions
-            <motion.span animate={{ x: [0, 3, 0] }} transition={{ duration: 1, repeat: Infinity }}>
-              →
-            </motion.span>
-          </motion.button>
+          <span className="text-[10px] text-[var(--text-muted)]">Last synced: 2 minutes ago</span>
         </div>
       </div>
-
-      {/* Table Header */}
-      <div className="grid grid-cols-[1.3fr_0.8fr_0.6fr_1fr] gap-2 px-3 py-2 text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border-light)]">
-        <span>Metric</span>
-        <span>Current Score</span>
-        <span>Status</span>
-        <span className="text-right">Trend (Last 10 Runs)</span>
-      </div>
-
-      {/* Metrics Rows */}
-      <div className="divide-y divide-[var(--border-light)]">
-        {metrics.map((metric, idx) => (
-          <motion.div
-            key={metric.name}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className="grid grid-cols-[1.3fr_0.8fr_0.6fr_1fr] gap-2 px-3 py-2.5 items-center"
-          >
-            {/* Metric Info */}
-            <div className="flex items-center gap-2.5">
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm"
-                style={{ backgroundColor: metric.iconBg }}
-              >
-                {metric.icon}
-              </div>
-              <div>
-                <div className="text-sm font-medium">{metric.name}</div>
-                <div className="text-[10px] text-[var(--text-muted)]">{metric.desc}</div>
-              </div>
-            </div>
-
-            {/* Score */}
-            <div>
-              <span className="text-lg font-bold">{metric.value}</span>
-              {metric.change && (
-                <span
-                  className={`text-[10px] ml-1 ${metric.change.startsWith('+') ? 'text-[var(--accent-green)]' : 'text-[var(--primary)]'}`}
-                >
-                  {metric.change.startsWith('-') ? '↓' : '↑'} {metric.change}
-                </span>
-              )}
-            </div>
-
-            {/* Status */}
-            <span
-              className="px-2 py-1 rounded text-[9px] font-semibold uppercase text-center"
-              style={{
-                color: metric.statusColor,
-                backgroundColor: `color-mix(in srgb, ${metric.statusColor} 10%, transparent)`,
-              }}
-            >
-              {metric.status}
-            </span>
-
-            {/* Trend Chart */}
-            <div className="flex justify-end">
-              <TrendLine color={metric.trendColor} flat={metric.flat} />
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Footer */}
-      <div className="flex justify-between items-center mt-3 pt-3 border-t border-[var(--border-light)]">
-        <div className="flex gap-4 text-[10px] text-[var(--text-secondary)]">
-          <span className="flex items-center gap-1">
-            <motion.span
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)]"
-            />{' '}
-            47/47 queries safe
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)]" /> 0 jailbreak
-            successes
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-green)]" /> 0 PII leaks
-          </span>
-        </div>
-        <span className="text-[10px] text-[var(--text-muted)]">Last synced: 2 minutes ago</span>
-      </div>
-    </div>
     </>
   );
 }

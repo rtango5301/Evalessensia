@@ -252,9 +252,12 @@ export default function AgentsPage() {
                 </>
               ) : (
                 <>
-                  <button className="flex-1 bg-[#135bec] hover:bg-[#135bec]/90 text-white text-sm font-bold py-2 rounded-lg transition-colors">
+                  <Link
+                    href={`/evaluations/configure?agentId=${agent.id}`}
+                    className="flex-1 bg-[#135bec] hover:bg-[#135bec]/90 text-white text-sm font-bold py-2 rounded-lg transition-colors text-center"
+                  >
                     Run Eval
-                  </button>
+                  </Link>
                   <button className="flex-1 border border-slate-200 hover:bg-slate-50 text-slate-900 text-sm font-bold py-2 rounded-lg transition-colors">
                     Configure
                   </button>
