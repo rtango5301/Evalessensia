@@ -3,18 +3,15 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { ProfileDropdown } from '@/components/ui/profile-dropdown';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: 'dashboard', filled: true },
   { href: '/datasets', label: 'Datasets', icon: 'folder_open' },
   { href: '/evaluations', label: 'Evaluations', icon: 'science' },
-  { href: '/dashboard/reports', label: 'Reports', icon: 'description' },
 ];
 
-const secondaryNavItems = [
-  { href: '/dashboard/settings', label: 'Settings', icon: 'settings' },
-  { href: '/dashboard/api-keys', label: 'API Keys', icon: 'key' },
-];
+const secondaryNavItems = [{ href: '/dashboard/api-keys', label: 'API Keys', icon: 'key' }];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -33,7 +30,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       <div className="flex h-screen w-full bg-[#f6f6f8] overflow-hidden font-[Space_Grotesk,sans-serif]">
         {/* Sidebar */}
-        <aside className="hidden md:flex w-64 flex-col border-r border-slate-200 bg-white h-full flex-shrink-0">
+        <aside className="hidden md:flex w-56 flex-col border-r border-slate-200 bg-white h-full flex-shrink-0">
           <div className="flex flex-col h-full p-4">
             {/* Logo */}
             <div className="flex flex-col mb-8 px-2 mt-2">
@@ -44,9 +41,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <span className="material-symbols-outlined text-[#135bec] text-3xl">hub</span>
                 TensorEval
               </Link>
-              <p className="text-slate-500 text-xs font-medium leading-normal ml-9">
-                Admin Console
-              </p>
             </div>
 
             {/* Primary Navigation */}
@@ -107,23 +101,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 );
               })}
             </nav>
-
-            {/* User Profile */}
-            <div className="mt-auto px-2 py-4 border-t border-slate-200">
-              <div className="flex items-center gap-3">
-                <div
-                  className="size-8 rounded-full bg-slate-200 bg-center bg-cover"
-                  style={{
-                    backgroundImage:
-                      "url('https://lh3.googleusercontent.com/aida-public/AB6AXuByL8bdx-2MD1qdiCRDZCzxc5nCBFM4p3dI74tR9WdRcFBCej3kN02WnXUf6f4blw-ovR_RK4YDbzphaQ2QSRfiJ0gXptIx9iGOMqjy1S3NFhc0tTchuWvBmtM_1iHCiuWtelDmtTrGiIqk94cU50En3LGrzOd43TdC8eKR_SqEaL9-HrTL_H-i6X6FLN5aEgrQGo5JY0cnrU94BZ3uIC46IOFxeP49zAMZR4Az0jL4seA6tXXPP67g6rhpsy7NNFG-MAoX3FCHQvDr')",
-                  }}
-                />
-                <div className="flex flex-col">
-                  <span className="text-sm font-bold text-slate-900">Alex Morgan</span>
-                  <span className="text-xs text-slate-500">Admin</span>
-                </div>
-              </div>
-            </div>
           </div>
         </aside>
 
@@ -153,6 +130,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
               {/* Action Buttons */}
               <div className="flex items-center gap-3">
+                <Link
+                  href="/dashboard/settings"
+                  className="flex items-center justify-center size-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[18px]">settings</span>
+                </Link>
                 <button className="flex items-center justify-center size-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors relative">
                   <span className="material-symbols-outlined text-[18px]">notifications</span>
                   <span className="absolute top-1.5 right-1.5 size-2 bg-red-500 rounded-full border-2 border-white"></span>
@@ -160,6 +143,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <button className="flex items-center justify-center size-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors">
                   <span className="material-symbols-outlined text-[18px]">help</span>
                 </button>
+                <ProfileDropdown
+                  user={{
+                    name: 'Alex Morgan',
+                    role: 'Admin',
+                  }}
+                />
               </div>
             </div>
           </header>

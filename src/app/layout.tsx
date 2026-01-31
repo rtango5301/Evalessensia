@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
+import { ToastProvider } from '@/components/ui/toast-context';
+import { Toast } from '@/components/ui/toast';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -68,8 +70,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${ibmPlexMono.variable} font-sans antialiased`}>
-        {children}
+      <body
+        className={`${inter.variable} ${ibmPlexMono.variable} font-sans antialiased`}
+        suppressHydrationWarning
+      >
+        <ToastProvider>
+          {children}
+          <Toast />
+        </ToastProvider>
       </body>
     </html>
   );

@@ -9,7 +9,6 @@ interface Query {
   id: string;
   text: string;
   category: string;
-  rubric: string;
   createdAt: string;
 }
 
@@ -22,7 +21,6 @@ const datasetInfo = {
   createdAt: '2024-01-15',
   totalQueries: 150,
   categories: ['account', 'billing', 'technical', 'general'],
-  hasRubrics: true,
 };
 
 const mockQueries: Query[] = [
@@ -30,62 +28,48 @@ const mockQueries: Query[] = [
     id: 'q-001',
     text: 'How do I reset my password?',
     category: 'account',
-    rubric:
-      'Response should include step-by-step instructions for password reset via email or SMS verification.',
     createdAt: '2024-01-15',
   },
   {
     id: 'q-002',
     text: 'Why was I charged twice this month?',
     category: 'billing',
-    rubric:
-      'Response should acknowledge concern, explain possible causes, and offer to investigate specific account.',
     createdAt: '2024-01-15',
   },
   {
     id: 'q-003',
     text: 'The app keeps crashing when I try to upload files',
     category: 'technical',
-    rubric:
-      'Response should ask for device/OS info, file size, and suggest common troubleshooting steps.',
     createdAt: '2024-01-15',
   },
   {
     id: 'q-004',
     text: 'What are your business hours?',
     category: 'general',
-    rubric:
-      'Response should clearly state support hours, timezone, and alternative contact methods.',
     createdAt: '2024-01-15',
   },
   {
     id: 'q-005',
     text: 'Can I change my subscription plan mid-cycle?',
     category: 'billing',
-    rubric: 'Response should explain plan change process, prorated billing, and any restrictions.',
     createdAt: '2024-01-15',
   },
   {
     id: 'q-006',
     text: 'How do I enable two-factor authentication?',
     category: 'account',
-    rubric: 'Response should provide clear steps for 2FA setup with supported authenticator apps.',
     createdAt: '2024-01-15',
   },
   {
     id: 'q-007',
     text: 'My account was hacked, what should I do?',
     category: 'account',
-    rubric:
-      'Response should treat urgently, recommend immediate password change, review of account activity, and escalation path.',
     createdAt: '2024-01-15',
   },
   {
     id: 'q-008',
     text: 'How do I export my data?',
     category: 'technical',
-    rubric:
-      'Response should explain data export feature location, available formats, and any data retention policies.',
     createdAt: '2024-01-15',
   },
 ];
@@ -210,7 +194,7 @@ export default function DatasetDetailPage({ params }: { params: Promise<{ id: st
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-slate-500">Total Queries</span>
@@ -235,18 +219,6 @@ export default function DatasetDetailPage({ params }: { params: Promise<{ id: st
               </span>
             ))}
           </div>
-        </div>
-
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-slate-500">Has Rubrics</span>
-            <span className="material-symbols-outlined text-[#135bec]">rule</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-emerald-600">Yes</span>
-            <span className="material-symbols-outlined text-emerald-500">check_circle</span>
-          </div>
-          <p className="text-xs text-slate-500 mt-1">Per-query evaluation rubrics included</p>
         </div>
       </div>
 
@@ -308,9 +280,6 @@ export default function DatasetDetailPage({ params }: { params: Promise<{ id: st
                   <td className="px-6 py-4 text-sm font-mono text-slate-500">{query.id}</td>
                   <td className="px-6 py-4">
                     <p className="text-sm text-slate-900 line-clamp-2">{query.text}</p>
-                    <p className="text-xs text-slate-500 mt-1 line-clamp-1">
-                      <span className="font-medium">Rubric:</span> {query.rubric}
-                    </p>
                   </td>
                   <td className="px-6 py-4">
                     <span
@@ -431,14 +400,6 @@ export default function DatasetDetailPage({ params }: { params: Promise<{ id: st
                   </label>
                   <div className="mt-1 p-3 bg-slate-50 rounded-lg border border-slate-200">
                     <p className="text-sm text-slate-900">{selectedQuery.text}</p>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-                    Rubric
-                  </label>
-                  <div className="mt-1 p-3 bg-amber-50 rounded-lg border border-amber-200">
-                    <p className="text-sm text-amber-900">{selectedQuery.rubric}</p>
                   </div>
                 </div>
               </div>
