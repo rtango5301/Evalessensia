@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 export function CTA() {
   return (
-    <section className="py-[100px] px-6 bg-[var(--bg-subtle)]">
+    <section className="py-16 lg:py-[100px] px-4 lg:px-6 bg-[var(--bg-subtle)]">
       <div className="max-w-[1200px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -13,10 +13,10 @@ export function CTA() {
           transition={{ duration: 0.5 }}
           className="max-w-[600px] mx-auto text-center"
         >
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 lg:mb-4 tracking-tight">
             Ready to stabilize your AI pipeline?
           </h2>
-          <p className="text-lg text-[var(--text-secondary)] mb-8">
+          <p className="text-base lg:text-lg text-[var(--text-secondary)] mb-6 lg:mb-8">
             Join hundreds of AI engineers who ship deterministic, high-quality agents every day with
             TensorEval.
           </p>
