@@ -6,7 +6,54 @@
 
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Suspense, useState } from 'react';
+import { Suspense, useState, Component, ReactNode } from 'react';
+
+// ============================================================================
+// ERROR BOUNDARY
+// ============================================================================
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[400px] p-8">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 max-w-md text-center">
+            <span className="material-symbols-outlined text-red-500 text-4xl mb-4">error</span>
+            <h3 className="text-lg font-bold text-red-700 mb-2">Something went wrong</h3>
+            <p className="text-sm text-red-600 mb-4">
+              {this.state.error?.message || 'An unexpected error occurred'}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 // ============================================================================
 // MOCK AGENTS DATA
@@ -55,10 +102,18 @@ type QuerySource = 'test-suite' | 'custom-range' | 'upload-csv';
 function ConfigureEvaluationContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const agentIdParam = searchParams.get('agentId');
+
+  // Safely get agentId from search params
+  const getInitialAgentId = (): string | null => {
+    try {
+      return searchParams?.get('agentId') || null;
+    } catch {
+      return null;
+    }
+  };
 
   // Selected Agent State
-  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(agentIdParam || null);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(getInitialAgentId);
   const [showAgentSelector, setShowAgentSelector] = useState(false);
 
   // Model Configuration State
@@ -85,10 +140,29 @@ function ConfigureEvaluationContent() {
   // Get selected agent
   const selectedAgent = agents.find((a) => a.id === selectedAgentId);
 
+  // Safe parseInt helper
+  const safeParseInt = (
+    value: string,
+    defaultValue: number,
+    min?: number,
+    max?: number
+  ): number => {
+    const parsed = parseInt(value, 10);
+    if (isNaN(parsed)) return defaultValue;
+    let result = parsed;
+    if (min !== undefined) result = Math.max(result, min);
+    if (max !== undefined) result = Math.min(result, max);
+    return result;
+  };
+
   // Handle start evaluation
   const handleStartEvaluation = () => {
-    const evalId = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
-    router.push(`/evaluations/${evalId}`);
+    try {
+      const evalId = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
+      router.push(`/evaluations/${evalId}`);
+    } catch (error) {
+      console.error('Failed to start evaluation:', error);
+    }
   };
 
   // Stepper handlers
@@ -263,7 +337,7 @@ function ConfigureEvaluationContent() {
             <input
               type="number"
               value={maxTokens}
-              onChange={(e) => setMaxTokens(parseInt(e.target.value) || 0)}
+              onChange={(e) => setMaxTokens(safeParseInt(e.target.value, 2048, 1, 8192))}
               min="1"
               max="8192"
               className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm focus:ring-2 focus:ring-[#135bec] focus:border-[#135bec] transition-all"
@@ -392,7 +466,7 @@ function ConfigureEvaluationContent() {
                 <input
                   type="number"
                   value={customStartIndex}
-                  onChange={(e) => setCustomStartIndex(parseInt(e.target.value) || 1)}
+                  onChange={(e) => setCustomStartIndex(safeParseInt(e.target.value, 1, 1))}
                   min="1"
                   className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm focus:ring-2 focus:ring-[#135bec] focus:border-[#135bec] transition-all"
                 />
@@ -402,7 +476,7 @@ function ConfigureEvaluationContent() {
                 <input
                   type="number"
                   value={customEndIndex}
-                  onChange={(e) => setCustomEndIndex(parseInt(e.target.value) || 1)}
+                  onChange={(e) => setCustomEndIndex(safeParseInt(e.target.value, 25, 1))}
                   min="1"
                   className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm focus:ring-2 focus:ring-[#135bec] focus:border-[#135bec] transition-all"
                 />
@@ -563,7 +637,7 @@ function ConfigureEvaluationContent() {
                 <input
                   type="number"
                   value={latencyMs}
-                  onChange={(e) => setLatencyMs(parseInt(e.target.value) || 0)}
+                  onChange={(e) => setLatencyMs(safeParseInt(e.target.value, 2000, 100))}
                   onClick={(e) => e.stopPropagation()}
                   className="w-20 px-2 py-1 bg-white border border-slate-200 rounded text-sm text-slate-900 text-center focus:ring-2 focus:ring-[#135bec] focus:border-[#135bec] ml-auto"
                 />
@@ -788,14 +862,16 @@ function ConfigureEvaluationContent() {
 
 export default function ConfigureEvaluationPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin size-8 border-2 border-slate-200 border-t-[#135bec] rounded-full"></div>
-        </div>
-      }
-    >
-      <ConfigureEvaluationContent />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="animate-spin size-8 border-2 border-slate-200 border-t-[#135bec] rounded-full"></div>
+          </div>
+        }
+      >
+        <ConfigureEvaluationContent />
+      </Suspense>
+    </ErrorBoundary>
   );
 }
