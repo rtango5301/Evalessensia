@@ -6,7 +6,6 @@ import { useSearchParams } from 'next/navigation';
 import {
   Zap,
   Check,
-  Github,
   Mail,
   Lock,
   Eye,
@@ -113,7 +112,7 @@ function AuthPageContent() {
     });
   };
 
-  const handleOAuth = (provider: 'github' | 'google') => {
+  const handleOAuth = (provider: 'google') => {
     setError(null);
     startTransition(async () => {
       const result = await signInWithOAuth(provider);
@@ -283,16 +282,6 @@ function AuthPageContent() {
               <motion.button
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                onClick={() => handleOAuth('github')}
-                disabled={isPending}
-                className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-[var(--border)] rounded-xl font-medium text-[var(--foreground)] hover:bg-[var(--bg-subtle)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Github className="w-5 h-5" />
-                Continue with GitHub
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
                 onClick={() => handleOAuth('google')}
                 disabled={isPending}
                 className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-[var(--border)] rounded-xl font-medium text-[var(--foreground)] hover:bg-[var(--bg-subtle)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -365,7 +354,7 @@ function AuthPageContent() {
                 </label>
                 {mode === 'signin' && (
                   <Link
-                    href="#"
+                    href="/login/forgot-password"
                     className="text-sm text-[var(--primary)] hover:underline font-medium"
                   >
                     Forgot password?
