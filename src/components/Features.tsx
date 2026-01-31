@@ -54,7 +54,10 @@ export function Features() {
   }, [goToNext, goToPrev]);
 
   return (
-    <section id="features" className="py-[100px] px-6 bg-[var(--background)] scroll-mt-20">
+    <section
+      id="features"
+      className="py-16 lg:py-[100px] px-4 lg:px-6 bg-[var(--background)] scroll-mt-20"
+    >
       <div className="max-w-[1200px] mx-auto">
         {/* Section Header */}
         <motion.div
@@ -62,21 +65,21 @@ export function Features() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mb-12"
+          className="mb-8 lg:mb-12"
         >
           <p className="text-base uppercase tracking-[0.2em] text-[var(--primary)] font-bold mb-4">
             Features
           </p>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 lg:mb-4 tracking-tight">
             Beyond testing. Beyond metrics.
           </h2>
-          <p className="text-lg text-[var(--text-secondary)]">
+          <p className="text-base lg:text-lg text-[var(--text-secondary)]">
             Generate tests. Measure performance. Compare versions. Export insights.
           </p>
         </motion.div>
 
         {/* Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-6 lg:gap-12">
           {/* Feature Cards */}
           <div className="flex flex-col gap-3">
             {features.map((feature, index) => {
@@ -90,7 +93,7 @@ export function Features() {
                   transition={{ delay: index * 0.1 }}
                   onMouseEnter={() => setActiveFeature(index)}
                   onClick={() => setActiveFeature(index)}
-                  className={`p-5 border rounded-xl cursor-pointer transition-all bg-white min-h-[120px] ${
+                  className={`p-4 lg:p-5 border rounded-xl cursor-pointer transition-all bg-white ${
                     activeFeature === index
                       ? 'border-[var(--primary)] shadow-md shadow-[var(--primary)]/10 bg-[var(--primary)]/[0.02]'
                       : 'border-[var(--border)] hover:border-[var(--primary)] hover:shadow-md hover:shadow-[var(--primary)]/10'
@@ -109,7 +112,7 @@ export function Features() {
           </div>
 
           {/* Feature Screens with Navigation Arrows */}
-          <div className="min-h-[580px] relative">
+          <div className="min-h-[400px] lg:min-h-[580px] relative">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeFeature}
@@ -135,14 +138,14 @@ export function Features() {
               viewport={{ once: true }}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              className={`absolute -left-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${
+              className={`absolute left-2 lg:-left-5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 flex items-center justify-center transition-all ${
                 activeFeature === 0
                   ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-white/80'
                   : 'border-[var(--primary)] text-[var(--primary)] bg-white hover:bg-[var(--primary)] hover:text-white shadow-md hover:shadow-lg'
               }`}
               aria-label="Previous feature"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4 lg:w-5 lg:h-5" />
             </motion.button>
 
             <motion.button
@@ -153,14 +156,14 @@ export function Features() {
               viewport={{ once: true }}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              className={`absolute -right-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${
+              className={`absolute right-2 lg:-right-5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 flex items-center justify-center transition-all ${
                 activeFeature === features.length - 1
                   ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-white/80'
                   : 'border-[var(--primary)] text-[var(--primary)] bg-white hover:bg-[var(--primary)] hover:text-white shadow-md hover:shadow-lg'
               }`}
               aria-label="Next feature"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5" />
             </motion.button>
           </div>
         </div>

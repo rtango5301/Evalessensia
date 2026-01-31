@@ -1,8 +1,16 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
-import { Globe, BarChart3, MessageSquare, PenLine, Check } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import {
+  Globe,
+  BarChart3,
+  MessageSquare,
+  PenLine,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 
 const useCases = [
   {
@@ -30,8 +38,33 @@ const useCases = [
 export function UseCases() {
   const [activeCase, setActiveCase] = useState(0);
 
+  const goToNext = useCallback(() => {
+    setActiveCase((prev) => (prev < useCases.length - 1 ? prev + 1 : prev));
+  }, []);
+
+  const goToPrev = useCallback(() => {
+    setActiveCase((prev) => (prev > 0 ? prev - 1 : prev));
+  }, []);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') {
+        goToNext();
+      } else if (e.key === 'ArrowLeft') {
+        goToPrev();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [goToNext, goToPrev]);
+
   return (
-    <section id="use-cases" className="py-[100px] px-6 bg-[var(--bg-subtle)] scroll-mt-20">
+    <section
+      id="use-cases"
+      className="py-16 lg:py-[100px] px-4 lg:px-6 bg-[var(--bg-subtle)] scroll-mt-20"
+    >
       <div className="max-w-[1200px] mx-auto">
         {/* Section Header */}
         <motion.div
@@ -39,23 +72,23 @@ export function UseCases() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mb-12"
+          className="mb-8 lg:mb-12"
         >
           <p className="text-base uppercase tracking-[0.2em] text-[var(--primary)] font-bold mb-4">
             Use Cases
           </p>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 lg:mb-4 tracking-tight">
             Evaluate Any Agent, Any Workflow
           </h2>
-          <p className="text-lg text-[var(--text-secondary)]">
+          <p className="text-base lg:text-lg text-[var(--text-secondary)]">
             See how TensorEval adapts to different agent architectures
           </p>
         </motion.div>
 
         {/* Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-6 lg:gap-12 items-start">
           {/* Use Case Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="grid grid-cols-2 gap-3 lg:gap-5">
             {useCases.map((useCase, index) => {
               const Icon = useCase.icon;
               return (
@@ -67,17 +100,17 @@ export function UseCases() {
                   transition={{ delay: index * 0.1 }}
                   onMouseEnter={() => setActiveCase(index)}
                   onClick={() => setActiveCase(index)}
-                  className={`p-7 border rounded-2xl cursor-pointer transition-all bg-white ${
+                  className={`p-4 lg:p-7 border rounded-xl lg:rounded-2xl cursor-pointer transition-all bg-white ${
                     activeCase === index
                       ? 'border-[var(--primary)] shadow-lg shadow-[var(--primary)]/15'
                       : 'border-[var(--border)] hover:border-[var(--primary)] hover:shadow-lg hover:shadow-[var(--primary)]/10'
                   }`}
                 >
-                  <div className="mb-4">
-                    <Icon className="w-10 h-10 text-[var(--primary)]" />
+                  <div className="mb-2 lg:mb-4">
+                    <Icon className="w-8 h-8 lg:w-10 lg:h-10 text-[var(--primary)]" />
                   </div>
-                  <h4 className="font-bold text-lg mb-2">{useCase.title}</h4>
-                  <p className="text-[15px] text-[var(--text-secondary)] leading-relaxed">
+                  <h4 className="font-bold text-sm lg:text-lg mb-1 lg:mb-2">{useCase.title}</h4>
+                  <p className="text-xs lg:text-[15px] text-[var(--text-secondary)] leading-relaxed">
                     {useCase.description}
                   </p>
                 </motion.div>
@@ -85,8 +118,8 @@ export function UseCases() {
             })}
           </div>
 
-          {/* Use Case Screens */}
-          <div className="h-[520px]">
+          {/* Use Case Screens with Navigation Arrows */}
+          <div className="min-h-[400px] lg:min-h-[580px] relative">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeCase}
@@ -102,6 +135,43 @@ export function UseCases() {
                 {activeCase === 3 && <ContentAgentScreen />}
               </motion.div>
             </AnimatePresence>
+
+            {/* Navigation Arrows */}
+            <motion.button
+              onClick={goToPrev}
+              disabled={activeCase === 0}
+              initial={{ opacity: 0, x: -10 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className={`absolute left-2 lg:-left-5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 flex items-center justify-center transition-all ${
+                activeCase === 0
+                  ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-white/80'
+                  : 'border-[var(--primary)] text-[var(--primary)] bg-white hover:bg-[var(--primary)] hover:text-white shadow-md hover:shadow-lg'
+              }`}
+              aria-label="Previous use case"
+            >
+              <ChevronLeft className="w-4 h-4 lg:w-5 lg:h-5" />
+            </motion.button>
+
+            <motion.button
+              onClick={goToNext}
+              disabled={activeCase === useCases.length - 1}
+              initial={{ opacity: 0, x: 10 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              className={`absolute right-2 lg:-right-5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 flex items-center justify-center transition-all ${
+                activeCase === useCases.length - 1
+                  ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-white/80'
+                  : 'border-[var(--primary)] text-[var(--primary)] bg-white hover:bg-[var(--primary)] hover:text-white shadow-md hover:shadow-lg'
+              }`}
+              aria-label="Next use case"
+            >
+              <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5" />
+            </motion.button>
           </div>
         </div>
       </div>
@@ -155,7 +225,7 @@ function BrowserAgentScreen() {
   ];
 
   return (
-    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg h-full flex flex-col">
+    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg h-[540px] flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-2 bg-[var(--ui-header)] border-b border-[var(--ui-border)] flex-shrink-0">
         <div className="flex gap-1.5">
@@ -663,7 +733,7 @@ function DataAgentScreen() {
   ];
 
   return (
-    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg h-full flex flex-col">
+    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg h-[540px] flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-2 bg-[var(--ui-header)] border-b border-[var(--ui-border)] flex-shrink-0">
         <div className="flex gap-1.5">
@@ -1020,7 +1090,7 @@ function SupportAgentScreen() {
   ];
 
   return (
-    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg h-full flex flex-col">
+    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg h-[540px] flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-2 bg-[var(--ui-header)] border-b border-[var(--ui-border)] flex-shrink-0">
         <div className="flex gap-1.5">
@@ -1431,7 +1501,7 @@ function ContentAgentScreen() {
   ];
 
   return (
-    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg h-full flex flex-col">
+    <div className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg h-[540px] flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-2 bg-[var(--ui-header)] border-b border-[var(--ui-border)] flex-shrink-0">
         <div className="flex gap-1.5">

@@ -63,7 +63,10 @@ export function Workflow() {
   }, [goToNext, goToPrev]);
 
   return (
-    <section id="workflow" className="py-[100px] px-6 bg-[var(--bg-subtle)] scroll-mt-20">
+    <section
+      id="workflow"
+      className="py-16 lg:py-[100px] px-4 lg:px-6 bg-[var(--bg-subtle)] scroll-mt-20"
+    >
       <div className="max-w-[1200px] mx-auto">
         {/* Section Header */}
         <motion.div
@@ -71,21 +74,21 @@ export function Workflow() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="mb-12"
+          className="mb-8 lg:mb-12"
         >
           <p className="text-base uppercase tracking-[0.2em] text-[var(--primary)] font-bold mb-4">
             Workflow
           </p>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 lg:mb-4 tracking-tight">
             Evaluate, compare, deploy
           </h2>
-          <p className="text-lg text-[var(--text-secondary)]">
+          <p className="text-base lg:text-lg text-[var(--text-secondary)]">
             See how TensorEval automates your agent testing workflow
           </p>
         </motion.div>
 
         {/* Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-6 lg:gap-12">
           {/* Steps List */}
           <div className="flex flex-col gap-2">
             {workflowSteps.map((step, index) => (
@@ -97,7 +100,7 @@ export function Workflow() {
                 transition={{ delay: index * 0.05 }}
                 onMouseEnter={() => setActiveStep(index)}
                 onClick={() => setActiveStep(index)}
-                className={`flex items-start gap-4 p-4 rounded-lg cursor-pointer transition-all border min-h-[84px] ${
+                className={`flex items-start gap-3 lg:gap-4 p-3 lg:p-4 rounded-lg cursor-pointer transition-all border ${
                   activeStep === index
                     ? 'bg-white border-[var(--primary)] shadow-sm'
                     : 'border-transparent hover:bg-white hover:border-[var(--border)] hover:shadow-sm'
@@ -126,7 +129,7 @@ export function Workflow() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg h-[500px]"
+              className="bg-white border border-[var(--ui-border)] rounded-xl overflow-hidden shadow-lg min-h-[400px] lg:min-h-[500px]"
             >
               <AnimatePresence mode="wait">
                 <motion.div
@@ -135,7 +138,7 @@ export function Workflow() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.3 }}
-                  className="h-full overflow-hidden"
+                  className="h-full"
                 >
                   {activeStep === 0 && <ConfigureScreen />}
                   {activeStep === 1 && <QueryGeneratorScreen />}
@@ -156,14 +159,14 @@ export function Workflow() {
               viewport={{ once: true }}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              className={`absolute -left-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${
+              className={`absolute left-2 lg:-left-5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 flex items-center justify-center transition-all ${
                 activeStep === 0
                   ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-white/80'
                   : 'border-[var(--primary)] text-[var(--primary)] bg-white hover:bg-[var(--primary)] hover:text-white shadow-md hover:shadow-lg'
               }`}
               aria-label="Previous step"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4 lg:w-5 lg:h-5" />
             </motion.button>
 
             <motion.button
@@ -174,14 +177,14 @@ export function Workflow() {
               viewport={{ once: true }}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
-              className={`absolute -right-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${
+              className={`absolute right-2 lg:-right-5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 lg:w-10 lg:h-10 rounded-full border-2 flex items-center justify-center transition-all ${
                 activeStep === workflowSteps.length - 1
                   ? 'border-gray-200 text-gray-300 cursor-not-allowed bg-white/80'
                   : 'border-[var(--primary)] text-[var(--primary)] bg-white hover:bg-[var(--primary)] hover:text-white shadow-md hover:shadow-lg'
               }`}
               aria-label="Next step"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4 lg:w-5 lg:h-5" />
             </motion.button>
           </div>
         </div>

@@ -35,7 +35,7 @@ export function Hero() {
   return (
     <section className="pt-[80px] pb-[60px] px-6 bg-gradient-to-b from-[var(--bg-subtle)] to-[var(--background)] overflow-hidden">
       <div className="max-w-[1200px] mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-[40px] items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-[40px] items-center">
           {/* Left Content */}
           <motion.div variants={containerVariants} initial="hidden" animate="visible">
             {/* Pill Badge */}
@@ -134,9 +134,21 @@ export function Hero() {
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="ml-20"
+            className="w-full lg:ml-20"
           >
-            <EvaluationDashboard />
+            {/* Mobile - Same Dashboard Scaled */}
+            <div className="block lg:hidden relative w-full overflow-x-auto pb-4 -mx-4 px-4">
+              <div
+                className="transform scale-[0.85] sm:scale-[0.95] md:scale-100 origin-top-left"
+                style={{ width: '750px' }}
+              >
+                <EvaluationDashboard />
+              </div>
+            </div>
+            {/* Desktop - Full Version */}
+            <div className="hidden lg:block">
+              <EvaluationDashboard />
+            </div>
           </motion.div>
         </div>
       </div>
