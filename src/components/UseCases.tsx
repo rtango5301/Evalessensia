@@ -179,21 +179,6 @@ export function UseCases() {
   );
 }
 
-function WindowHeader({ title }: { title: string }) {
-  return (
-    <div className="flex items-center gap-2 px-4 py-3 bg-[var(--ui-header)] border-b border-[var(--ui-border)]">
-      <div className="flex gap-2">
-        <span className="w-3 h-3 rounded-full bg-[#FF5F56]" />
-        <span className="w-3 h-3 rounded-full bg-[#FFBD2E]" />
-        <span className="w-3 h-3 rounded-full bg-[#27C93F]" />
-      </div>
-      <span className="flex-1 text-center text-sm text-[var(--text-secondary)] font-medium">
-        {title}
-      </span>
-    </div>
-  );
-}
-
 function BrowserAgentScreen() {
   const rubrics = [
     { action: 'Navigate to amazon.com', importance: 10, status: 'pass' as const },

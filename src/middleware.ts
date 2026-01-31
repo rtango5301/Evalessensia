@@ -31,7 +31,7 @@ export async function middleware(request: NextRequest) {
   // Protect dashboard routes
   const isAuthRoute =
     request.nextUrl.pathname.startsWith('/dashboard') ||
-    request.nextUrl.pathname.startsWith('/agents') ||
+    request.nextUrl.pathname.startsWith('/datasets') ||
     request.nextUrl.pathname.startsWith('/evaluations');
 
   if (isAuthRoute && !user) {

@@ -88,6 +88,12 @@
   --destructive: #ef4444;
   --input: #e5e7eb;
   --ring: #4f46e5;
+
+  /* Dashboard-specific colors */
+  --dashboard-primary: #135bec;
+  --dashboard-primary-hover: #1050d0;
+  --dashboard-primary-light: rgba(19, 91, 236, 0.1);
+  --dashboard-primary-ring: rgba(19, 91, 236, 0.3);
 }
 
 html {
