@@ -6,7 +6,8 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: 'dashboard', filled: true },
-  { href: '/agents', label: 'Agents', icon: 'smart_toy' },
+  { href: '/datasets', label: 'Datasets', icon: 'folder_open' },
+  { href: '/evaluations', label: 'Evaluations', icon: 'science' },
   { href: '/dashboard/reports', label: 'Reports', icon: 'description' },
 ];
 
@@ -51,7 +52,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Primary Navigation */}
             <nav className="flex flex-col gap-1 flex-1">
               {navItems.map((item) => {
-                const isActive = pathname === item.href;
+                const isActive =
+                  item.href === '/datasets'
+                    ? pathname.startsWith('/datasets')
+                    : item.href === '/evaluations'
+                      ? pathname.startsWith('/evaluations')
+                      : pathname === item.href;
                 return (
                   <Link
                     key={item.href}

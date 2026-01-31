@@ -1,239 +1,271 @@
-// Dashboard Page - My Agents and Recent Evaluation Runs
+// Dashboard Page - Recent Evaluation Runs
 // Route: /dashboard
 
-import Link from 'next/link';
+'use client';
 
-// Mock data for agents
-const agents = [
-  {
-    id: '1',
-    name: 'Support Bot',
-    icon: 'support_agent',
-    iconBg: 'bg-[#135bec]/10',
-    iconColor: 'text-[#135bec]',
-    status: 'Active',
-    statusColor: 'bg-emerald-100 text-emerald-800',
-    type: 'Customer Service Automation',
-    lastRun: '2m ago',
-  },
-  {
-    id: '2',
-    name: 'Data Analyst',
-    icon: 'analytics',
-    iconBg: 'bg-purple-100',
-    iconColor: 'text-purple-600',
-    status: 'Running',
-    statusColor: 'bg-blue-100 text-blue-800 animate-pulse',
-    type: 'Financial Report Analysis',
-    lastRun: '15m ago',
-  },
-  {
-    id: '3',
-    name: 'Browser Agent',
-    icon: 'public',
-    iconBg: 'bg-orange-100',
-    iconColor: 'text-orange-600',
-    status: 'Idle',
-    statusColor: 'bg-slate-100 text-slate-600',
-    type: 'Web Scraping & Summary',
-    lastRun: '1h ago',
-  },
-  {
-    id: '4',
-    name: 'Content Writer',
-    icon: 'edit_note',
-    iconBg: 'bg-pink-100',
-    iconColor: 'text-pink-600',
-    status: 'Failed',
-    statusColor: 'bg-red-100 text-red-800',
-    type: 'Blog Post Generation',
-    lastRun: '3h ago',
-  },
-];
+import Link from 'next/link';
+import { useState, useRef, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 // Mock data for evaluation runs
 const evaluationRuns = [
   {
-    id: 'RUN-2024',
-    agentName: 'Support Bot',
-    agentIcon: 'support_agent',
-    iconBg: 'bg-[#135bec]/10',
-    iconColor: 'text-[#135bec]',
-    date: '2 mins ago',
-    accuracy: '98.5%',
-    accuracyColor: 'text-slate-900',
-    status: 'Completed',
-    statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+    id: '1024',
+    name: 'Support Bot - Safety Eval',
+    datasetName: 'Customer Support Q&A',
+    dateTime: '2 mins ago',
+    status: 'running' as const,
+    score: null,
+    progress: 64,
   },
   {
-    id: 'RUN-2023',
-    agentName: 'Data Analyst',
-    agentIcon: 'analytics',
-    iconBg: 'bg-purple-100',
-    iconColor: 'text-purple-600',
-    date: '15 mins ago',
-    accuracy: '--',
-    accuracyColor: 'text-slate-400',
-    status: 'Processing',
-    statusColor: 'bg-blue-100 text-blue-800 border-blue-200',
+    id: '1023',
+    name: 'Data Analyst - Accuracy Test',
+    datasetName: 'Financial Reports Dataset',
+    dateTime: '2 hours ago',
+    status: 'completed' as const,
+    score: 92.0,
+    progress: 100,
   },
   {
-    id: 'RUN-2022',
-    agentName: 'Browser Agent',
-    agentIcon: 'public',
-    iconBg: 'bg-orange-100',
-    iconColor: 'text-orange-600',
-    date: '1 hr ago',
-    accuracy: '92.4%',
-    accuracyColor: 'text-slate-900',
-    status: 'Completed',
-    statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+    id: '1022',
+    name: 'Content Writer - Quality Check',
+    datasetName: 'Blog Posts Dataset',
+    dateTime: '5 hours ago',
+    status: 'failed' as const,
+    score: 45.0,
+    progress: 100,
   },
   {
-    id: 'RUN-2021',
-    agentName: 'Content Writer',
-    agentIcon: 'edit_note',
-    iconBg: 'bg-pink-100',
-    iconColor: 'text-pink-600',
-    date: '3 hrs ago',
-    accuracy: '45.0%',
-    accuracyColor: 'text-red-600',
-    status: 'Failed',
-    statusColor: 'bg-red-100 text-red-800 border-red-200',
+    id: '1021',
+    name: 'Code Reviewer - Benchmark',
+    datasetName: 'Code Review Samples',
+    dateTime: '1 day ago',
+    status: 'completed' as const,
+    score: 98.5,
+    progress: 100,
+  },
+  {
+    id: '1020',
+    name: 'Translation Bot - Language Test',
+    datasetName: 'Multi-language Dataset',
+    dateTime: '1 day ago',
+    status: 'completed' as const,
+    score: 88.0,
+    progress: 100,
   },
 ];
 
+function getStatusBadgeStyles(status: 'running' | 'completed' | 'failed') {
+  switch (status) {
+    case 'running':
+      return 'bg-blue-100 text-blue-700 border-blue-200';
+    case 'completed':
+      return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+    case 'failed':
+      return 'bg-red-100 text-red-700 border-red-200';
+  }
+}
+
+function getStatusLabel(status: 'running' | 'completed' | 'failed') {
+  switch (status) {
+    case 'running':
+      return 'Running';
+    case 'completed':
+      return 'Completed';
+    case 'failed':
+      return 'Failed';
+  }
+}
+
+function getScoreColor(score: number) {
+  if (score >= 80) return 'text-emerald-600';
+  if (score >= 60) return 'text-amber-600';
+  return 'text-red-600';
+}
+
+function getProgressBarColor(score: number) {
+  if (score >= 80) return 'bg-emerald-500';
+  if (score >= 60) return 'bg-amber-500';
+  return 'bg-red-500';
+}
+
+// Actions dropdown component
+function ActionsDropdown({ evalId }: { evalId: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="p-1.5 rounded-md hover:bg-slate-100 text-slate-500 hover:text-slate-700 transition-colors"
+      >
+        <span className="material-symbols-outlined text-lg">more_vert</span>
+      </button>
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-10">
+          <Link
+            href={`/evaluations/${evalId}`}
+            className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            <span className="material-symbols-outlined text-base">visibility</span>
+            View Details
+          </Link>
+          <button className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
+            <span className="material-symbols-outlined text-base">content_copy</span>
+            Duplicate
+          </button>
+          <button className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
+            <span className="material-symbols-outlined text-base">download</span>
+            Export
+          </button>
+          <div className="border-t border-slate-200 my-1"></div>
+          <button className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left">
+            <span className="material-symbols-outlined text-base">delete</span>
+            Delete
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   return (
-    <div className="flex flex-col gap-8">
-      {/* My Agents Section */}
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-slate-900 text-lg font-bold">My Agents</h3>
-          <Link
-            href="/dashboard/agents"
-            className="text-[#135bec] text-sm font-bold hover:underline"
-          >
-            View All
-          </Link>
+    <div className="flex flex-col gap-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Recent Evaluations</h1>
+          <p className="text-slate-500 text-sm mt-1">
+            View and manage your recent evaluation runs.
+          </p>
         </div>
+        <Link
+          href="/evaluations/new"
+          className="flex items-center gap-2 bg-[#135bec] hover:bg-[#135bec]/90 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-sm shadow-[#135bec]/30 w-fit"
+        >
+          <span className="material-symbols-outlined text-xl">add</span>
+          New Evaluation
+        </Link>
+      </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Agent Name
-                  </th>
-                  <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Type
-                  </th>
-                  <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
-                    Last Run
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {agents.map((agent) => (
-                  <tr key={agent.id} className="hover:bg-slate-50 transition-colors cursor-pointer">
-                    <td className="px-6 py-4">
+      {/* Table */}
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-200 bg-slate-50">
+                <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Evaluation Name
+                </th>
+                <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Date/Time
+                </th>
+                <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Score
+                </th>
+                <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200">
+              {evaluationRuns.map((run) => (
+                <tr
+                  key={run.id}
+                  className="hover:bg-slate-50 transition-colors cursor-pointer"
+                  onClick={() => (window.location.href = `/evaluations/${run.id}`)}
+                >
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-slate-900">{run.name}</span>
+                      <span className="text-xs text-slate-500">{run.datasetName}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600">{run.dateTime}</td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={cn(
+                        'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
+                        getStatusBadgeStyles(run.status)
+                      )}
+                    >
+                      {run.status === 'running' && (
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                        </span>
+                      )}
+                      {run.status === 'completed' && (
+                        <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                      )}
+                      {run.status === 'failed' && (
+                        <span className="flex h-2 w-2 rounded-full bg-red-500"></span>
+                      )}
+                      {getStatusLabel(run.status)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    {run.status === 'running' ? (
                       <div className="flex items-center gap-3">
-                        <div
-                          className={`size-8 rounded-lg ${agent.iconBg} flex items-center justify-center ${agent.iconColor}`}
-                        >
-                          <span className="material-symbols-outlined text-lg">{agent.icon}</span>
+                        <div className="w-20 h-2 bg-slate-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-500 rounded-full transition-all"
+                            style={{ width: `${run.progress}%` }}
+                          />
                         </div>
-                        <div className="text-sm font-bold text-slate-900">{agent.name}</div>
+                        <span className="text-sm text-slate-500">{run.progress}%</span>
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${agent.statusColor}`}
-                      >
-                        {agent.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-600">{agent.type}</td>
-                    <td className="px-6 py-4 text-sm text-slate-500 text-right">{agent.lastRun}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    ) : run.score !== null ? (
+                      <div className="flex items-center gap-3">
+                        <span className={cn('text-sm font-bold', getScoreColor(run.score))}>
+                          {run.score.toFixed(1)}%
+                        </span>
+                        <div className="w-16 h-2 bg-slate-200 rounded-full overflow-hidden">
+                          <div
+                            className={cn('h-full rounded-full', getProgressBarColor(run.score))}
+                            style={{ width: `${run.score}%` }}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-slate-400">--</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                    <ActionsDropdown evalId={run.id} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {/* Recent Evaluation Runs Section */}
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between px-1">
-          <h3 className="text-slate-900 text-lg font-bold">Recent Evaluation Runs</h3>
-          <div className="flex gap-2">
-            <button className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">
-              <span className="material-symbols-outlined text-sm">filter_list</span> Filter
-            </button>
-            <button className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">
-              <span className="material-symbols-outlined text-sm">download</span> Export
-            </button>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Agent Name
-                  </th>
-                  <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Run ID
-                  </th>
-                  <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
-                    Accuracy
-                  </th>
-                  <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {evaluationRuns.map((run) => (
-                  <tr key={run.id} className="hover:bg-slate-50 transition-colors cursor-pointer">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`size-6 rounded ${run.iconBg} flex items-center justify-center ${run.iconColor}`}
-                        >
-                          <span className="material-symbols-outlined text-sm">{run.agentIcon}</span>
-                        </div>
-                        <span className="text-sm font-medium text-slate-900">{run.agentName}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-mono text-slate-500">#{run.id}</td>
-                    <td className="px-6 py-4 text-sm text-slate-500">{run.date}</td>
-                    <td className={`px-6 py-4 text-sm font-bold ${run.accuracyColor} text-right`}>
-                      {run.accuracy}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${run.statusColor}`}
-                      >
-                        {run.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+      {/* View All Link */}
+      <div className="flex justify-center">
+        <Link
+          href="/evaluations"
+          className="text-sm font-medium text-[#135bec] hover:underline flex items-center gap-1"
+        >
+          View all evaluations
+          <span className="material-symbols-outlined text-base">arrow_forward</span>
+        </Link>
       </div>
     </div>
   );

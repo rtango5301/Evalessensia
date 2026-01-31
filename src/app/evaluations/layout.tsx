@@ -6,7 +6,8 @@ import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
-  { href: '/agents', label: 'Agents', icon: 'smart_toy' },
+  { href: '/datasets', label: 'Datasets', icon: 'folder_open' },
+  { href: '/evaluations', label: 'Evaluations', icon: 'science' },
   { href: '/dashboard/reports', label: 'Reports', icon: 'description' },
 ];
 
@@ -52,9 +53,11 @@ export default function EvaluationsLayout({ children }: { children: React.ReactN
             <nav className="flex flex-col gap-1 flex-1">
               {navItems.map((item) => {
                 const isActive =
-                  item.href === '/evaluations'
-                    ? pathname.startsWith('/evaluations')
-                    : pathname === item.href;
+                  item.href === '/datasets'
+                    ? pathname.startsWith('/datasets')
+                    : item.href === '/evaluations'
+                      ? pathname.startsWith('/evaluations')
+                      : pathname === item.href;
                 return (
                   <Link
                     key={item.href}
