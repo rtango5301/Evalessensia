@@ -1,17 +1,73 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Zap, Check, Github, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { useState } from 'react';
+import { Zap, Check, Github, Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
+import { useState, useMemo } from 'react';
 
-export default function LoginPage() {
+type AuthMode = 'signin' | 'signup';
+
+// Password validation rules
+const passwordRules = [
+  { id: 'length', label: 'At least 8 characters', test: (p: string) => p.length >= 8 },
+  { id: 'upper', label: 'One uppercase letter', test: (p: string) => /[A-Z]/.test(p) },
+  {
+    id: 'special',
+    label: 'One number or symbol',
+    test: (p: string) => /[0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(p),
+  },
+];
+
+export default function AuthPage() {
+  const [mode, setMode] = useState<AuthMode>('signin');
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
-  const handleSignIn = () => {
-    router.push('/');
+  // Check which password rules are satisfied
+  const passwordValidation = useMemo(() => {
+    return passwordRules.map((rule) => ({
+      ...rule,
+      passed: rule.test(password),
+    }));
+  }, [password]);
+
+  const allPasswordRulesPassed = passwordValidation.every((rule) => rule.passed);
+
+  // Form validation based on mode
+  const isFormValid =
+    mode === 'signin'
+      ? email.trim() !== '' && password.trim() !== ''
+      : fullName.trim() !== '' && email.trim() !== '' && allPasswordRulesPassed;
+
+  const handleSubmit = async () => {
+    if (!isFormValid) return;
+
+    if (mode === 'signup') {
+      setIsSubmitting(true);
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
+
+    router.push('/dashboard');
+  };
+
+  const handleOAuth = () => {
+    router.push('/dashboard');
+  };
+
+  // Reset form when switching modes
+  const handleModeChange = (newMode: AuthMode) => {
+    setMode(newMode);
+    setFullName('');
+    setEmail('');
+    setPassword('');
+    setShowPassword(false);
+    setIsSubmitting(false);
   };
 
   return (
@@ -78,21 +134,62 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Right Side - Login Form */}
+        {/* Right Side - Auth Form */}
         <div className="p-10 lg:p-12 flex flex-col justify-center">
           <div className="max-w-[380px] mx-auto w-full">
+            {/* Tabs */}
+            <div className="flex justify-center mb-8">
+              <div className="flex gap-8">
+                <button
+                  onClick={() => handleModeChange('signin')}
+                  className={`pb-2 text-lg font-semibold transition-colors relative ${
+                    mode === 'signin'
+                      ? 'text-slate-900 border-b-2 border-[var(--primary)]'
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={() => handleModeChange('signup')}
+                  className={`pb-2 text-lg font-semibold transition-colors relative ${
+                    mode === 'signup'
+                      ? 'text-slate-900 border-b-2 border-[var(--primary)]'
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  Sign Up
+                </button>
+              </div>
+            </div>
+
             {/* Header */}
-            <h2 className="text-3xl font-bold text-center mb-2">Welcome back</h2>
-            <p className="text-[var(--text-secondary)] text-center mb-8">
-              Enter your credentials to access your dashboard
-            </p>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={mode}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.2 }}
+                className="text-center mb-8"
+              >
+                <h2 className="text-3xl font-bold mb-2">
+                  {mode === 'signin' ? 'Welcome back' : 'Create your account'}
+                </h2>
+                <p className="text-[var(--text-secondary)]">
+                  {mode === 'signin'
+                    ? 'Enter your credentials to access your dashboard'
+                    : 'Join thousands of AI teams shipping agents with confidence'}
+                </p>
+              </motion.div>
+            </AnimatePresence>
 
             {/* OAuth Buttons */}
             <div className="space-y-3 mb-6">
               <motion.button
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                onClick={handleSignIn}
+                onClick={handleOAuth}
                 className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-[var(--border)] rounded-xl font-medium text-[var(--foreground)] hover:bg-[var(--bg-subtle)] transition-colors"
               >
                 <Github className="w-5 h-5" />
@@ -101,7 +198,7 @@ export default function LoginPage() {
               <motion.button
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                onClick={handleSignIn}
+                onClick={handleOAuth}
                 className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-[var(--border)] rounded-xl font-medium text-[var(--foreground)] hover:bg-[var(--bg-subtle)] transition-colors"
               >
                 <GoogleIcon />
@@ -116,39 +213,72 @@ export default function LoginPage() {
               <div className="flex-1 h-px bg-[var(--border)]" />
             </div>
 
+            {/* Full Name Input - Only for Sign Up */}
+            <AnimatePresence>
+              {mode === 'signup' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  animate={{ opacity: 1, height: 'auto', marginBottom: 16 }}
+                  exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
+                  <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
+                    <input
+                      type="text"
+                      placeholder="John Doe"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className="w-full pl-12 pr-4 py-3 border border-[var(--border)] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] transition-all text-[var(--foreground)] placeholder:text-[var(--text-muted)]"
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Email Input */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
-                Email Address
+                {mode === 'signin' ? 'Email Address' : 'Work Email'}
               </label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
                 <input
                   type="email"
                   placeholder="you@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 border border-[var(--border)] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] transition-all text-[var(--foreground)] placeholder:text-[var(--text-muted)]"
                 />
               </div>
             </div>
 
             {/* Password Input */}
-            <div className="mb-6">
+            <div className={mode === 'signin' ? 'mb-6' : 'mb-4'}>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-sm font-medium text-[var(--foreground)]">
                   Password
                 </label>
-                <Link
-                  href="#"
-                  className="text-sm text-[var(--primary)] hover:underline font-medium"
-                >
-                  Forgot password?
-                </Link>
+                {mode === 'signin' && (
+                  <Link
+                    href="#"
+                    className="text-sm text-[var(--primary)] hover:underline font-medium"
+                  >
+                    Forgot password?
+                  </Link>
+                )}
               </div>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-12 pr-12 py-3 border border-[var(--border)] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] transition-all text-[var(--foreground)] placeholder:text-[var(--text-muted)]"
                 />
                 <button
@@ -161,24 +291,77 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Sign In Button */}
-            <motion.button
-              whileHover={{ scale: 1.01, y: -1 }}
-              whileTap={{ scale: 0.99 }}
-              onClick={handleSignIn}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] text-white rounded-xl font-semibold shadow-lg shadow-[var(--primary)]/25 hover:shadow-xl hover:shadow-[var(--primary)]/30 transition-all mb-6"
-            >
-              Sign In
-              <span className="ml-1">→</span>
-            </motion.button>
+            {/* Password Requirements - Only for Sign Up */}
+            <AnimatePresence>
+              {mode === 'signup' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  animate={{ opacity: 1, height: 'auto', marginBottom: 24 }}
+                  exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden"
+                >
+                  <div className="space-y-2">
+                    {passwordValidation.map((rule) => (
+                      <motion.div
+                        key={rule.id}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex items-center gap-2"
+                      >
+                        <div
+                          className={`w-4 h-4 rounded-full flex items-center justify-center transition-colors ${
+                            rule.passed
+                              ? 'bg-green-500'
+                              : password.length > 0
+                                ? 'bg-[var(--border)]'
+                                : 'border border-[var(--border)] bg-transparent'
+                          }`}
+                        >
+                          {rule.passed && <Check className="w-2.5 h-2.5 text-white" />}
+                        </div>
+                        <span
+                          className={`text-sm transition-colors ${
+                            rule.passed ? 'text-green-600' : 'text-[var(--text-muted)]'
+                          }`}
+                        >
+                          {rule.label}
+                        </span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            {/* Sign Up Link */}
-            <p className="text-center text-[var(--text-secondary)]">
-              Don't have an account?{' '}
-              <Link href="#" className="text-[var(--primary)] font-semibold hover:underline">
-                Sign up
-              </Link>
-            </p>
+            {/* Submit Button */}
+            <motion.button
+              whileHover={isFormValid && !isSubmitting ? { scale: 1.01, y: -1 } : {}}
+              whileTap={isFormValid && !isSubmitting ? { scale: 0.99 } : {}}
+              onClick={handleSubmit}
+              disabled={!isFormValid || isSubmitting}
+              className={`w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-semibold transition-all mb-6 ${
+                isFormValid && !isSubmitting
+                  ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] text-white shadow-lg shadow-[var(--primary)]/25 hover:shadow-xl hover:shadow-[var(--primary)]/30'
+                  : 'bg-[var(--bg-subtle)] text-[var(--text-muted)] cursor-not-allowed'
+              }`}
+            >
+              {isSubmitting ? (
+                <>
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
+                  />
+                  Creating account...
+                </>
+              ) : (
+                <>
+                  {mode === 'signin' ? 'Sign In' : 'Create Account'}
+                  <span className="ml-1">→</span>
+                </>
+              )}
+            </motion.button>
 
             {/* Terms */}
             <p className="text-center text-xs text-[var(--text-muted)] mt-6">

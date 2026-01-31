@@ -56,8 +56,13 @@ export default function NewAgentPage() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [description, setDescription] = useState('');
 
+  // Check if description is required (only for custom agents)
+  const isDescriptionRequired = selectedType === 'custom';
+  const isDescriptionValid = !isDescriptionRequired || description.trim() !== '';
+  const canContinue = selectedType && isDescriptionValid;
+
   const handleContinue = () => {
-    if (selectedType) {
+    if (canContinue) {
       // Pass data via URL params (in production, you'd use state management or API)
       const params = new URLSearchParams({
         name: agentName,
@@ -163,16 +168,35 @@ export default function NewAgentPage() {
         {/* Description */}
         <div className="mb-6">
           <label htmlFor="description" className="block text-sm font-bold text-slate-900 mb-2">
-            Description <span className="text-slate-400 font-normal">(Optional)</span>
+            Description{' '}
+            {isDescriptionRequired ? (
+              <span className="text-red-500 font-normal">(Required)</span>
+            ) : (
+              <span className="text-slate-400 font-normal">(Optional)</span>
+            )}
           </label>
           <textarea
             id="description"
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent focus:bg-white transition-all resize-none"
-            placeholder="Briefly describe what this agent will do..."
+            className={`w-full px-4 py-3 bg-slate-50 border rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent focus:bg-white transition-all resize-none ${
+              isDescriptionRequired && description.trim() === ''
+                ? 'border-red-300 bg-red-50/50'
+                : 'border-slate-200'
+            }`}
+            placeholder={
+              isDescriptionRequired
+                ? 'Describe what your custom agent will do...'
+                : 'Briefly describe what this agent will do...'
+            }
           />
+          {isDescriptionRequired && description.trim() === '' && (
+            <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">error</span>
+              Description is required for custom agents
+            </p>
+          )}
         </div>
 
         {/* Actions */}
@@ -186,9 +210,9 @@ export default function NewAgentPage() {
           <button
             type="button"
             onClick={handleContinue}
-            disabled={!selectedType}
+            disabled={!canContinue}
             className={`flex items-center gap-2 px-6 py-2.5 rounded-lg font-bold text-sm transition-all ${
-              selectedType
+              canContinue
                 ? 'bg-[#135bec] hover:bg-[#135bec]/90 text-white shadow-sm shadow-[#135bec]/30'
                 : 'bg-slate-200 text-slate-400 cursor-not-allowed'
             }`}

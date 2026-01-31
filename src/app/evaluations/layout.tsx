@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: 'dashboard', filled: true },
+  { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
   { href: '/agents', label: 'Agents', icon: 'smart_toy' },
   { href: '/evaluations', label: 'Evaluations', icon: 'fact_check' },
   { href: '/dashboard/reports', label: 'Reports', icon: 'description' },
@@ -16,7 +16,7 @@ const secondaryNavItems = [
   { href: '/dashboard/api-keys', label: 'API Keys', icon: 'key' },
 ];
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function EvaluationsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
@@ -52,7 +52,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Primary Navigation */}
             <nav className="flex flex-col gap-1 flex-1">
               {navItems.map((item) => {
-                const isActive = pathname === item.href;
+                const isActive =
+                  item.href === '/evaluations'
+                    ? pathname.startsWith('/evaluations')
+                    : pathname === item.href;
                 return (
                   <Link
                     key={item.href}
@@ -130,7 +133,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <button className="md:hidden text-slate-500 hover:text-slate-700">
                 <span className="material-symbols-outlined">menu</span>
               </button>
-              <h2 className="text-slate-900 text-base font-bold leading-tight">Dashboard</h2>
+              <h2 className="text-slate-900 text-base font-bold leading-tight">Evaluations</h2>
             </div>
 
             <div className="flex items-center gap-6">
@@ -141,7 +144,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </span>
                 <input
                   className="w-full pl-9 pr-4 py-1.5 bg-slate-100 border-none rounded-md text-sm text-slate-900 placeholder-slate-500 focus:ring-2 focus:ring-[#135bec] focus:outline-none transition-all"
-                  placeholder="Search agents or runs..."
+                  placeholder="Search evaluations..."
                   type="text"
                 />
               </div>
