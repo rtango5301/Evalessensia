@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import {
   Zap,
   Check,
@@ -15,8 +15,11 @@ import {
   GitBranch,
   Users,
   BarChart3,
+  AlertCircle,
+  CheckCircle,
 } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useTransition, Suspense } from 'react';
+import { signInWithEmail, signUpWithEmail, signInWithOAuth } from './actions';
 
 type AuthMode = 'signin' | 'signup';
 
@@ -32,13 +35,37 @@ const passwordRules = [
 ];
 
 export default function AuthPage() {
+  return (
+    <Suspense fallback={<AuthPageSkeleton />}>
+      <AuthPageContent />
+    </Suspense>
+  );
+}
+
+function AuthPageSkeleton() {
+  return (
+    <div className="min-h-screen bg-[var(--bg-subtle)] flex items-center justify-center p-6">
+      <div className="w-full max-w-[1100px] bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 min-h-[680px] animate-pulse">
+        <div className="p-10 lg:p-14 bg-gradient-to-br from-[#1a1f3c] to-[#0d1025]" />
+        <div className="p-10 lg:p-12" />
+      </div>
+    </div>
+  );
+}
+
+function AuthPageContent() {
   const [mode, setMode] = useState<AuthMode>('signin');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const searchParams = useSearchParams();
+
+  // Check for auth error in URL
+  const urlError = searchParams.get('error');
 
   // Check which password rules are satisfied
   const passwordValidation = useMemo(() => {
@@ -59,17 +86,41 @@ export default function AuthPage() {
   const handleSubmit = async () => {
     if (!isFormValid) return;
 
+    setError(null);
+    setSuccess(null);
+
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('password', password);
     if (mode === 'signup') {
-      setIsSubmitting(true);
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      formData.append('fullName', fullName);
     }
 
-    router.push('/dashboard');
+    startTransition(async () => {
+      if (mode === 'signin') {
+        const result = await signInWithEmail(formData);
+        if (result?.error) {
+          setError(result.error);
+        }
+      } else {
+        const result = await signUpWithEmail(formData);
+        if (result?.error) {
+          setError(result.error);
+        } else if (result?.success) {
+          setSuccess(result.success);
+        }
+      }
+    });
   };
 
-  const handleOAuth = () => {
-    router.push('/dashboard');
+  const handleOAuth = (provider: 'github' | 'google') => {
+    setError(null);
+    startTransition(async () => {
+      const result = await signInWithOAuth(provider);
+      if (result?.error) {
+        setError(result.error);
+      }
+    });
   };
 
   // Reset form when switching modes
@@ -79,7 +130,8 @@ export default function AuthPage() {
     setEmail('');
     setPassword('');
     setShowPassword(false);
-    setIsSubmitting(false);
+    setError(null);
+    setSuccess(null);
   };
 
   return (
@@ -189,13 +241,51 @@ export default function AuthPage() {
               </motion.div>
             </AnimatePresence>
 
+            {/* Error Message */}
+            <AnimatePresence>
+              {(error || urlError) && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-4"
+                >
+                  <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                    <span>
+                      {error ||
+                        (urlError === 'auth_failed' && 'Authentication failed. Please try again.')}
+                    </span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Success Message */}
+            <AnimatePresence>
+              {success && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-4"
+                >
+                  <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm">
+                    <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                    <span>{success}</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* OAuth Buttons */}
             <div className="space-y-3 mb-6">
               <motion.button
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                onClick={handleOAuth}
-                className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-[var(--border)] rounded-xl font-medium text-[var(--foreground)] hover:bg-[var(--bg-subtle)] transition-colors"
+                onClick={() => handleOAuth('github')}
+                disabled={isPending}
+                className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-[var(--border)] rounded-xl font-medium text-[var(--foreground)] hover:bg-[var(--bg-subtle)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Github className="w-5 h-5" />
                 Continue with GitHub
@@ -203,8 +293,9 @@ export default function AuthPage() {
               <motion.button
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                onClick={handleOAuth}
-                className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-[var(--border)] rounded-xl font-medium text-[var(--foreground)] hover:bg-[var(--bg-subtle)] transition-colors"
+                onClick={() => handleOAuth('google')}
+                disabled={isPending}
+                className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white border border-[var(--border)] rounded-xl font-medium text-[var(--foreground)] hover:bg-[var(--bg-subtle)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <GoogleIcon />
                 Continue with Google
@@ -240,7 +331,8 @@ export default function AuthPage() {
                       placeholder="John Doe"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 border border-[var(--border)] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] transition-all text-[var(--foreground)] placeholder:text-[var(--text-muted)]"
+                      disabled={isPending}
+                      className="w-full pl-12 pr-4 py-3 border border-[var(--border)] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] transition-all text-[var(--foreground)] placeholder:text-[var(--text-muted)] disabled:opacity-50"
                     />
                   </div>
                 </motion.div>
@@ -259,7 +351,8 @@ export default function AuthPage() {
                   placeholder="you@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-[var(--border)] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] transition-all text-[var(--foreground)] placeholder:text-[var(--text-muted)]"
+                  disabled={isPending}
+                  className="w-full pl-12 pr-4 py-3 border border-[var(--border)] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] transition-all text-[var(--foreground)] placeholder:text-[var(--text-muted)] disabled:opacity-50"
                 />
               </div>
             </div>
@@ -286,7 +379,13 @@ export default function AuthPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-12 py-3 border border-[var(--border)] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] transition-all text-[var(--foreground)] placeholder:text-[var(--text-muted)]"
+                  disabled={isPending}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && isFormValid && !isPending) {
+                      handleSubmit();
+                    }
+                  }}
+                  className="w-full pl-12 pr-12 py-3 border border-[var(--border)] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[var(--primary)]/20 focus:border-[var(--primary)] transition-all text-[var(--foreground)] placeholder:text-[var(--text-muted)] disabled:opacity-50"
                 />
                 <button
                   type="button"
@@ -343,24 +442,24 @@ export default function AuthPage() {
 
             {/* Submit Button */}
             <motion.button
-              whileHover={isFormValid && !isSubmitting ? { scale: 1.01, y: -1 } : {}}
-              whileTap={isFormValid && !isSubmitting ? { scale: 0.99 } : {}}
+              whileHover={isFormValid && !isPending ? { scale: 1.01, y: -1 } : {}}
+              whileTap={isFormValid && !isPending ? { scale: 0.99 } : {}}
               onClick={handleSubmit}
-              disabled={!isFormValid || isSubmitting}
+              disabled={!isFormValid || isPending}
               className={`w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl font-semibold transition-all mb-6 ${
-                isFormValid && !isSubmitting
+                isFormValid && !isPending
                   ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--primary-light)] text-white shadow-lg shadow-[var(--primary)]/25 hover:shadow-xl hover:shadow-[var(--primary)]/30'
                   : 'bg-[var(--bg-subtle)] text-[var(--text-muted)] cursor-not-allowed'
               }`}
             >
-              {isSubmitting ? (
+              {isPending ? (
                 <>
                   <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                     className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full"
                   />
-                  Creating account...
+                  {mode === 'signin' ? 'Signing in...' : 'Creating account...'}
                 </>
               ) : (
                 <>
