@@ -57,3 +57,7 @@ artifacts/
 
 # Backup directories
 .git_old/
+
+# Separate projects (not part of Next.js app)
+remotion-demo/
+stitch/
