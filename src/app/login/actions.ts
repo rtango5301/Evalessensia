@@ -67,3 +67,35 @@ export async function signOut() {
   revalidatePath('/', 'layout');
   redirect('/login');
 }
+
+export async function requestPasswordReset(email: string) {
+  const supabase = await createClient();
+  const origin = (await headers()).get('origin');
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/reset-password`,
+  });
+
+  if (error && error.message.includes('rate limit')) {
+    return { error: 'Too many requests. Please try again later.' };
+  }
+
+  // Always return success to prevent email enumeration
+  return {
+    success: 'If an account exists with this email, you will receive a password reset link.',
+  };
+}
+
+export async function updatePassword(newPassword: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.updateUser({
+    password: newPassword,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { success: 'Password updated successfully! Redirecting to dashboard...' };
+}
