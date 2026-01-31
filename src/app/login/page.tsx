@@ -3,7 +3,19 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Zap, Check, Github, Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
+import {
+  Zap,
+  Check,
+  Github,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  User,
+  GitBranch,
+  Users,
+  BarChart3,
+} from 'lucide-react';
 import { useState, useMemo } from 'react';
 
 type AuthMode = 'signin' | 'signup';
