@@ -23,6 +23,7 @@ interface AgentConfig {
   evaluationName: string;
   name: string;
   description: string;
+  agentUrl: string;
   customMcp: CustomMCPServer;
 }
 
@@ -107,6 +108,7 @@ function NewEvaluationWizardContent() {
     evaluationName: '',
     name: '',
     description: '',
+    agentUrl: '',
     customMcp: { name: '', description: '', url: '' },
   });
 
@@ -131,7 +133,10 @@ function NewEvaluationWizardContent() {
   }, [currentStep]);
 
   const canProceedFromAgent =
-    agentConfig.evaluationName && agentConfig.name && agentConfig.description;
+    agentConfig.evaluationName &&
+    agentConfig.name &&
+    agentConfig.description &&
+    agentConfig.agentUrl;
   const canProceedFromDataset = datasetSelection.type === 'new' || datasetSelection.existingId;
 
   const handleNext = () => {
@@ -236,6 +241,27 @@ function NewEvaluationWizardContent() {
                   rows={4}
                   className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all resize-none"
                 />
+              </div>
+
+              {/* Agent URL */}
+              <div>
+                <label
+                  htmlFor="agent-url"
+                  className="block text-sm font-medium text-slate-700 mb-1.5"
+                >
+                  Agent URL <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="agent-url"
+                  type="url"
+                  value={agentConfig.agentUrl}
+                  onChange={(e) => setAgentConfig({ ...agentConfig, agentUrl: e.target.value })}
+                  placeholder="https://api.example.com/agent"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
+                />
+                <p className="text-xs text-slate-500 mt-1.5">
+                  The endpoint URL where your agent is hosted
+                </p>
               </div>
             </div>
 
@@ -544,6 +570,14 @@ function NewEvaluationWizardContent() {
                           : 'None'}
                       </p>
                     </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">
+                      Agent URL
+                    </label>
+                    <p className="text-sm font-mono text-slate-700 mt-1 break-all">
+                      {agentConfig.agentUrl}
+                    </p>
                   </div>
                   <div>
                     <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">
