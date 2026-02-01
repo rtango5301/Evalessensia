@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, LogOut, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -35,7 +36,9 @@ function getInitials(name: string): string {
 
 export function LandingProfileDropdown({ user }: LandingProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
   const displayName = user.name || user.email?.split('@')[0] || 'User';
 
   // Click-outside detection to close dropdown
@@ -61,8 +64,12 @@ export function LandingProfileDropdown({ user }: LandingProfileDropdownProps) {
   }, []);
 
   const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
     setIsOpen(false);
     await signOut();
+    router.push('/');
+    router.refresh();
   };
 
   return (
@@ -144,11 +151,15 @@ export function LandingProfileDropdown({ user }: LandingProfileDropdownProps) {
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 px-4 py-2.5 text-sm w-full text-left text-red-600 hover:bg-red-50 focus:outline-none focus-visible:bg-red-50 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset transition-colors"
+              disabled={isLoggingOut}
+              className={cn(
+                'flex items-center gap-3 px-4 py-2.5 text-sm w-full text-left text-red-600 hover:bg-red-50 focus:outline-none focus-visible:bg-red-50 focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-inset transition-colors',
+                isLoggingOut && 'opacity-50 cursor-not-allowed'
+              )}
               role="menuitem"
             >
               <LogOut className="w-4 h-4" />
-              Sign out
+              {isLoggingOut ? 'Signing out...' : 'Sign out'}
             </button>
           </motion.div>
         )}

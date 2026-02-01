@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Layers, Menu, X, LayoutDashboard, Settings, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
@@ -47,6 +48,8 @@ export function Navigation({ user: initialUser }: NavigationProps) {
   const [activeSection, setActiveSection] = useState('');
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<AuthUser>(initialUser ?? null);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const router = useRouter();
 
   // Listen for auth state changes (logout in another tab, etc.)
   useEffect(() => {
@@ -106,7 +109,7 @@ export function Navigation({ user: initialUser }: NavigationProps) {
           : 'bg-white/80 backdrop-blur-md'
       }`}
     >
-      <div className="max-w-[1200px] mx-auto px-6 flex items-center justify-between h-16">
+      <div className="max-w-[1080px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 text-[var(--foreground)] no-underline">
           <motion.div
@@ -272,13 +275,18 @@ export function Navigation({ user: initialUser }: NavigationProps) {
 
                 <button
                   onClick={async () => {
+                    if (isSigningOut) return;
+                    setIsSigningOut(true);
                     setMobileMenuOpen(false);
                     await signOut();
+                    router.push('/');
+                    router.refresh();
                   }}
-                  className="w-full py-3 text-red-600 border border-red-200 rounded-lg text-base font-medium hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                  disabled={isSigningOut}
+                  className={`w-full py-3 text-red-600 border border-red-200 rounded-lg text-base font-medium hover:bg-red-50 transition-colors flex items-center justify-center gap-2 ${isSigningOut ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <LogOut className="w-4 h-4" />
-                  Sign out
+                  {isSigningOut ? 'Signing out...' : 'Sign out'}
                 </button>
               </>
             ) : (

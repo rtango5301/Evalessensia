@@ -46,13 +46,13 @@ TensorEval is a Next.js 15 application for an AI agent CI/CD platform. It uses t
 
 - `/` - Landing page composed of section components
 - `/login` - Authentication page with OAuth and email options (includes signup toggle)
-- `/dashboard` - Main dashboard with recent evaluation runs overview
-  - `/dashboard/reports` - Reports & analytics with charts and metrics
+- `(authenticated)/` - Route group for authenticated pages (shared layout with sidebar + header)
+  - `/dashboard` - Main dashboard with recent evaluation runs overview
   - `/dashboard/settings` - User settings (profile, appearance)
-- `/datasets` - Dataset management (separate top-level route with own layout)
+  - `/datasets` - Dataset management
   - `/datasets/new` - Create new dataset (upload or AI-generated)
   - `/datasets/[id]` - View dataset details
-- `/evaluations` - Evaluation runs listing page
+  - `/evaluations` - Evaluation runs listing page
   - `/evaluations/new` - New evaluation wizard (configure agent, select dataset, review)
   - `/evaluations/[id]` - View evaluation results with live streaming logs
 - `/not-found.tsx` - Custom 404 page

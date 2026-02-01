@@ -65,9 +65,9 @@ export function Workflow() {
   return (
     <section
       id="workflow"
-      className="py-16 lg:py-[100px] px-4 lg:px-6 bg-[var(--bg-subtle)] scroll-mt-20"
+      className="py-14 lg:py-[90px] px-4 sm:px-6 lg:px-8 bg-[var(--bg-subtle)] scroll-mt-20"
     >
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-[1080px] mx-auto">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

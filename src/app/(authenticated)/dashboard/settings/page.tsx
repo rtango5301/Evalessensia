@@ -3,19 +3,9 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-
-// ============================================================================
-// MOCK DATA
-// ============================================================================
-
-const mockUser = {
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-  role: 'Admin',
-  avatar: null,
-};
+import { useUser } from '@/contexts/user-context';
 
 // ============================================================================
 // TOGGLE COMPONENT
@@ -68,11 +58,18 @@ const tabs: { id: TabId; label: string; icon: string }[] = [
 // ============================================================================
 
 export default function SettingsPage() {
+  const user = useUser();
   const [activeTab, setActiveTab] = useState<TabId>('profile');
 
-  // Profile state
-  const [fullName, setFullName] = useState(mockUser.name);
-  const [email, setEmail] = useState(mockUser.email);
+  // Profile state - initialized from user context
+  const [fullName, setFullName] = useState(user.name);
+  const [email, setEmail] = useState(user.email);
+
+  // Update form when user data changes
+  useEffect(() => {
+    setFullName(user.name);
+    setEmail(user.email);
+  }, [user.name, user.email]);
 
   // Appearance state
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('light');
@@ -86,9 +83,17 @@ export default function SettingsPage() {
     <div className="space-y-6">
       {/* Avatar Section */}
       <div className="flex items-center gap-4">
-        <div className="size-20 rounded-full bg-slate-200 flex items-center justify-center">
-          <span className="material-symbols-outlined text-4xl text-slate-400">person</span>
-        </div>
+        {user.avatarUrl ? (
+          <img
+            src={user.avatarUrl}
+            alt={`${user.name}'s avatar`}
+            className="size-20 rounded-full object-cover"
+          />
+        ) : (
+          <div className="size-20 rounded-full bg-slate-200 flex items-center justify-center">
+            <span className="material-symbols-outlined text-4xl text-slate-400">person</span>
+          </div>
+        )}
         <div>
           <button type="button" className="text-sm font-medium text-[#135bec] hover:underline">
             Change photo
@@ -121,7 +126,7 @@ export default function SettingsPage() {
           <label className="block text-sm font-bold text-slate-900 mb-2">Role</label>
           <input
             type="text"
-            value={mockUser.role}
+            value="User"
             disabled
             className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-500 text-sm cursor-not-allowed"
           />

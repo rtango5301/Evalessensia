@@ -7,6 +7,34 @@ import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
+// Mock data for datasets
+const datasets = [
+  {
+    id: 'ds-001',
+    name: 'Customer Support Q&A',
+    type: 'uploaded' as const,
+    size: 150,
+    createdAt: 'Jan 15, 2024',
+    status: 'ready' as const,
+  },
+  {
+    id: 'ds-002',
+    name: 'Financial Reports Dataset',
+    type: 'generated' as const,
+    size: 200,
+    createdAt: 'Jan 14, 2024',
+    status: 'ready' as const,
+  },
+  {
+    id: 'ds-003',
+    name: 'Safety Test Cases',
+    type: 'generated' as const,
+    size: 100,
+    createdAt: 'Jan 10, 2024',
+    status: 'processing' as const,
+  },
+];
+
 // Mock data for evaluation runs
 const evaluationRuns = [
   {
@@ -90,6 +118,45 @@ function getProgressBarColor(score: number) {
   return 'bg-red-500';
 }
 
+function getDatasetStatusStyles(status: 'ready' | 'processing' | 'error') {
+  switch (status) {
+    case 'ready':
+      return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+    case 'processing':
+      return 'bg-amber-100 text-amber-700 border-amber-200';
+    case 'error':
+      return 'bg-red-100 text-red-700 border-red-200';
+  }
+}
+
+function getDatasetStatusLabel(status: 'ready' | 'processing' | 'error') {
+  switch (status) {
+    case 'ready':
+      return 'Ready';
+    case 'processing':
+      return 'Processing';
+    case 'error':
+      return 'Error';
+  }
+}
+
+function getDatasetTypeStyles(type: 'uploaded' | 'generated') {
+  switch (type) {
+    case 'uploaded':
+      return {
+        bg: 'bg-blue-100',
+        icon: 'upload_file',
+        iconColor: 'text-blue-600',
+      };
+    case 'generated':
+      return {
+        bg: 'bg-purple-100',
+        icon: 'auto_awesome',
+        iconColor: 'text-purple-600',
+      };
+  }
+}
+
 // Actions dropdown component
 function ActionsDropdown({ evalId }: { evalId: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -122,11 +189,10 @@ function ActionsDropdown({ evalId }: { evalId: string }) {
             <span className="material-symbols-outlined text-base">visibility</span>
             View Details
           </Link>
-          <button className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
-            <span className="material-symbols-outlined text-base">content_copy</span>
-            Duplicate
-          </button>
-          <button className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 w-full text-left">
+          <button
+            disabled
+            className="flex items-center gap-2 px-3 py-2 text-sm text-slate-400 cursor-not-allowed w-full text-left"
+          >
             <span className="material-symbols-outlined text-base">download</span>
             Export
           </button>
@@ -163,7 +229,7 @@ export default function DashboardPage() {
 
       {/* Table */}
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <div>
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
@@ -266,6 +332,99 @@ export default function DashboardPage() {
           View all evaluations
           <span className="material-symbols-outlined text-base">arrow_forward</span>
         </Link>
+      </div>
+
+      {/* Datasets Section */}
+      <div className="flex flex-col gap-4 mt-2">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100">
+              <span className="material-symbols-outlined text-slate-600">storage</span>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">Your Datasets</h2>
+              <p className="text-slate-500 text-sm">{datasets.length} datasets</p>
+            </div>
+          </div>
+          <Link
+            href="/datasets/new"
+            className="flex items-center gap-2 bg-[#135bec] hover:bg-[#135bec]/90 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-sm shadow-[#135bec]/30 w-fit"
+          >
+            <span className="material-symbols-outlined text-xl">add</span>
+            New Dataset
+          </Link>
+        </div>
+
+        {/* Card Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {datasets.map((dataset) => {
+            const typeStyles = getDatasetTypeStyles(dataset.type);
+            return (
+              <Link
+                key={dataset.id}
+                href={`/datasets/${dataset.id}`}
+                className="group bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
+              >
+                <div className="p-4">
+                  {/* Icon */}
+                  <div
+                    className={cn(
+                      'w-10 h-10 rounded-lg flex items-center justify-center mb-3',
+                      typeStyles.bg
+                    )}
+                  >
+                    <span className={cn('material-symbols-outlined', typeStyles.iconColor)}>
+                      {typeStyles.icon}
+                    </span>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-sm font-medium text-slate-900 line-clamp-1 group-hover:text-[#135bec] transition-colors">
+                    {dataset.name}
+                  </h3>
+
+                  {/* Meta */}
+                  <p className="text-xs text-slate-500 mt-1">{dataset.size} queries</p>
+                </div>
+
+                {/* Footer */}
+                <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                  <span
+                    className={cn(
+                      'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border',
+                      getDatasetStatusStyles(dataset.status)
+                    )}
+                  >
+                    {dataset.status === 'processing' ? (
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
+                      </span>
+                    ) : dataset.status === 'ready' ? (
+                      <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    ) : (
+                      <span className="flex h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                    )}
+                    {getDatasetStatusLabel(dataset.status)}
+                  </span>
+                  <span className="text-xs text-slate-400">{dataset.createdAt}</span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* View All Link */}
+        <div className="flex justify-center">
+          <Link
+            href="/datasets"
+            className="text-sm font-medium text-[#135bec] hover:underline flex items-center gap-1"
+          >
+            View all datasets
+            <span className="material-symbols-outlined text-base">arrow_forward</span>
+          </Link>
+        </div>
       </div>
     </div>
   );

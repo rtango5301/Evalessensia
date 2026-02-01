@@ -2,18 +2,13 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { signOut } from '@/app/login/actions';
+import type { AuthUser } from '@/contexts/user-context';
 
-interface User {
-  name: string;
-  role: string;
-  avatarUrl?: string;
-  email?: string;
-}
-
-interface ProfileDropdownProps {
-  user: User;
-  onLogout?: () => void;
+interface AuthProfileDropdownProps {
+  user: AuthUser;
 }
 
 /**
@@ -28,9 +23,11 @@ function getInitials(name: string): string {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 }
 
-export function ProfileDropdown({ user, onLogout }: ProfileDropdownProps) {
+export function AuthProfileDropdown({ user }: AuthProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // Click-outside detection to close dropdown
   useEffect(() => {
@@ -54,9 +51,12 @@ export function ProfileDropdown({ user, onLogout }: ProfileDropdownProps) {
     return () => document.removeEventListener('keydown', handleEscape);
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
     setIsOpen(false);
-    onLogout?.();
+    await signOut();
+    router.push('/');
+    router.refresh();
   };
 
   return (
@@ -92,8 +92,7 @@ export function ProfileDropdown({ user, onLogout }: ProfileDropdownProps) {
           {/* User Info Header */}
           <div className="px-3 py-2 border-b border-slate-200">
             <p className="text-sm font-medium text-slate-900 truncate">{user.name}</p>
-            {user.email && <p className="text-xs text-slate-500 truncate">{user.email}</p>}
-            <p className="text-xs text-slate-400 mt-0.5">{user.role}</p>
+            <p className="text-xs text-slate-500 truncate">{user.email}</p>
           </div>
 
           {/* Menu Items */}
@@ -118,14 +117,16 @@ export function ProfileDropdown({ user, onLogout }: ProfileDropdownProps) {
           {/* Logout */}
           <button
             onClick={handleLogout}
+            disabled={isLoggingOut}
             className={cn(
               'flex items-center gap-2 px-3 py-2 text-sm w-full text-left',
-              'text-red-600 hover:bg-red-50 transition-colors'
+              'text-red-600 hover:bg-red-50 transition-colors',
+              isLoggingOut && 'opacity-50 cursor-not-allowed'
             )}
             role="menuitem"
           >
             <span className="material-symbols-outlined text-base">logout</span>
-            Logout
+            {isLoggingOut ? 'Signing out...' : 'Sign out'}
           </button>
         </div>
       )}

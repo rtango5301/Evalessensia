@@ -82,10 +82,11 @@ export async function signOut() {
   const supabase = await createClient();
 
   if (supabase) {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: 'global' });
   }
   revalidatePath('/', 'layout');
-  redirect('/login');
+  // Don't redirect here - let client handle navigation with router.refresh()
+  // to ensure Next.js Router Cache is properly cleared
 }
 
 export async function requestPasswordReset(email: string) {
