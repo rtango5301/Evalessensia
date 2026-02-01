@@ -12,15 +12,19 @@ interface Query {
   createdAt: string;
 }
 
-// Mock data
+type DatasetStatus = 'ready' | 'processing' | 'error';
+
+// Mock data - change status to 'processing' or 'error' to see the banners
 const datasetInfo = {
   id: 'ds-001',
   name: 'Customer Support Q&A',
   type: 'uploaded' as const,
-  status: 'ready' as const,
+  status: 'ready' as DatasetStatus,
   createdAt: '2024-01-15',
   totalQueries: 150,
   categories: ['account', 'billing', 'technical', 'general'],
+  // Progress percentage for processing status (0-100)
+  processingProgress: 45,
 };
 
 const mockQueries: Query[] = [
@@ -110,6 +114,7 @@ export default function DatasetDetailPage({ params }: { params: Promise<{ id: st
   const [selectedQuery, setSelectedQuery] = useState<Query | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [showExportTooltip, setShowExportTooltip] = useState(false);
 
   const queriesPerPage = 5;
   const totalPages = Math.ceil(mockQueries.length / queriesPerPage);
@@ -127,8 +132,70 @@ export default function DatasetDetailPage({ params }: { params: Promise<{ id: st
     currentPage * queriesPerPage
   );
 
+  const handleRetry = () => {
+    // Handle retry logic - in a real app this would trigger dataset regeneration
+    console.log('Retrying dataset generation...');
+  };
+
   return (
     <div className="flex flex-col gap-6">
+      {/* Processing Status Banner */}
+      {datasetInfo.status === 'processing' && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0">
+              <span className="material-symbols-outlined text-amber-600 animate-spin">
+                progress_activity
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-semibold text-amber-800">
+                  Dataset Generation In Progress
+                </h3>
+                <span className="text-sm font-medium text-amber-700">
+                  {datasetInfo.processingProgress}%
+                </span>
+              </div>
+              <div className="w-full bg-amber-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className="bg-amber-500 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${datasetInfo.processingProgress}%` }}
+                />
+              </div>
+              <p className="text-xs text-amber-600 mt-2">
+                Please wait while we generate your dataset. This may take a few minutes.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Failed Status Banner */}
+      {datasetInfo.status === 'error' && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0">
+              <span className="material-symbols-outlined text-red-600">error</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-semibold text-red-800">Dataset Generation Failed</h3>
+              <p className="text-xs text-red-600 mt-1">
+                There was an error generating your dataset. Please try again or contact support if
+                the issue persists.
+              </p>
+            </div>
+            <button
+              onClick={handleRetry}
+              className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition-colors"
+            >
+              <span className="material-symbols-outlined text-base">refresh</span>
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-slate-500">
         <Link href="/datasets" className="hover:text-[#135bec] transition-colors">
@@ -161,7 +228,11 @@ export default function DatasetDetailPage({ params }: { params: Promise<{ id: st
                   getStatusBadgeStyles(datasetInfo.status)
                 )}
               >
-                Ready
+                {datasetInfo.status === 'ready'
+                  ? 'Ready'
+                  : datasetInfo.status === 'processing'
+                    ? 'Processing'
+                    : 'Failed'}
               </span>
             </div>
             <p className="text-slate-500 text-sm">
@@ -181,14 +252,25 @@ export default function DatasetDetailPage({ params }: { params: Promise<{ id: st
               <span className="material-symbols-outlined text-lg">science</span>
               Run Evaluation
             </Link>
-            <button className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-              <span className="material-symbols-outlined text-lg">download</span>
-              Export
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-              <span className="material-symbols-outlined text-lg">edit</span>
-              Edit
-            </button>
+            {/* Export Button with Pro Lock */}
+            <div className="relative">
+              <button
+                disabled
+                onMouseEnter={() => setShowExportTooltip(true)}
+                onMouseLeave={() => setShowExportTooltip(false)}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-400 bg-slate-50 border border-slate-200 rounded-lg cursor-not-allowed"
+              >
+                <span className="material-symbols-outlined text-lg">lock</span>
+                Export
+              </button>
+              {/* Tooltip */}
+              {showExportTooltip && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-2 bg-slate-900 text-white text-xs font-medium rounded-lg whitespace-nowrap z-10 shadow-lg">
+                  Export requires Pro
+                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45" />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -404,16 +486,12 @@ export default function DatasetDetailPage({ params }: { params: Promise<{ id: st
                 </div>
               </div>
             </div>
-            <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-slate-200 bg-slate-50">
+            <div className="flex items-center justify-end px-6 py-4 border-t border-slate-200 bg-slate-50">
               <button
                 onClick={() => setSelectedQuery(null)}
                 className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
               >
                 Close
-              </button>
-              <button className="flex items-center gap-1.5 px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-medium hover:bg-[#135bec]/90 transition-colors">
-                <span className="material-symbols-outlined text-base">edit</span>
-                Edit Query
               </button>
             </div>
           </div>

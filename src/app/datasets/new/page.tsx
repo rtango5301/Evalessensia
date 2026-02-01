@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { OrDivider } from '@/components/ui/or-divider';
+import { MCPMarketplaceModal, MCP_SERVERS } from '@/components/ui/mcp-marketplace-modal';
 
 // Schema preview mock data
 const schemaPreview = [
@@ -19,14 +20,31 @@ export default function NewDatasetPage() {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadDatasetName, setUploadDatasetName] = useState('');
+  const [uploadDatasetDescription, setUploadDatasetDescription] = useState('');
 
   // Generate state
   const [generateDatasetName, setGenerateDatasetName] = useState('');
   const [generateDatasetDescription, setGenerateDatasetDescription] = useState('');
   const [agentName, setAgentName] = useState('');
   const [agentDescription, setAgentDescription] = useState('');
-  const [mcpServer, setMcpServer] = useState('');
+  const [selectedMCPServers, setSelectedMCPServers] = useState<string[]>([]);
+  const [customMcpServer, setCustomMcpServer] = useState({
+    name: '',
+    description: '',
+    url: '',
+  });
   const [queryCount, setQueryCount] = useState(50);
+  const [isMcpModalOpen, setIsMcpModalOpen] = useState(false);
+
+  // Helper to remove a selected MCP server
+  const removeSelectedServer = (serverId: string) => {
+    setSelectedMCPServers((prev) => prev.filter((id) => id !== serverId));
+  };
+
+  // Get server details by ID
+  const getServerById = (serverId: string) => {
+    return MCP_SERVERS.find((s) => s.id === serverId);
+  };
 
   // Handle file drop
   const handleDrop = useCallback(
@@ -125,6 +143,20 @@ export default function NewDatasetPage() {
                 onChange={(e) => setUploadDatasetName(e.target.value)}
                 placeholder="Enter dataset name..."
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
+              />
+            </div>
+
+            {/* Dataset Description */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                Dataset Description <span className="text-slate-400 font-normal">(Optional)</span>
+              </label>
+              <textarea
+                value={uploadDatasetDescription}
+                onChange={(e) => setUploadDatasetDescription(e.target.value)}
+                placeholder="Describe the purpose of this dataset..."
+                rows={2}
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all resize-none"
               />
             </div>
 
@@ -323,21 +355,129 @@ export default function NewDatasetPage() {
               />
             </div>
 
-            {/* MCP Server (Optional) */}
+            {/* MCP Server Marketplace */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                MCP Server <span className="text-slate-400 font-normal">(Optional)</span>
+                MCP Servers <span className="text-slate-400 font-normal">(Optional, max 3)</span>
               </label>
-              <input
-                type="text"
-                value={mcpServer}
-                onChange={(e) => setMcpServer(e.target.value)}
-                placeholder="e.g., mcp://my-server"
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
-              />
+
+              {/* Browse MCP Servers Button */}
+              <button
+                type="button"
+                onClick={() => setIsMcpModalOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 hover:border-[#135bec] hover:text-[#135bec] transition-all focus:outline-none focus:ring-2 focus:ring-[#135bec] focus:ring-offset-2"
+              >
+                <span className="material-symbols-outlined text-lg">storefront</span>
+                Browse MCP Servers
+                {selectedMCPServers.length > 0 && (
+                  <span className="ml-1 inline-flex items-center justify-center h-5 w-5 rounded-full bg-[#135bec] text-xs font-bold text-white">
+                    {selectedMCPServers.length}
+                  </span>
+                )}
+              </button>
+
+              {/* Selected Servers Chips */}
+              {selectedMCPServers.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {selectedMCPServers.map((serverId) => {
+                    const server = getServerById(serverId);
+                    if (!server) return null;
+                    return (
+                      <div
+                        key={serverId}
+                        className="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1.5 rounded-full text-xs font-medium bg-[#135bec]/10 text-[#135bec] border border-[#135bec]/20"
+                      >
+                        <span className="material-symbols-outlined text-sm">{server.icon}</span>
+                        {server.name}
+                        <button
+                          type="button"
+                          onClick={() => removeSelectedServer(serverId)}
+                          className="ml-0.5 inline-flex items-center justify-center h-4 w-4 rounded-full hover:bg-[#135bec]/20 transition-colors"
+                          aria-label={`Remove ${server.name}`}
+                        >
+                          <span className="material-symbols-outlined text-xs">close</span>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
               <p className="text-xs text-slate-500 mt-1.5">
-                Connect to an MCP server for context-aware test generation
+                Connect to MCP servers for context-aware test generation
               </p>
+            </div>
+
+            {/* MCP Marketplace Modal */}
+            <MCPMarketplaceModal
+              isOpen={isMcpModalOpen}
+              onClose={() => setIsMcpModalOpen(false)}
+              selectedServers={selectedMCPServers}
+              onSelectionChange={setSelectedMCPServers}
+              maxSelections={3}
+            />
+
+            {/* Custom MCP Server */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-3">
+                Custom MCP Server <span className="text-slate-400 font-normal">(Optional)</span>
+              </label>
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-4">
+                <div>
+                  <label
+                    htmlFor="dataset-custom-mcp-name"
+                    className="block text-sm font-medium text-slate-600 mb-1.5"
+                  >
+                    MCP Name
+                  </label>
+                  <input
+                    id="dataset-custom-mcp-name"
+                    type="text"
+                    value={customMcpServer.name}
+                    onChange={(e) =>
+                      setCustomMcpServer({ ...customMcpServer, name: e.target.value })
+                    }
+                    placeholder="e.g., Internal Pricing API"
+                    className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all bg-white"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="dataset-custom-mcp-description"
+                    className="block text-sm font-medium text-slate-600 mb-1.5"
+                  >
+                    MCP Description
+                  </label>
+                  <input
+                    id="dataset-custom-mcp-description"
+                    type="text"
+                    value={customMcpServer.description}
+                    onChange={(e) =>
+                      setCustomMcpServer({ ...customMcpServer, description: e.target.value })
+                    }
+                    placeholder="Describe what this MCP server does..."
+                    className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all bg-white"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="dataset-custom-mcp-url"
+                    className="block text-sm font-medium text-slate-600 mb-1.5"
+                  >
+                    MCP URL
+                  </label>
+                  <input
+                    id="dataset-custom-mcp-url"
+                    type="text"
+                    value={customMcpServer.url}
+                    onChange={(e) =>
+                      setCustomMcpServer({ ...customMcpServer, url: e.target.value })
+                    }
+                    placeholder="mcp://your-server-url"
+                    className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all bg-white"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Query Count */}

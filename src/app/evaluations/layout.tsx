@@ -11,8 +11,6 @@ const navItems = [
   { href: '/evaluations', label: 'Evaluations', icon: 'science' },
 ];
 
-const secondaryNavItems = [{ href: '/dashboard/api-keys', label: 'API Keys', icon: 'key' }];
-
 export default function EvaluationsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
@@ -77,29 +75,6 @@ export default function EvaluationsLayout({ children }: { children: React.ReactN
                   </Link>
                 );
               })}
-
-              <div className="my-2 border-t border-slate-200"></div>
-
-              {secondaryNavItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group',
-                      isActive
-                        ? 'bg-[#135bec]/10 text-[#135bec]'
-                        : 'text-slate-600 hover:bg-slate-100'
-                    )}
-                  >
-                    <span className="material-symbols-outlined">{item.icon}</span>
-                    <p className="text-sm font-medium leading-normal group-hover:text-slate-900">
-                      {item.label}
-                    </p>
-                  </Link>
-                );
-              })}
             </nav>
           </div>
         </aside>
@@ -136,10 +111,6 @@ export default function EvaluationsLayout({ children }: { children: React.ReactN
                 >
                   <span className="material-symbols-outlined text-[18px]">settings</span>
                 </Link>
-                <button className="flex items-center justify-center size-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors relative">
-                  <span className="material-symbols-outlined text-[18px]">notifications</span>
-                  <span className="absolute top-1.5 right-1.5 size-2 bg-red-500 rounded-full border-2 border-white"></span>
-                </button>
                 <button className="flex items-center justify-center size-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors">
                   <span className="material-symbols-outlined text-[18px]">help</span>
                 </button>

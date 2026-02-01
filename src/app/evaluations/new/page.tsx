@@ -4,15 +4,26 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { MCPServerMarketplace } from '@/components/mcp-server-marketplace';
 import { useToast } from '@/components/ui/toast-context';
+import {
+  MCPMarketplaceModal,
+  MCP_SERVERS as MARKETPLACE_SERVERS,
+} from '@/components/ui/mcp-marketplace-modal';
 
 // Types
 type WizardStep = 'agent' | 'dataset' | 'review';
 
-interface AgentConfig {
+interface CustomMCPServer {
   name: string;
   description: string;
+  url: string;
+}
+
+interface AgentConfig {
+  evaluationName: string;
+  name: string;
+  description: string;
+  customMcp: CustomMCPServer;
 }
 
 interface DatasetSelection {
@@ -21,14 +32,24 @@ interface DatasetSelection {
   existingName?: string;
 }
 
-// Mock datasets for selection
+// Mock datasets for selection - includes status field
 const existingDatasets = [
-  { id: 'ds-001', name: 'Customer Support Q&A', size: 150, type: 'uploaded' },
-  { id: 'ds-002', name: 'Financial Reports Dataset', size: 200, type: 'generated' },
-  { id: 'ds-003', name: 'Blog Posts Dataset', size: 75, type: 'uploaded' },
-  { id: 'ds-004', name: 'Code Review Samples', size: 300, type: 'generated' },
-  { id: 'ds-005', name: 'Multi-language Dataset', size: 500, type: 'uploaded' },
+  { id: 'ds-001', name: 'Customer Support Q&A', size: 150, type: 'uploaded', status: 'ready' },
+  {
+    id: 'ds-002',
+    name: 'Financial Reports Dataset',
+    size: 200,
+    type: 'generated',
+    status: 'ready',
+  },
+  { id: 'ds-003', name: 'Blog Posts Dataset', size: 75, type: 'uploaded', status: 'processing' },
+  { id: 'ds-004', name: 'Code Review Samples', size: 300, type: 'generated', status: 'ready' },
+  { id: 'ds-005', name: 'Multi-language Dataset', size: 500, type: 'uploaded', status: 'failed' },
+  { id: 'ds-006', name: 'Safety Test Cases', size: 120, type: 'generated', status: 'ready' },
 ];
+
+// Filter to only show ready datasets
+const readyDatasets = existingDatasets.filter((d) => d.status === 'ready');
 
 function WizardStepIndicator({ currentStep }: { currentStep: WizardStep }) {
   const steps: { key: WizardStep; label: string; icon: string }[] = [
@@ -83,19 +104,22 @@ function NewEvaluationWizardContent() {
 
   // Agent config state
   const [agentConfig, setAgentConfig] = useState<AgentConfig>({
+    evaluationName: '',
     name: '',
     description: '',
+    customMcp: { name: '', description: '', url: '' },
   });
 
   // MCP Server selection state
   const [selectedMCPServers, setSelectedMCPServers] = useState<string[]>([]);
+  const [isMcpModalOpen, setIsMcpModalOpen] = useState(false);
 
   // Dataset selection state
   const [datasetSelection, setDatasetSelection] = useState<DatasetSelection>({
     type: 'existing',
     existingId: preselectedDataset || undefined,
     existingName: preselectedDataset
-      ? existingDatasets.find((d) => d.id === preselectedDataset)?.name
+      ? readyDatasets.find((d) => d.id === preselectedDataset)?.name
       : undefined,
   });
 
@@ -106,7 +130,8 @@ function NewEvaluationWizardContent() {
     window.history.replaceState({}, '', url.toString());
   }, [currentStep]);
 
-  const canProceedFromAgent = agentConfig.name && agentConfig.description;
+  const canProceedFromAgent =
+    agentConfig.evaluationName && agentConfig.name && agentConfig.description;
   const canProceedFromDataset = datasetSelection.type === 'new' || datasetSelection.existingId;
 
   const handleNext = () => {
@@ -169,6 +194,22 @@ function NewEvaluationWizardContent() {
             </div>
 
             <div className="grid grid-cols-1 gap-6">
+              {/* Evaluation Name - NEW FIELD AT TOP */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  Evaluation Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={agentConfig.evaluationName}
+                  onChange={(e) =>
+                    setAgentConfig({ ...agentConfig, evaluationName: e.target.value })
+                  }
+                  placeholder="e.g., Support Bot v2.4 - Safety Test"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
+                />
+              </div>
+
               {/* Agent Name */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
@@ -200,15 +241,139 @@ function NewEvaluationWizardContent() {
 
             {/* MCP Server Selection */}
             <div className="mt-6">
-              <label className="block text-sm font-semibold text-slate-700 mb-3">
-                Select MCP Servers
-              </label>
-              <MCPServerMarketplace
-                selectedServers={selectedMCPServers}
-                onSelectionChange={setSelectedMCPServers}
-                maxSelections={3}
-              />
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-sm font-semibold text-slate-700">MCP Servers</label>
+                <span className="text-xs text-slate-500">
+                  {selectedMCPServers.length} of 3 selected
+                </span>
+              </div>
+
+              {/* Browse MCP Servers Button */}
+              <button
+                type="button"
+                onClick={() => setIsMcpModalOpen(true)}
+                className={cn(
+                  'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all',
+                  'border border-slate-200 bg-white text-slate-700 hover:border-[#135bec] hover:bg-[#135bec]/5 hover:text-[#135bec]',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#135bec] focus-visible:ring-offset-2'
+                )}
+              >
+                <span className="material-symbols-outlined text-lg">extension</span>
+                Browse MCP Servers
+              </button>
+
+              {/* Selected Servers Chips */}
+              {selectedMCPServers.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {selectedMCPServers.map((serverId) => {
+                    const server = MARKETPLACE_SERVERS.find((s) => s.id === serverId);
+                    if (!server) return null;
+                    return (
+                      <span
+                        key={serverId}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border-2 border-[#135bec] bg-[#135bec]/10 text-[#135bec]"
+                      >
+                        <span className="material-symbols-outlined text-base">{server.icon}</span>
+                        {server.name}
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setSelectedMCPServers(
+                              selectedMCPServers.filter((id) => id !== serverId)
+                            )
+                          }
+                          className="ml-0.5 hover:bg-[#135bec]/20 rounded-full p-0.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#135bec]"
+                          aria-label={`Remove ${server.name}`}
+                        >
+                          <span className="material-symbols-outlined text-sm">close</span>
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Custom MCP Server */}
+              <div className="mt-4">
+                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                  Custom MCP Server <span className="font-normal text-slate-400">(optional)</span>
+                </label>
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 space-y-4">
+                  <div>
+                    <label
+                      htmlFor="custom-mcp-name"
+                      className="block text-sm font-medium text-slate-600 mb-1.5"
+                    >
+                      MCP Name
+                    </label>
+                    <input
+                      id="custom-mcp-name"
+                      type="text"
+                      value={agentConfig.customMcp.name}
+                      onChange={(e) =>
+                        setAgentConfig({
+                          ...agentConfig,
+                          customMcp: { ...agentConfig.customMcp, name: e.target.value },
+                        })
+                      }
+                      placeholder="e.g., Internal Pricing API"
+                      className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="custom-mcp-description"
+                      className="block text-sm font-medium text-slate-600 mb-1.5"
+                    >
+                      MCP Description
+                    </label>
+                    <input
+                      id="custom-mcp-description"
+                      type="text"
+                      value={agentConfig.customMcp.description}
+                      onChange={(e) =>
+                        setAgentConfig({
+                          ...agentConfig,
+                          customMcp: { ...agentConfig.customMcp, description: e.target.value },
+                        })
+                      }
+                      placeholder="Describe what this MCP server does..."
+                      className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="custom-mcp-url"
+                      className="block text-sm font-medium text-slate-600 mb-1.5"
+                    >
+                      MCP URL
+                    </label>
+                    <input
+                      id="custom-mcp-url"
+                      type="text"
+                      value={agentConfig.customMcp.url}
+                      onChange={(e) =>
+                        setAgentConfig({
+                          ...agentConfig,
+                          customMcp: { ...agentConfig.customMcp, url: e.target.value },
+                        })
+                      }
+                      placeholder="mcp://your-server-url"
+                      className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all bg-white"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
+
+            {/* MCP Marketplace Modal */}
+            <MCPMarketplaceModal
+              isOpen={isMcpModalOpen}
+              onClose={() => setIsMcpModalOpen(false)}
+              selectedServers={selectedMCPServers}
+              onSelectionChange={setSelectedMCPServers}
+              maxSelections={3}
+            />
           </div>
         )}
 
@@ -221,20 +386,20 @@ function NewEvaluationWizardContent() {
               </div>
               <div>
                 <h2 className="text-lg font-bold text-slate-900">Select Dataset</h2>
-                <p className="text-sm text-slate-500">Choose or create a dataset for evaluation</p>
+                <p className="text-sm text-slate-500">Choose a completed dataset for evaluation</p>
               </div>
             </div>
 
-            {/* Existing Datasets Section */}
-            <div className="mb-6">
+            {/* Available Datasets Section - only ready datasets */}
+            <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-slate-700">Available Datasets</h3>
                 <span className="text-xs text-slate-500">
-                  {existingDatasets.length} datasets available
+                  {readyDatasets.length} datasets ready
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {existingDatasets.map((dataset) => {
+                {readyDatasets.map((dataset) => {
                   const isSelected = datasetSelection.existingId === dataset.id;
                   return (
                     <button
@@ -307,45 +472,17 @@ function NewEvaluationWizardContent() {
                   );
                 })}
               </div>
-            </div>
 
-            {/* Or Divider */}
-            <div className="relative my-8">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
-              </div>
-              <div className="relative flex justify-center">
-                <span className="bg-white px-4 text-sm font-medium text-slate-500">or</span>
-              </div>
-            </div>
-
-            {/* Create New Dataset Card */}
-            <div
-              className={cn(
-                'rounded-xl p-5 transition-all',
-                datasetSelection.type === 'new'
-                  ? 'border-2 border-[#135bec] bg-[#135bec]/5'
-                  : 'border border-slate-200 bg-white'
-              )}
-            >
-              <div className="flex items-start gap-4">
-                <div className="flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#135bec] to-[#135bec]/80 shadow-sm">
-                  <span className="material-symbols-outlined text-2xl text-white">add_circle</span>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-slate-900 mb-1">Create New Dataset</h3>
-                  <p className="text-sm text-slate-500 mb-4">
-                    Upload a file or use AI to generate a new dataset for your evaluation.
-                  </p>
-                  <Link
-                    href="/datasets/new"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-medium hover:bg-[#135bec]/90 transition-colors shadow-sm"
-                  >
-                    <span className="material-symbols-outlined text-lg">add</span>
-                    Create Dataset
-                  </Link>
-                </div>
-              </div>
+              {/* Small text link to create dataset */}
+              <p className="mt-6 text-sm text-slate-500">
+                Need a new dataset?{' '}
+                <Link
+                  href="/datasets"
+                  className="text-[#135bec] hover:text-[#135bec]/80 font-medium transition-colors"
+                >
+                  Go to Datasets
+                </Link>
+              </p>
             </div>
           </div>
         )}
@@ -381,10 +518,19 @@ function NewEvaluationWizardContent() {
                   </button>
                 </div>
                 <div className="space-y-4">
+                  {/* Evaluation Name */}
+                  <div>
+                    <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">
+                      Evaluation Name
+                    </label>
+                    <p className="text-sm font-medium text-slate-900 mt-1">
+                      {agentConfig.evaluationName}
+                    </p>
+                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-                        Name
+                        Agent Name
                       </label>
                       <p className="text-sm font-medium text-slate-900 mt-1">{agentConfig.name}</p>
                     </div>
@@ -413,15 +559,60 @@ function NewEvaluationWizardContent() {
                         Selected Servers
                       </label>
                       <div className="flex flex-wrap gap-1.5 mt-1.5">
-                        {selectedMCPServers.map((serverId) => (
-                          <span
-                            key={serverId}
-                            className="inline-flex items-center px-2 py-0.5 rounded-md bg-[#135bec]/10 text-xs font-medium text-[#135bec]"
-                          >
-                            {serverId}
-                          </span>
-                        ))}
+                        {selectedMCPServers.map((serverId) => {
+                          const server = MARKETPLACE_SERVERS.find((s) => s.id === serverId);
+                          return (
+                            <span
+                              key={serverId}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#135bec]/10 text-xs font-medium text-[#135bec]"
+                            >
+                              <span className="material-symbols-outlined text-xs">
+                                {server?.icon || 'extension'}
+                              </span>
+                              {server?.name || serverId}
+                            </span>
+                          );
+                        })}
                       </div>
+                    </div>
+                  )}
+                  {(agentConfig.customMcp.name ||
+                    agentConfig.customMcp.description ||
+                    agentConfig.customMcp.url) && (
+                    <div className="space-y-3 pt-2 border-t border-slate-200">
+                      <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">
+                        Custom MCP Server
+                      </label>
+                      {agentConfig.customMcp.name && (
+                        <div>
+                          <label className="text-[10px] font-medium text-slate-400 uppercase">
+                            Name
+                          </label>
+                          <p className="text-sm font-medium text-slate-900">
+                            {agentConfig.customMcp.name}
+                          </p>
+                        </div>
+                      )}
+                      {agentConfig.customMcp.description && (
+                        <div>
+                          <label className="text-[10px] font-medium text-slate-400 uppercase">
+                            Description
+                          </label>
+                          <p className="text-sm text-slate-700">
+                            {agentConfig.customMcp.description}
+                          </p>
+                        </div>
+                      )}
+                      {agentConfig.customMcp.url && (
+                        <div>
+                          <label className="text-[10px] font-medium text-slate-400 uppercase">
+                            URL
+                          </label>
+                          <p className="text-sm font-mono text-slate-700">
+                            {agentConfig.customMcp.url}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -467,7 +658,7 @@ function NewEvaluationWizardContent() {
                       </label>
                       <p className="text-sm font-medium text-slate-900 mt-1">
                         {datasetSelection.existingId
-                          ? existingDatasets.find((d) => d.id === datasetSelection.existingId)?.size
+                          ? readyDatasets.find((d) => d.id === datasetSelection.existingId)?.size
                           : '--'}
                       </p>
                     </div>
@@ -477,7 +668,7 @@ function NewEvaluationWizardContent() {
                       </label>
                       <p className="text-sm font-medium text-slate-900 mt-1">
                         {datasetSelection.existingId
-                          ? existingDatasets.find((d) => d.id === datasetSelection.existingId)
+                          ? readyDatasets.find((d) => d.id === datasetSelection.existingId)
                               ?.type === 'uploaded'
                             ? 'Uploaded'
                             : 'Generated'
@@ -499,7 +690,7 @@ function NewEvaluationWizardContent() {
                   <p className="font-medium">Estimated Duration</p>
                   <p className="text-amber-700">
                     Based on{' '}
-                    {existingDatasets.find((d) => d.id === datasetSelection.existingId)?.size || 0}{' '}
+                    {readyDatasets.find((d) => d.id === datasetSelection.existingId)?.size || 0}{' '}
                     queries, this evaluation should complete in approximately 5-10 minutes.
                   </p>
                 </div>

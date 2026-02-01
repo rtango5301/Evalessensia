@@ -1,9 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { SlideOverPanel } from '@/components/ui/slide-over-panel';
 
 // Types
 type DatasetType = 'uploaded' | 'generated';
@@ -137,20 +136,19 @@ function formatDate(dateString: string) {
 export default function DatasetsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
-  const [editingDataset, setEditingDataset] = useState<Dataset | null>(null);
-  const [editName, setEditName] = useState('');
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Open edit panel for a dataset
-  const openEditPanel = (dataset: Dataset) => {
-    setEditingDataset(dataset);
-    setEditName(dataset.name);
-  };
-
-  // Close edit panel
-  const closeEditPanel = () => {
-    setEditingDataset(null);
-    setEditName('');
-  };
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenuId(null);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const filteredDatasets = useMemo(() => {
     const result = datasets.filter((dataset) => {
@@ -256,7 +254,7 @@ export default function DatasetsPage() {
                   Status
                 </th>
                 <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">
-                  Edit
+                  Actions
                 </th>
               </tr>
             </thead>
@@ -323,15 +321,55 @@ export default function DatasetsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openEditPanel(dataset);
-                        }}
-                        className="px-3 py-1.5 text-sm font-medium text-[#135bec] hover:bg-[#135bec]/10 rounded-lg transition-colors"
+                      <div
+                        className="relative inline-block"
+                        ref={openMenuId === dataset.id ? menuRef : null}
                       >
-                        Edit
-                      </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuId(openMenuId === dataset.id ? null : dataset.id);
+                          }}
+                          className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-xl">more_vert</span>
+                        </button>
+                        {openMenuId === dataset.id && (
+                          <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-10">
+                            <Link
+                              href={`/datasets/${dataset.id}`}
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                              onClick={() => setOpenMenuId(null)}
+                            >
+                              <span className="material-symbols-outlined text-lg">visibility</span>
+                              View Details
+                            </Link>
+                            <Link
+                              href={`/evaluations/new?dataset=${dataset.id}`}
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                              onClick={() => setOpenMenuId(null)}
+                            >
+                              <span className="material-symbols-outlined text-lg">science</span>
+                              Run Evaluation
+                            </Link>
+                            <button
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors w-full text-left"
+                              onClick={() => setOpenMenuId(null)}
+                            >
+                              <span className="material-symbols-outlined text-lg">download</span>
+                              Export
+                            </button>
+                            <div className="border-t border-slate-100 my-1"></div>
+                            <button
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                              onClick={() => setOpenMenuId(null)}
+                            >
+                              <span className="material-symbols-outlined text-lg">delete</span>
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -347,128 +385,6 @@ export default function DatasetsPage() {
           Showing {filteredDatasets.length} of {datasets.length} datasets
         </div>
       )}
-
-      {/* Edit Dataset SlideOverPanel */}
-      <SlideOverPanel
-        isOpen={editingDataset !== null}
-        onClose={closeEditPanel}
-        title="Edit Dataset"
-        description={editingDataset ? `Editing: ${editingDataset.id}` : undefined}
-        width="md"
-      >
-        {editingDataset && (
-          <div className="p-6 flex flex-col gap-6">
-            {/* Dataset Name */}
-            <div className="flex flex-col gap-2">
-              <label htmlFor="dataset-name" className="text-sm font-medium text-slate-700">
-                Dataset Name
-              </label>
-              <input
-                id="dataset-name"
-                type="text"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                className="block w-full px-3 py-2.5 border border-slate-200 rounded-lg bg-white text-slate-900 text-sm placeholder-slate-500 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
-              />
-            </div>
-
-            {/* Dataset Info (Read-only) */}
-            <div className="flex flex-col gap-4">
-              <h3 className="text-sm font-medium text-slate-700">Dataset Information</h3>
-              <div className="bg-slate-50 rounded-lg p-4 flex flex-col gap-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-500">Type</span>
-                  <span
-                    className={cn(
-                      'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
-                      getTypeBadgeStyles(editingDataset.type)
-                    )}
-                  >
-                    <span className="material-symbols-outlined text-sm">
-                      {getTypeIcon(editingDataset.type)}
-                    </span>
-                    {editingDataset.type === 'uploaded' ? 'Uploaded' : 'Generated'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-500">Size</span>
-                  <span className="text-sm text-slate-900">{editingDataset.size} queries</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-500">Created</span>
-                  <span className="text-sm text-slate-900">
-                    {formatDate(editingDataset.createdAt)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-500">Status</span>
-                  <span
-                    className={cn(
-                      'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
-                      getStatusBadgeStyles(editingDataset.status)
-                    )}
-                  >
-                    {getStatusLabel(editingDataset.status)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="flex flex-col gap-2">
-              <h3 className="text-sm font-medium text-slate-700">Quick Actions</h3>
-              <div className="flex flex-col gap-2">
-                <Link
-                  href={`/datasets/${editingDataset.id}`}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
-                >
-                  <span className="material-symbols-outlined text-base">visibility</span>
-                  View Details
-                </Link>
-                <Link
-                  href={`/evaluations/new?dataset=${editingDataset.id}`}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
-                >
-                  <span className="material-symbols-outlined text-base">science</span>
-                  Run Evaluation
-                </Link>
-                <button className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors text-left">
-                  <span className="material-symbols-outlined text-base">download</span>
-                  Export Dataset
-                </button>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3 pt-4 border-t border-slate-200">
-              <button
-                onClick={closeEditPanel}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  // In a real app, this would save the changes
-                  closeEditPanel();
-                }}
-                className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-[#135bec] rounded-lg hover:bg-[#135bec]/90 transition-colors"
-              >
-                Save Changes
-              </button>
-            </div>
-
-            {/* Danger Zone */}
-            <div className="flex flex-col gap-2 pt-4 border-t border-slate-200">
-              <h3 className="text-sm font-medium text-red-600">Danger Zone</h3>
-              <button className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors text-left">
-                <span className="material-symbols-outlined text-base">delete</span>
-                Delete Dataset
-              </button>
-            </div>
-          </div>
-        )}
-      </SlideOverPanel>
     </div>
   );
 }

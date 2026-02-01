@@ -116,7 +116,7 @@ type StatusFilter = 'all' | 'running' | 'completed' | 'failed';
 
 const statusFilters: { value: StatusFilter; label: string }[] = [
   { value: 'all', label: 'All Status' },
-  { value: 'running', label: 'Running' },
+  { value: 'running', label: 'In Progress' },
   { value: 'completed', label: 'Completed' },
   { value: 'failed', label: 'Failed' },
 ];
@@ -135,7 +135,7 @@ function getStatusBadgeStyles(status: 'running' | 'completed' | 'failed') {
 function getStatusLabel(status: 'running' | 'completed' | 'failed') {
   switch (status) {
     case 'running':
-      return 'Running';
+      return 'In Progress';
     case 'completed':
       return 'Completed';
     case 'failed':
@@ -147,6 +147,11 @@ export default function EvaluationsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
+  // Find running evaluations for the banner
+  const runningEvaluations = useMemo(() => {
+    return evaluationRuns.filter((run) => run.status === 'running');
+  }, []);
+
   const filteredRuns = useMemo(() => {
     return evaluationRuns.filter((run) => {
       // Filter by search query
@@ -154,7 +159,8 @@ export default function EvaluationsPage() {
         searchQuery === '' ||
         run.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         run.datasetName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        run.id.includes(searchQuery);
+        run.id.includes(searchQuery) ||
+        run.datasetId.toLowerCase().includes(searchQuery.toLowerCase());
 
       // Filter by status
       const matchesStatus = statusFilter === 'all' || run.status === statusFilter;
@@ -165,6 +171,37 @@ export default function EvaluationsPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* In Progress Banner */}
+      {runningEvaluations.length > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              {/* Pulsing dot */}
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#135bec] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-[#135bec]"></span>
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-blue-900">Evaluation In Progress</span>
+                <span className="text-blue-600">•</span>
+                <span className="text-sm text-blue-800">{runningEvaluations[0].name}</span>
+                <span className="text-blue-600">•</span>
+                <span className="text-sm text-blue-700 font-medium">
+                  {runningEvaluations[0].completed}/{runningEvaluations[0].total} completed
+                </span>
+              </div>
+            </div>
+          </div>
+          {/* Show additional running evaluations if more than one */}
+          {runningEvaluations.length > 1 && (
+            <p className="text-xs text-blue-600 mt-2 ml-6">
+              +{runningEvaluations.length - 1} more evaluation
+              {runningEvaluations.length > 2 ? 's' : ''} running
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -282,13 +319,17 @@ export default function EvaluationsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <Link
-                        href={`/datasets/${run.datasetId}`}
-                        className="text-sm text-[#135bec] hover:underline"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {run.datasetName}
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-mono text-slate-500">{run.datasetId}</span>
+                        <span className="text-slate-300">•</span>
+                        <Link
+                          href={`/datasets/${run.datasetId}`}
+                          className="text-sm text-[#135bec] hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {run.datasetName}
+                        </Link>
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <span

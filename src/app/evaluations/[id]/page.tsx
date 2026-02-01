@@ -40,7 +40,6 @@ const completedEvaluation = {
   failed: 8,
   overallScore: 92.0,
   avgLatency: 380,
-  model: 'gpt-4-turbo-preview',
 };
 
 const categoryScores: CategoryScore[] = [
@@ -175,6 +174,17 @@ const additionalResults: EvaluationResult[] = [
     score: 0,
   },
 ];
+
+// Category badge color mapping
+function getCategoryBadgeStyles(category: string): string {
+  const categoryColors: Record<string, string> = {
+    'Data Analysis': 'bg-blue-100 text-blue-700 border-blue-200',
+    Safety: 'bg-red-100 text-red-700 border-red-200',
+    Calculations: 'bg-purple-100 text-purple-700 border-purple-200',
+    'Report Generation': 'bg-amber-100 text-amber-700 border-amber-200',
+  };
+  return categoryColors[category] || 'bg-slate-100 text-slate-700 border-slate-200';
+}
 
 // Bar chart component for category scores
 function CategoryBarChart({ data }: { data: CategoryScore[] }) {
@@ -418,7 +428,7 @@ export default function EvaluationResultsPage({ params }: { params: Promise<{ id
                   </Link>
                 </>
               ) : (
-                <>Started 4 min ago &bull; gpt-4-turbo-preview</>
+                <>Started 4 min ago</>
               )}
             </p>
           </div>
@@ -542,7 +552,7 @@ export default function EvaluationResultsPage({ params }: { params: Promise<{ id
 
       {/* Quick Stats for Completed View */}
       {isCompletedView && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
             <div className="text-sm text-slate-500 mb-1">Total Queries</div>
             <div className="text-2xl font-bold text-slate-900">
@@ -557,12 +567,6 @@ export default function EvaluationResultsPage({ params }: { params: Promise<{ id
             <div className="text-sm text-slate-500 mb-1">Avg Latency</div>
             <div className="text-2xl font-bold text-slate-900">
               {completedEvaluation.avgLatency}ms
-            </div>
-          </div>
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-            <div className="text-sm text-slate-500 mb-1">Model</div>
-            <div className="text-lg font-bold text-slate-900 truncate">
-              {completedEvaluation.model}
             </div>
           </div>
         </div>
@@ -625,6 +629,9 @@ export default function EvaluationResultsPage({ params }: { params: Promise<{ id
                 <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Metric Reasoning
                 </th>
+                <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  Category
+                </th>
                 <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider w-24">
                   Score
                 </th>
@@ -651,6 +658,16 @@ export default function EvaluationResultsPage({ params }: { params: Promise<{ id
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-500 max-w-[200px] truncate">
                     {result.expected}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={cn(
+                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border',
+                        getCategoryBadgeStyles(result.category)
+                      )}
+                    >
+                      {result.category}
+                    </span>
                   </td>
                   <td className="px-6 py-4">
                     <span
