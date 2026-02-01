@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 // Mock data for evaluation runs
@@ -146,6 +146,19 @@ function getStatusLabel(status: 'running' | 'completed' | 'failed') {
 export default function EvaluationsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenuId(null);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Find running evaluations for the banner
   const runningEvaluations = useMemo(() => {
@@ -380,14 +393,57 @@ export default function EvaluationsPage() {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <Link
-                        href={`/evaluations/${run.id}`}
-                        className="inline-flex items-center gap-1 text-sm font-medium text-[#135bec] hover:text-[#0f4bcc] transition-colors"
+                    <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <div
+                        className="relative inline-block"
+                        ref={openMenuId === run.id ? menuRef : null}
                       >
-                        View
-                        <span className="material-symbols-outlined text-base">arrow_forward</span>
-                      </Link>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuId(openMenuId === run.id ? null : run.id);
+                          }}
+                          className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-xl">more_vert</span>
+                        </button>
+                        {openMenuId === run.id && (
+                          <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-10">
+                            <Link
+                              href={`/evaluations/${run.id}`}
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                              onClick={() => setOpenMenuId(null)}
+                            >
+                              <span className="material-symbols-outlined text-lg">visibility</span>
+                              View Details
+                            </Link>
+                            {(run.status === 'completed' || run.status === 'failed') && (
+                              <button
+                                className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors w-full text-left"
+                                onClick={() => setOpenMenuId(null)}
+                              >
+                                <span className="material-symbols-outlined text-lg">replay</span>
+                                Re-run Evaluation
+                              </button>
+                            )}
+                            <button
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors w-full text-left"
+                              onClick={() => setOpenMenuId(null)}
+                            >
+                              <span className="material-symbols-outlined text-lg">download</span>
+                              Export Results
+                            </button>
+                            <div className="border-t border-slate-100 my-1"></div>
+                            <button
+                              className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                              onClick={() => setOpenMenuId(null)}
+                            >
+                              <span className="material-symbols-outlined text-lg">delete</span>
+                              Delete
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
