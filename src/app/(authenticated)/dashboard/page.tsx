@@ -6,8 +6,43 @@
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { useEvaluations, useDeleteEvaluation } from '@/hooks/use-evaluations';
+import type { Evaluation } from '@/lib/api/types';
 
-// Mock data for datasets
+// Helper to format relative time
+function formatRelativeTime(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffSecs < 60) return 'Just now';
+  if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+  if (diffDays === 1) return '1 day ago';
+  if (diffDays < 7) return `${diffDays} days ago`;
+  return date.toLocaleDateString();
+}
+
+// Map API status to display status
+type DisplayStatus = 'running' | 'completed' | 'failed';
+function mapStatus(status: Evaluation['status']): DisplayStatus {
+  switch (status) {
+    case 'in_progress':
+      return 'running';
+    case 'completed':
+      return 'completed';
+    case 'failed':
+      return 'failed';
+    default:
+      return 'running';
+  }
+}
+
+// Mock data for datasets (used in dashboard datasets section)
 const datasets = [
   {
     id: 'ds-001',
@@ -32,55 +67,6 @@ const datasets = [
     size: 100,
     createdAt: 'Jan 10, 2024',
     status: 'processing' as const,
-  },
-];
-
-// Mock data for evaluation runs
-const evaluationRuns = [
-  {
-    id: '1024',
-    name: 'Support Bot - Safety Eval',
-    datasetName: 'Customer Support Q&A',
-    dateTime: '2 mins ago',
-    status: 'running' as const,
-    score: null,
-    progress: 64,
-  },
-  {
-    id: '1023',
-    name: 'Data Analyst - Accuracy Test',
-    datasetName: 'Financial Reports Dataset',
-    dateTime: '2 hours ago',
-    status: 'completed' as const,
-    score: 92.0,
-    progress: 100,
-  },
-  {
-    id: '1022',
-    name: 'Content Writer - Quality Check',
-    datasetName: 'Blog Posts Dataset',
-    dateTime: '5 hours ago',
-    status: 'failed' as const,
-    score: 45.0,
-    progress: 100,
-  },
-  {
-    id: '1021',
-    name: 'Code Reviewer - Benchmark',
-    datasetName: 'Code Review Samples',
-    dateTime: '1 day ago',
-    status: 'completed' as const,
-    score: 98.5,
-    progress: 100,
-  },
-  {
-    id: '1020',
-    name: 'Translation Bot - Language Test',
-    datasetName: 'Multi-language Dataset',
-    dateTime: '1 day ago',
-    status: 'completed' as const,
-    score: 88.0,
-    progress: 100,
   },
 ];
 
@@ -158,7 +144,15 @@ function getDatasetTypeStyles(type: 'uploaded' | 'generated') {
 }
 
 // Actions dropdown component
-function ActionsDropdown({ evalId }: { evalId: string }) {
+function ActionsDropdown({
+  evalId,
+  onDelete,
+  isDeleting,
+}: {
+  evalId: string;
+  onDelete: (id: string) => void;
+  isDeleting: boolean;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -171,6 +165,13 @@ function ActionsDropdown({ evalId }: { evalId: string }) {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleDelete = () => {
+    if (confirm('Are you sure you want to delete this evaluation?')) {
+      onDelete(evalId);
+      setIsOpen(false);
+    }
+  };
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -197,9 +198,13 @@ function ActionsDropdown({ evalId }: { evalId: string }) {
             Export
           </button>
           <div className="border-t border-slate-200 my-1"></div>
-          <button className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left">
+          <button
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left disabled:opacity-50"
+          >
             <span className="material-symbols-outlined text-base">delete</span>
-            Delete
+            {isDeleting ? 'Deleting...' : 'Delete'}
           </button>
         </div>
       )}
@@ -208,6 +213,129 @@ function ActionsDropdown({ evalId }: { evalId: string }) {
 }
 
 export default function DashboardPage() {
+  const { evaluations, isLoading, error, refetch } = useEvaluations();
+  const { deleteEvaluation, isDeleting } = useDeleteEvaluation();
+
+  // Handle delete
+  const handleDelete = async (id: string) => {
+    const success = await deleteEvaluation(id);
+    if (success) {
+      refetch();
+    }
+  };
+
+  // Get recent evaluations (limit to 5)
+  const recentEvaluations = evaluations.slice(0, 5);
+
+  // Loading skeleton
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Recent Evaluations</h1>
+            <p className="text-slate-500 text-sm mt-1">
+              View and manage your recent evaluation runs.
+            </p>
+          </div>
+          <Link
+            href="/evaluations/new"
+            className="flex items-center gap-2 bg-[#135bec] hover:bg-[#135bec]/90 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-sm shadow-[#135bec]/30 w-fit"
+          >
+            <span className="material-symbols-outlined text-xl">add</span>
+            New Evaluation
+          </Link>
+        </div>
+        <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="animate-pulse">
+            <div className="border-b border-slate-200 bg-slate-50 h-12"></div>
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="px-6 py-4 border-b border-slate-200 flex gap-4">
+                <div className="h-4 bg-slate-200 rounded w-1/3"></div>
+                <div className="h-4 bg-slate-200 rounded w-1/6"></div>
+                <div className="h-4 bg-slate-200 rounded w-1/6"></div>
+                <div className="h-4 bg-slate-200 rounded w-1/6"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Recent Evaluations</h1>
+            <p className="text-slate-500 text-sm mt-1">
+              View and manage your recent evaluation runs.
+            </p>
+          </div>
+          <Link
+            href="/evaluations/new"
+            className="flex items-center gap-2 bg-[#135bec] hover:bg-[#135bec]/90 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-sm shadow-[#135bec]/30 w-fit"
+          >
+            <span className="material-symbols-outlined text-xl">add</span>
+            New Evaluation
+          </Link>
+        </div>
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <span className="material-symbols-outlined text-red-500 text-3xl mb-2">error</span>
+          <p className="text-red-800 font-medium">Failed to load evaluations</p>
+          <p className="text-red-600 text-sm mt-1">{error.message}</p>
+          <button
+            onClick={() => refetch()}
+            className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (recentEvaluations.length === 0) {
+    return (
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Recent Evaluations</h1>
+            <p className="text-slate-500 text-sm mt-1">
+              View and manage your recent evaluation runs.
+            </p>
+          </div>
+          <Link
+            href="/evaluations/new"
+            className="flex items-center gap-2 bg-[#135bec] hover:bg-[#135bec]/90 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-sm shadow-[#135bec]/30 w-fit"
+          >
+            <span className="material-symbols-outlined text-xl">add</span>
+            New Evaluation
+          </Link>
+        </div>
+        <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-12 text-center">
+          <div className="size-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+            <span className="material-symbols-outlined text-slate-400 text-3xl">analytics</span>
+          </div>
+          <h3 className="text-lg font-bold text-slate-900 mb-2">No evaluations yet</h3>
+          <p className="text-slate-500 text-sm mb-6">
+            Create your first evaluation to start testing your AI agents.
+          </p>
+          <Link
+            href="/evaluations/new"
+            className="inline-flex items-center gap-2 bg-[#135bec] hover:bg-[#135bec]/90 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all"
+          >
+            <span className="material-symbols-outlined text-xl">add</span>
+            New Evaluation
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -251,73 +379,89 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
-              {evaluationRuns.map((run) => (
-                <tr
-                  key={run.id}
-                  className="hover:bg-slate-50 transition-colors cursor-pointer"
-                  onClick={() => (window.location.href = `/evaluations/${run.id}`)}
-                >
-                  <td className="px-6 py-4">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-slate-900">{run.name}</span>
-                      <span className="text-xs text-slate-500">{run.datasetName}</span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-slate-600">{run.dateTime}</td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={cn(
-                        'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
-                        getStatusBadgeStyles(run.status)
-                      )}
-                    >
-                      {run.status === 'running' && (
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              {recentEvaluations.map((evaluation) => {
+                const displayStatus = mapStatus(evaluation.status);
+                const score = evaluation.results_summary?.overall_score ?? null;
+                const progress = evaluation.progress ? parseInt(evaluation.progress, 10) : 0;
+
+                return (
+                  <tr
+                    key={evaluation.id}
+                    className="hover:bg-slate-50 transition-colors cursor-pointer"
+                    onClick={() => (window.location.href = `/evaluations/${evaluation.id}`)}
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-slate-900">
+                          {evaluation.name}
                         </span>
-                      )}
-                      {run.status === 'completed' && (
-                        <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
-                      )}
-                      {run.status === 'failed' && (
-                        <span className="flex h-2 w-2 rounded-full bg-red-500"></span>
-                      )}
-                      {getStatusLabel(run.status)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    {run.status === 'running' ? (
-                      <div className="flex items-center gap-3">
-                        <div className="w-20 h-2 bg-slate-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-blue-500 rounded-full transition-all"
-                            style={{ width: `${run.progress}%` }}
-                          />
-                        </div>
-                        <span className="text-sm text-slate-500">{run.progress}%</span>
-                      </div>
-                    ) : run.score !== null ? (
-                      <div className="flex items-center gap-3">
-                        <span className={cn('text-sm font-bold', getScoreColor(run.score))}>
-                          {run.score.toFixed(1)}%
+                        <span className="text-xs text-slate-500">
+                          {evaluation.dataset_name || 'Unknown Dataset'}
                         </span>
-                        <div className="w-16 h-2 bg-slate-200 rounded-full overflow-hidden">
-                          <div
-                            className={cn('h-full rounded-full', getProgressBarColor(run.score))}
-                            style={{ width: `${run.score}%` }}
-                          />
-                        </div>
                       </div>
-                    ) : (
-                      <span className="text-sm text-slate-400">--</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
-                    <ActionsDropdown evalId={run.id} />
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-slate-600">
+                      {formatRelativeTime(evaluation.created_at)}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={cn(
+                          'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
+                          getStatusBadgeStyles(displayStatus)
+                        )}
+                      >
+                        {displayStatus === 'running' && (
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                          </span>
+                        )}
+                        {displayStatus === 'completed' && (
+                          <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                        )}
+                        {displayStatus === 'failed' && (
+                          <span className="flex h-2 w-2 rounded-full bg-red-500"></span>
+                        )}
+                        {getStatusLabel(displayStatus)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      {displayStatus === 'running' ? (
+                        <div className="flex items-center gap-3">
+                          <div className="w-20 h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-blue-500 rounded-full transition-all"
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                          <span className="text-sm text-slate-500">{progress}%</span>
+                        </div>
+                      ) : score !== null ? (
+                        <div className="flex items-center gap-3">
+                          <span className={cn('text-sm font-bold', getScoreColor(score))}>
+                            {score.toFixed(1)}%
+                          </span>
+                          <div className="w-16 h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div
+                              className={cn('h-full rounded-full', getProgressBarColor(score))}
+                              style={{ width: `${score}%` }}
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-slate-400">--</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <ActionsDropdown
+                        evalId={evaluation.id}
+                        onDelete={handleDelete}
+                        isDeleting={isDeleting}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

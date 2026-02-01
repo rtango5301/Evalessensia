@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -9,6 +9,9 @@ import {
   MCPMarketplaceModal,
   MCP_SERVERS as MARKETPLACE_SERVERS,
 } from '@/components/ui/mcp-marketplace-modal';
+import { useDatasets } from '@/hooks/use-datasets';
+import { useCreateEvaluation } from '@/hooks/use-evaluations';
+import type { CreateEvaluationRequest, MCPServer } from '@/lib/api/types';
 
 // Types
 type WizardStep = 'agent' | 'dataset' | 'review';
@@ -19,9 +22,13 @@ interface CustomMCPServer {
   url: string;
 }
 
-interface AgentConfig {
+interface AgentConfigState {
   evaluationName: string;
   name: string;
+  url: string;
+  model: string;
+  apiKey: string;
+  systemPrompt: string;
   description: string;
   agentUrl: string;
   customMcp: CustomMCPServer;
@@ -32,25 +39,6 @@ interface DatasetSelection {
   existingId?: string;
   existingName?: string;
 }
-
-// Mock datasets for selection - includes status field
-const existingDatasets = [
-  { id: 'ds-001', name: 'Customer Support Q&A', size: 150, type: 'uploaded', status: 'ready' },
-  {
-    id: 'ds-002',
-    name: 'Financial Reports Dataset',
-    size: 200,
-    type: 'generated',
-    status: 'ready',
-  },
-  { id: 'ds-003', name: 'Blog Posts Dataset', size: 75, type: 'uploaded', status: 'processing' },
-  { id: 'ds-004', name: 'Code Review Samples', size: 300, type: 'generated', status: 'ready' },
-  { id: 'ds-005', name: 'Multi-language Dataset', size: 500, type: 'uploaded', status: 'failed' },
-  { id: 'ds-006', name: 'Safety Test Cases', size: 120, type: 'generated', status: 'ready' },
-];
-
-// Filter to only show ready datasets
-const readyDatasets = existingDatasets.filter((d) => d.status === 'ready');
 
 function WizardStepIndicator({ currentStep }: { currentStep: WizardStep }) {
   const steps: { key: WizardStep; label: string; icon: string }[] = [
@@ -94,6 +82,21 @@ function WizardStepIndicator({ currentStep }: { currentStep: WizardStep }) {
   );
 }
 
+// Loading skeleton for datasets
+function DatasetsSkeleton() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="animate-pulse border border-slate-200 rounded-xl p-4">
+          <div className="h-10 w-10 bg-slate-200 rounded-lg mb-3" />
+          <div className="h-4 w-32 bg-slate-200 rounded mb-2" />
+          <div className="h-3 w-24 bg-slate-200 rounded" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function NewEvaluationWizardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -101,12 +104,20 @@ function NewEvaluationWizardContent() {
   const stepParam = searchParams.get('step') as WizardStep | null;
   const preselectedDataset = searchParams.get('dataset');
 
+  // Fetch datasets from API
+  const { datasets, isLoading: isDatasetsLoading, error: datasetsError } = useDatasets();
+  const { createEvaluation, isCreating, error: createError } = useCreateEvaluation();
+
   const [currentStep, setCurrentStep] = useState<WizardStep>(stepParam || 'agent');
 
   // Agent config state
-  const [agentConfig, setAgentConfig] = useState<AgentConfig>({
+  const [agentConfig, setAgentConfig] = useState<AgentConfigState>({
     evaluationName: '',
     name: '',
+    url: '',
+    model: '',
+    apiKey: '',
+    systemPrompt: '',
     description: '',
     agentUrl: '',
     customMcp: { name: '', description: '', url: '' },
@@ -120,10 +131,27 @@ function NewEvaluationWizardContent() {
   const [datasetSelection, setDatasetSelection] = useState<DatasetSelection>({
     type: 'existing',
     existingId: preselectedDataset || undefined,
-    existingName: preselectedDataset
-      ? readyDatasets.find((d) => d.id === preselectedDataset)?.name
-      : undefined,
+    existingName: undefined,
   });
+
+  // Filter to only show completed datasets
+  const readyDatasets = useMemo(() => {
+    return datasets.filter((d) => d.status === 'completed');
+  }, [datasets]);
+
+  // Update dataset name when preselected or datasets load
+  useEffect(() => {
+    if (preselectedDataset && readyDatasets.length > 0) {
+      const dataset = readyDatasets.find((d) => d.id === preselectedDataset);
+      if (dataset) {
+        setDatasetSelection({
+          type: 'existing',
+          existingId: dataset.id,
+          existingName: dataset.name,
+        });
+      }
+    }
+  }, [preselectedDataset, readyDatasets]);
 
   // Update URL when step changes
   useEffect(() => {
@@ -155,10 +183,58 @@ function NewEvaluationWizardContent() {
     }
   };
 
-  const handleStartEvaluation = () => {
-    // In a real app, this would create the evaluation and redirect
-    showToast('Evaluation started successfully', 'info');
-    router.push('/evaluations');
+  const handleStartEvaluation = async () => {
+    if (!datasetSelection.existingId) {
+      showToast('Please select a dataset', 'error');
+      return;
+    }
+
+    // Build MCP servers array
+    const mcpServers: MCPServer[] = [];
+
+    // Add selected built-in servers
+    selectedMCPServers.forEach((serverId) => {
+      const server = MARKETPLACE_SERVERS.find((s) => s.id === serverId);
+      if (server) {
+        mcpServers.push({
+          type: 'built_in',
+          id: server.id,
+          name: server.name,
+        });
+      }
+    });
+
+    // Add custom MCP server if provided
+    if (agentConfig.customMcp.name && agentConfig.customMcp.url) {
+      mcpServers.push({
+        type: 'custom',
+        id: agentConfig.customMcp.name.toLowerCase().replace(/\s+/g, '-'),
+        name: agentConfig.customMcp.name,
+        url: agentConfig.customMcp.url,
+        description: agentConfig.customMcp.description || undefined,
+      });
+    }
+
+    const request: CreateEvaluationRequest = {
+      name: agentConfig.evaluationName,
+      description: agentConfig.description || undefined,
+      dataset_id: datasetSelection.existingId,
+      agent_config: {
+        name: agentConfig.name,
+        url: agentConfig.url,
+        model: agentConfig.model || undefined,
+        api_key: agentConfig.apiKey || undefined,
+        system_prompt: agentConfig.systemPrompt || undefined,
+        description: agentConfig.description || undefined,
+        mcp_servers: mcpServers.length > 0 ? mcpServers : undefined,
+      },
+    };
+
+    const evaluation = await createEvaluation(request);
+    if (evaluation) {
+      showToast('Evaluation started successfully', 'success');
+      router.push(`/evaluations/${evaluation.id}`);
+    }
   };
 
   return (
@@ -183,6 +259,17 @@ function NewEvaluationWizardContent() {
         <WizardStepIndicator currentStep={currentStep} />
       </div>
 
+      {/* API Error Banner */}
+      {createError && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
+          <span className="material-symbols-outlined text-red-500">error</span>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-red-800">Failed to create evaluation</p>
+            <p className="text-sm text-red-600">{createError.message}</p>
+          </div>
+        </div>
+      )}
+
       {/* Step Content */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         {/* Step 1: Configure Agent */}
@@ -199,7 +286,7 @@ function NewEvaluationWizardContent() {
             </div>
 
             <div className="grid grid-cols-1 gap-6">
-              {/* Evaluation Name - NEW FIELD AT TOP */}
+              {/* Evaluation Name */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   Evaluation Name <span className="text-red-500">*</span>
@@ -229,16 +316,78 @@ function NewEvaluationWizardContent() {
                 />
               </div>
 
+              {/* Agent URL */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  Agent URL <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="url"
+                  value={agentConfig.url}
+                  onChange={(e) => setAgentConfig({ ...agentConfig, url: e.target.value })}
+                  placeholder="https://api.your-agent.com/v1/chat/completions"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
+                />
+                <p className="text-xs text-slate-500 mt-1.5">
+                  Endpoint must accept OpenAI Chat Completions format
+                </p>
+              </div>
+
+              {/* Model (Optional) */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  Model <span className="text-slate-400 font-normal">(Optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={agentConfig.model}
+                  onChange={(e) => setAgentConfig({ ...agentConfig, model: e.target.value })}
+                  placeholder="e.g., gpt-4o, claude-3-sonnet"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
+                />
+              </div>
+
+              {/* API Key (Optional) */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  API Key <span className="text-slate-400 font-normal">(Optional)</span>
+                </label>
+                <input
+                  type="password"
+                  value={agentConfig.apiKey}
+                  onChange={(e) => setAgentConfig({ ...agentConfig, apiKey: e.target.value })}
+                  placeholder="sk-..."
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
+                />
+                <p className="text-xs text-slate-500 mt-1.5">
+                  Sent as Authorization: Bearer header
+                </p>
+              </div>
+
+              {/* System Prompt (Optional) */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                  System Prompt <span className="text-slate-400 font-normal">(Optional)</span>
+                </label>
+                <textarea
+                  value={agentConfig.systemPrompt}
+                  onChange={(e) => setAgentConfig({ ...agentConfig, systemPrompt: e.target.value })}
+                  placeholder="You are a helpful assistant..."
+                  rows={3}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all resize-none"
+                />
+              </div>
+
               {/* Agent Description */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Agent Description <span className="text-red-500">*</span>
+                  Agent Description <span className="text-slate-400 font-normal">(Optional)</span>
                 </label>
                 <textarea
                   value={agentConfig.description}
                   onChange={(e) => setAgentConfig({ ...agentConfig, description: e.target.value })}
                   placeholder="Describe what this agent does, its expected behavior, and any specific capabilities..."
-                  rows={4}
+                  rows={3}
                   className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all resize-none"
                 />
               </div>
@@ -384,7 +533,7 @@ function NewEvaluationWizardContent() {
                           customMcp: { ...agentConfig.customMcp, url: e.target.value },
                         })
                       }
-                      placeholder="mcp://your-server-url"
+                      placeholder="https://your-mcp-server.com"
                       className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all bg-white"
                     />
                   </div>
@@ -416,100 +565,132 @@ function NewEvaluationWizardContent() {
               </div>
             </div>
 
-            {/* Available Datasets Section - only ready datasets */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-slate-700">Available Datasets</h3>
-                <span className="text-xs text-slate-500">
-                  {readyDatasets.length} datasets ready
-                </span>
+            {/* Error state */}
+            {datasetsError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-red-600">{datasetsError.message}</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {readyDatasets.map((dataset) => {
-                  const isSelected = datasetSelection.existingId === dataset.id;
-                  return (
-                    <button
-                      key={dataset.id}
-                      onClick={() =>
-                        setDatasetSelection({
-                          type: 'existing',
-                          existingId: dataset.id,
-                          existingName: dataset.name,
-                        })
-                      }
-                      className={cn(
-                        'relative flex flex-col gap-3 rounded-xl p-4 text-left transition-all',
-                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#135bec] focus-visible:ring-offset-2',
-                        isSelected
-                          ? 'border-2 border-[#135bec] bg-[#135bec]/5'
-                          : 'border border-slate-200 bg-white hover:border-[#135bec]/50 hover:bg-[#135bec]/5'
-                      )}
+            )}
+
+            {/* Loading state */}
+            {isDatasetsLoading ? (
+              <DatasetsSkeleton />
+            ) : (
+              <>
+                {/* Available Datasets Section */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-semibold text-slate-700">Available Datasets</h3>
+                    <span className="text-xs text-slate-500">
+                      {readyDatasets.length} datasets ready
+                    </span>
+                  </div>
+
+                  {readyDatasets.length === 0 ? (
+                    <div className="text-center py-12 bg-slate-50 rounded-xl border border-slate-200">
+                      <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">
+                        folder_off
+                      </span>
+                      <p className="text-slate-500">No completed datasets available</p>
+                      <Link
+                        href="/datasets/new"
+                        className="inline-block mt-4 text-sm text-[#135bec] hover:underline font-medium"
+                      >
+                        Create a new dataset
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {readyDatasets.map((dataset) => {
+                        const isSelected = datasetSelection.existingId === dataset.id;
+                        return (
+                          <button
+                            key={dataset.id}
+                            onClick={() =>
+                              setDatasetSelection({
+                                type: 'existing',
+                                existingId: dataset.id,
+                                existingName: dataset.name,
+                              })
+                            }
+                            className={cn(
+                              'relative flex flex-col gap-3 rounded-xl p-4 text-left transition-all',
+                              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#135bec] focus-visible:ring-offset-2',
+                              isSelected
+                                ? 'border-2 border-[#135bec] bg-[#135bec]/5'
+                                : 'border border-slate-200 bg-white hover:border-[#135bec]/50 hover:bg-[#135bec]/5'
+                            )}
+                          >
+                            {/* Selection indicator */}
+                            <div className="absolute right-3 top-3">
+                              <div
+                                className={cn(
+                                  'flex size-5 items-center justify-center rounded-full border-2 transition-all',
+                                  isSelected
+                                    ? 'border-[#135bec] bg-[#135bec]'
+                                    : 'border-slate-300 bg-white'
+                                )}
+                              >
+                                {isSelected && (
+                                  <span className="material-symbols-outlined text-[14px] text-white">
+                                    check
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Icon */}
+                            <div className="flex size-10 items-center justify-center rounded-lg bg-slate-100">
+                              <span
+                                className={cn(
+                                  'material-symbols-outlined text-2xl transition-colors',
+                                  isSelected ? 'text-[#135bec]' : 'text-slate-500'
+                                )}
+                              >
+                                {dataset.source === 'uploaded' ? 'upload_file' : 'auto_awesome'}
+                              </span>
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex flex-col gap-1 pr-6">
+                              <h4 className="font-semibold text-slate-900">{dataset.name}</h4>
+                              <p className="text-sm text-slate-500">
+                                {dataset.query_count} queries
+                              </p>
+                            </div>
+
+                            {/* Type badge */}
+                            <div className="mt-auto pt-1">
+                              <span
+                                className={cn(
+                                  'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
+                                  dataset.source === 'uploaded'
+                                    ? 'bg-blue-100 text-blue-700'
+                                    : 'bg-purple-100 text-purple-700'
+                                )}
+                              >
+                                {dataset.source === 'uploaded' ? 'Uploaded' : 'Generated'}
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Small text link to create dataset */}
+                  <p className="mt-6 text-sm text-slate-500">
+                    Need a new dataset?{' '}
+                    <Link
+                      href="/datasets/new"
+                      className="text-[#135bec] hover:text-[#135bec]/80 font-medium transition-colors"
                     >
-                      {/* Selection indicator */}
-                      <div className="absolute right-3 top-3">
-                        <div
-                          className={cn(
-                            'flex size-5 items-center justify-center rounded-full border-2 transition-all',
-                            isSelected
-                              ? 'border-[#135bec] bg-[#135bec]'
-                              : 'border-slate-300 bg-white'
-                          )}
-                        >
-                          {isSelected && (
-                            <span className="material-symbols-outlined text-[14px] text-white">
-                              check
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Icon */}
-                      <div className="flex size-10 items-center justify-center rounded-lg bg-slate-100">
-                        <span
-                          className={cn(
-                            'material-symbols-outlined text-2xl transition-colors',
-                            isSelected ? 'text-[#135bec]' : 'text-slate-500'
-                          )}
-                        >
-                          {dataset.type === 'uploaded' ? 'upload_file' : 'auto_awesome'}
-                        </span>
-                      </div>
-
-                      {/* Content */}
-                      <div className="flex flex-col gap-1 pr-6">
-                        <h4 className="font-semibold text-slate-900">{dataset.name}</h4>
-                        <p className="text-sm text-slate-500">{dataset.size} queries</p>
-                      </div>
-
-                      {/* Type badge */}
-                      <div className="mt-auto pt-1">
-                        <span
-                          className={cn(
-                            'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                            dataset.type === 'uploaded'
-                              ? 'bg-blue-100 text-blue-700'
-                              : 'bg-purple-100 text-purple-700'
-                          )}
-                        >
-                          {dataset.type === 'uploaded' ? 'Uploaded' : 'Generated'}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Small text link to create dataset */}
-              <p className="mt-6 text-sm text-slate-500">
-                Need a new dataset?{' '}
-                <Link
-                  href="/datasets"
-                  className="text-[#135bec] hover:text-[#135bec]/80 font-medium transition-colors"
-                >
-                  Go to Datasets
-                </Link>
-              </p>
-            </div>
+                      Create one now
+                    </Link>
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -562,12 +743,10 @@ function NewEvaluationWizardContent() {
                     </div>
                     <div>
                       <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-                        MCP Servers
+                        Model
                       </label>
                       <p className="text-sm font-medium text-slate-900 mt-1">
-                        {selectedMCPServers.length > 0
-                          ? `${selectedMCPServers.length} selected`
-                          : 'None'}
+                        {agentConfig.model || 'Default'}
                       </p>
                     </div>
                   </div>
@@ -590,7 +769,7 @@ function NewEvaluationWizardContent() {
                   {selectedMCPServers.length > 0 && (
                     <div>
                       <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-                        Selected Servers
+                        MCP Servers
                       </label>
                       <div className="flex flex-wrap gap-1.5 mt-1.5">
                         {selectedMCPServers.map((serverId) => {
@@ -608,45 +787,6 @@ function NewEvaluationWizardContent() {
                           );
                         })}
                       </div>
-                    </div>
-                  )}
-                  {(agentConfig.customMcp.name ||
-                    agentConfig.customMcp.description ||
-                    agentConfig.customMcp.url) && (
-                    <div className="space-y-3 pt-2 border-t border-slate-200">
-                      <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-                        Custom MCP Server
-                      </label>
-                      {agentConfig.customMcp.name && (
-                        <div>
-                          <label className="text-[10px] font-medium text-slate-400 uppercase">
-                            Name
-                          </label>
-                          <p className="text-sm font-medium text-slate-900">
-                            {agentConfig.customMcp.name}
-                          </p>
-                        </div>
-                      )}
-                      {agentConfig.customMcp.description && (
-                        <div>
-                          <label className="text-[10px] font-medium text-slate-400 uppercase">
-                            Description
-                          </label>
-                          <p className="text-sm text-slate-700">
-                            {agentConfig.customMcp.description}
-                          </p>
-                        </div>
-                      )}
-                      {agentConfig.customMcp.url && (
-                        <div>
-                          <label className="text-[10px] font-medium text-slate-400 uppercase">
-                            URL
-                          </label>
-                          <p className="text-sm font-mono text-slate-700">
-                            {agentConfig.customMcp.url}
-                          </p>
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
@@ -681,7 +821,7 @@ function NewEvaluationWizardContent() {
                         ID
                       </label>
                       <p className="text-sm font-mono text-slate-700 mt-1">
-                        {datasetSelection.existingId || '--'}
+                        {datasetSelection.existingId?.slice(0, 8) || '--'}
                       </p>
                     </div>
                   </div>
@@ -692,7 +832,8 @@ function NewEvaluationWizardContent() {
                       </label>
                       <p className="text-sm font-medium text-slate-900 mt-1">
                         {datasetSelection.existingId
-                          ? readyDatasets.find((d) => d.id === datasetSelection.existingId)?.size
+                          ? readyDatasets.find((d) => d.id === datasetSelection.existingId)
+                              ?.query_count
                           : '--'}
                       </p>
                     </div>
@@ -703,7 +844,7 @@ function NewEvaluationWizardContent() {
                       <p className="text-sm font-medium text-slate-900 mt-1">
                         {datasetSelection.existingId
                           ? readyDatasets.find((d) => d.id === datasetSelection.existingId)
-                              ?.type === 'uploaded'
+                              ?.source === 'uploaded'
                             ? 'Uploaded'
                             : 'Generated'
                           : '--'}
@@ -724,7 +865,8 @@ function NewEvaluationWizardContent() {
                   <p className="font-medium">Estimated Duration</p>
                   <p className="text-amber-700">
                     Based on{' '}
-                    {readyDatasets.find((d) => d.id === datasetSelection.existingId)?.size || 0}{' '}
+                    {readyDatasets.find((d) => d.id === datasetSelection.existingId)?.query_count ||
+                      0}{' '}
                     queries, this evaluation should complete in approximately 5-10 minutes.
                   </p>
                 </div>
@@ -752,11 +894,20 @@ function NewEvaluationWizardContent() {
           {currentStep === 'review' ? (
             <button
               onClick={handleStartEvaluation}
-              disabled={!canProceedFromDataset}
+              disabled={!canProceedFromDataset || isCreating}
               className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-sm disabled:bg-slate-300 disabled:cursor-not-allowed"
             >
-              <span className="material-symbols-outlined text-lg">play_arrow</span>
-              Start Evaluation
+              {isCreating ? (
+                <>
+                  <span className="material-symbols-outlined text-lg animate-spin">sync</span>
+                  Starting...
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-lg">play_arrow</span>
+                  Start Evaluation
+                </>
+              )}
             </button>
           ) : (
             <button

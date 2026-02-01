@@ -6,8 +6,17 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { OrDivider } from '@/components/ui/or-divider';
 import { MCPMarketplaceModal, MCP_SERVERS } from '@/components/ui/mcp-marketplace-modal';
+import { useCreateDataset } from '@/hooks/use-datasets';
+import { uploadDatasetFile, StorageError } from '@/lib/supabase/storage';
+import type {
+  CreateDatasetGeneratedRequest,
+  CreateDatasetUploadedRequest,
+  MCPServer,
+} from '@/lib/api/types';
 
-// Schema preview mock data
+const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
+
+// Schema preview mock data (shown after file selection)
 const schemaPreview = [
   { field: 'query', type: 'string', example: 'How do I reset my password?' },
   { field: 'category', type: 'string', example: 'account' },
@@ -15,25 +24,30 @@ const schemaPreview = [
 
 export default function NewDatasetPage() {
   const router = useRouter();
+  const { createDataset, isCreating, error: createError } = useCreateDataset();
 
   // Upload state
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadDatasetName, setUploadDatasetName] = useState('');
-  const [uploadDatasetDescription, setUploadDatasetDescription] = useState('');
+  const [uploadDescription, setUploadDescription] = useState('');
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   // Generate state
   const [generateDatasetName, setGenerateDatasetName] = useState('');
   const [generateDatasetDescription, setGenerateDatasetDescription] = useState('');
   const [agentName, setAgentName] = useState('');
   const [agentDescription, setAgentDescription] = useState('');
+  const [capabilities, setCapabilities] = useState('');
+  const [queryCount, setQueryCount] = useState(50);
+
+  // MCP state (UI only for now)
   const [selectedMCPServers, setSelectedMCPServers] = useState<string[]>([]);
   const [customMcpServer, setCustomMcpServer] = useState({
     name: '',
     description: '',
     url: '',
   });
-  const [queryCount, setQueryCount] = useState(50);
   const [isMcpModalOpen, setIsMcpModalOpen] = useState(false);
 
   // Helper to remove a selected MCP server
@@ -51,12 +65,19 @@ export default function NewDatasetPage() {
     (e: React.DragEvent) => {
       e.preventDefault();
       setIsDragging(false);
+      setUploadError(null);
       const file = e.dataTransfer.files[0];
       if (file && (file.name.endsWith('.csv') || file.name.endsWith('.json'))) {
+        if (file.size > MAX_FILE_SIZE) {
+          setUploadError('File size exceeds 3MB limit');
+          return;
+        }
         setUploadFile(file);
         if (!uploadDatasetName) {
           setUploadDatasetName(file.name.replace(/\.(csv|json)$/, ''));
         }
+      } else {
+        setUploadError('Please upload a CSV or JSON file');
       }
     },
     [uploadDatasetName]
@@ -73,26 +94,97 @@ export default function NewDatasetPage() {
   }, []);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUploadError(null);
     const file = e.target.files?.[0];
     if (file) {
-      setUploadFile(file);
-      if (!uploadDatasetName) {
-        setUploadDatasetName(file.name.replace(/\.(csv|json)$/, ''));
+      if (file.name.endsWith('.csv') || file.name.endsWith('.json')) {
+        if (file.size > MAX_FILE_SIZE) {
+          setUploadError('File size exceeds 3MB limit');
+          return;
+        }
+        setUploadFile(file);
+        if (!uploadDatasetName) {
+          setUploadDatasetName(file.name.replace(/\.(csv|json)$/, ''));
+        }
+      } else {
+        setUploadError('Please upload a CSV or JSON file');
       }
     }
   };
 
-  const handleUploadSubmit = () => {
-    if (uploadFile && uploadDatasetName) {
-      // In a real app, this would upload the file and create the dataset
-      router.push('/datasets');
+  const handleUploadSubmit = async () => {
+    if (!uploadFile || !uploadDatasetName) return;
+
+    setUploadError(null);
+
+    try {
+      // Upload file to Supabase Storage
+      const sourceUrl = await uploadDatasetFile(uploadFile);
+
+      // Create dataset with uploaded source
+      const request: CreateDatasetUploadedRequest = {
+        name: uploadDatasetName,
+        description: uploadDescription || undefined,
+        source: 'uploaded',
+        source_url: sourceUrl,
+      };
+
+      const dataset = await createDataset(request);
+      if (dataset) {
+        router.push(`/datasets/${dataset.id}`);
+      }
+    } catch (err) {
+      if (err instanceof StorageError) {
+        setUploadError(err.message);
+      } else {
+        setUploadError('Failed to upload file. Please try again.');
+      }
     }
   };
 
-  const handleGenerateSubmit = () => {
-    if (generateDatasetName && agentName && agentDescription) {
-      // In a real app, this would trigger the AI generation
-      router.push('/datasets');
+  const handleGenerateSubmit = async () => {
+    if (!generateDatasetName || !agentName || !agentDescription) return;
+
+    // Build MCP servers array
+    const mcpServers: MCPServer[] = [];
+
+    // Add selected built-in servers
+    selectedMCPServers.forEach((serverId) => {
+      const server = getServerById(serverId);
+      if (server) {
+        mcpServers.push({
+          type: 'built_in',
+          id: server.id,
+          name: server.name,
+        });
+      }
+    });
+
+    // Add custom MCP server if provided
+    if (customMcpServer.name && customMcpServer.url) {
+      mcpServers.push({
+        type: 'custom',
+        id: customMcpServer.name.toLowerCase().replace(/\s+/g, '-'),
+        name: customMcpServer.name,
+        url: customMcpServer.url,
+        description: customMcpServer.description || undefined,
+      });
+    }
+
+    const request: CreateDatasetGeneratedRequest = {
+      name: generateDatasetName,
+      description: generateDatasetDescription || undefined,
+      source: 'generated',
+      agent_name: agentName,
+      agent_description: agentDescription,
+      mcp_servers: mcpServers.length > 0 ? mcpServers : undefined,
+      query_count: queryCount,
+    };
+
+    const dataset = await createDataset(request);
+    if (dataset) {
+      // Redirect to dataset detail page for polling
+      router.push(`/datasets/${dataset.id}`);
     }
   };
 
@@ -114,6 +206,17 @@ export default function NewDatasetPage() {
           Upload an existing dataset or generate one using AI.
         </p>
       </div>
+
+      {/* API Error Banner */}
+      {createError && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
+          <span className="material-symbols-outlined text-red-500">error</span>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-red-800">Failed to create dataset</p>
+            <p className="text-sm text-red-600">{createError.message}</p>
+          </div>
+        </div>
+      )}
 
       {/* Stacked Panels with OrDivider */}
       <div className="flex flex-col gap-6">
@@ -149,11 +252,11 @@ export default function NewDatasetPage() {
             {/* Dataset Description */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Dataset Description <span className="text-slate-400 font-normal">(Optional)</span>
+                Description <span className="text-slate-400 font-normal">(Optional)</span>
               </label>
               <textarea
-                value={uploadDatasetDescription}
-                onChange={(e) => setUploadDatasetDescription(e.target.value)}
+                value={uploadDescription}
+                onChange={(e) => setUploadDescription(e.target.value)}
                 placeholder="Describe the purpose of this dataset..."
                 rows={2}
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all resize-none"
@@ -223,6 +326,14 @@ export default function NewDatasetPage() {
               )}
             </div>
 
+            {/* Upload Error */}
+            {uploadError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-2">
+                <span className="material-symbols-outlined text-red-500 text-lg">error</span>
+                <p className="text-sm text-red-600">{uploadError}</p>
+              </div>
+            )}
+
             {/* Schema Preview */}
             {uploadFile && (
               <div>
@@ -263,16 +374,25 @@ export default function NewDatasetPage() {
             {/* Submit Button */}
             <button
               onClick={handleUploadSubmit}
-              disabled={!uploadFile || !uploadDatasetName}
+              disabled={!uploadFile || !uploadDatasetName || isCreating}
               className={cn(
                 'w-full py-2.5 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2',
-                uploadFile && uploadDatasetName
+                uploadFile && uploadDatasetName && !isCreating
                   ? 'bg-[#135bec] text-white hover:bg-[#135bec]/90 shadow-sm shadow-[#135bec]/30'
                   : 'bg-slate-100 text-slate-400 cursor-not-allowed'
               )}
             >
-              <span className="material-symbols-outlined text-lg">upload</span>
-              Upload Dataset
+              {isCreating ? (
+                <>
+                  <span className="material-symbols-outlined text-lg animate-spin">sync</span>
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-lg">upload</span>
+                  Upload Dataset
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -480,6 +600,23 @@ export default function NewDatasetPage() {
               </div>
             </div>
 
+            {/* Capabilities (Optional) */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                Capabilities <span className="text-slate-400 font-normal">(Optional)</span>
+              </label>
+              <input
+                type="text"
+                value={capabilities}
+                onChange={(e) => setCapabilities(e.target.value)}
+                placeholder="e.g., answer questions, process refunds, escalate issues"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
+              />
+              <p className="text-xs text-slate-500 mt-1.5">
+                Comma-separated list of agent capabilities
+              </p>
+            </div>
+
             {/* Query Count */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">
@@ -488,7 +625,7 @@ export default function NewDatasetPage() {
               <div className="flex items-center gap-4">
                 <input
                   type="range"
-                  min={10}
+                  min={3}
                   max={500}
                   step={10}
                   value={queryCount}
@@ -497,11 +634,11 @@ export default function NewDatasetPage() {
                 />
                 <input
                   type="number"
-                  min={10}
+                  min={3}
                   max={500}
                   value={queryCount}
                   onChange={(e) => {
-                    const val = Math.max(10, Math.min(500, Number(e.target.value) || 10));
+                    const val = Math.max(3, Math.min(500, Number(e.target.value) || 3));
                     setQueryCount(val);
                   }}
                   className="w-20 px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-center text-sm font-bold text-slate-900 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
@@ -531,16 +668,25 @@ export default function NewDatasetPage() {
             {/* Submit Button */}
             <button
               onClick={handleGenerateSubmit}
-              disabled={!generateDatasetName || !agentName || !agentDescription}
+              disabled={!generateDatasetName || !agentName || !agentDescription || isCreating}
               className={cn(
                 'w-full py-2.5 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2',
-                generateDatasetName && agentName && agentDescription
+                generateDatasetName && agentName && agentDescription && !isCreating
                   ? 'bg-[#135bec] text-white hover:bg-[#135bec]/90 shadow-sm shadow-[#135bec]/30'
                   : 'bg-slate-100 text-slate-400 cursor-not-allowed'
               )}
             >
-              <span className="material-symbols-outlined text-lg">auto_awesome</span>
-              Generate Dataset
+              {isCreating ? (
+                <>
+                  <span className="material-symbols-outlined text-lg animate-spin">sync</span>
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-lg">auto_awesome</span>
+                  Generate Dataset
+                </>
+              )}
             </button>
           </div>
         </div>
