@@ -65,9 +65,9 @@ export function Workflow() {
   return (
     <section
       id="workflow"
-      className="py-16 lg:py-[100px] px-4 lg:px-6 bg-[var(--bg-subtle)] scroll-mt-20"
+      className="py-14 lg:py-[90px] px-4 sm:px-6 lg:px-8 bg-[var(--bg-subtle)] scroll-mt-20"
     >
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-[1080px] mx-auto">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -217,7 +217,35 @@ function ConfigureScreen() {
         <div className="space-y-4">
           <FormField label="Agent Name" value="Support Bot v2.4" />
           <FormField label="Agent URL" value="https://api.acme.com/agent/support" />
-          <FormField label="MCP Server URLs" value="https://mcp.acme.com/tools" optional />
+          {/* Custom MCP Server Section */}
+          <div>
+            <label className="block text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
+              Custom MCP Server{' '}
+              <span className="font-normal text-[var(--text-muted)]">(optional)</span>
+            </label>
+            <div className="bg-[var(--bg-subtle)] border border-[var(--border)] rounded-md p-2 space-y-2">
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <span className="text-[8px] text-[var(--text-muted)] uppercase">Name</span>
+                  <div className="text-[10px] text-[var(--text-secondary)] truncate">
+                    Pricing API
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <span className="text-[8px] text-[var(--text-muted)] uppercase">URL</span>
+                  <div className="text-[10px] text-[var(--text-secondary)] truncate">
+                    mcp://pricing.acme.com
+                  </div>
+                </div>
+              </div>
+              <div>
+                <span className="text-[8px] text-[var(--text-muted)] uppercase">Description</span>
+                <div className="text-[10px] text-[var(--text-secondary)] truncate">
+                  Internal pricing lookups
+                </div>
+              </div>
+            </div>
+          </div>
           <div>
             <label className="block text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1.5">
               Agent Description

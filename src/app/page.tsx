@@ -7,11 +7,31 @@ import { UseCases } from '@/components/UseCases';
 import { Pricing } from '@/components/Pricing';
 import { CTA } from '@/components/CTA';
 import { Footer } from '@/components/Footer';
+import { createClient } from '@/lib/supabase/server';
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+
+  let user = null;
+  if (supabase) {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  }
+
   return (
     <main className="min-h-screen">
-      <Navigation />
+      <Navigation
+        user={
+          user
+            ? {
+                id: user.id,
+                email: user.email,
+                name: user.user_metadata?.full_name || user.user_metadata?.name || null,
+                avatarUrl: user.user_metadata?.avatar_url || null,
+              }
+            : null
+        }
+      />
       <Hero />
       <Demo />
       <Workflow />

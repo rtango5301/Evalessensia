@@ -1,27 +1,57 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request });
+const PROTECTED_ROUTES = ['/dashboard', '/datasets', '/evaluations'];
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          supabaseResponse = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
-        },
-      },
+export async function middleware(request: NextRequest) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const isDevelopment = process.env.NODE_ENV === 'development';
+
+  // Handle missing Supabase configuration
+  if (!supabaseUrl || !supabaseAnonKey) {
+    const isProtectedRoute = PROTECTED_ROUTES.some((route) =>
+      request.nextUrl.pathname.startsWith(route)
+    );
+
+    if (isDevelopment) {
+      // Development: allow bypass with warning
+      if (isProtectedRoute) {
+        console.warn(
+          `[DEV] Supabase not configured - auth bypassed for: ${request.nextUrl.pathname}`
+        );
+      }
+      return NextResponse.next({ request });
     }
-  );
+
+    // Production: fail closed - block protected routes
+    if (isProtectedRoute) {
+      console.error(
+        `[SECURITY] Supabase credentials missing - blocking access to: ${request.nextUrl.pathname}`
+      );
+      return new NextResponse('Authentication service unavailable', { status: 503 });
+    }
+
+    // Allow public routes in production
+    return NextResponse.next({ request });
+  }
+
+  let response = NextResponse.next({ request });
+
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+        response = NextResponse.next({ request });
+        cookiesToSet.forEach(({ name, value, options }) =>
+          response.cookies.set(name, value, options)
+        );
+      },
+    },
+  });
 
   // Refresh auth token
   const {
@@ -29,10 +59,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Protect dashboard routes
-  const isAuthRoute =
-    request.nextUrl.pathname.startsWith('/dashboard') ||
-    request.nextUrl.pathname.startsWith('/datasets') ||
-    request.nextUrl.pathname.startsWith('/evaluations');
+  const isAuthRoute = PROTECTED_ROUTES.some((route) => request.nextUrl.pathname.startsWith(route));
 
   if (isAuthRoute && !user) {
     const url = request.nextUrl.clone();
@@ -47,7 +74,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  return supabaseResponse;
+  return response;
 }
 
 export const config = {

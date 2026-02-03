@@ -61,3 +61,4 @@ artifacts/
 # Separate projects (not part of Next.js app)
 remotion-demo/
 stitch/
+.stitch/
