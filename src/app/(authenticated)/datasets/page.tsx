@@ -155,6 +155,7 @@ export default function DatasetsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // SlideOverPanel state
@@ -167,6 +168,7 @@ export default function DatasetsPage() {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setOpenMenuId(null);
+        setMenuPosition(null);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -184,6 +186,7 @@ export default function DatasetsPage() {
     setEditName(dataset.name);
     setDeleteConfirm(false);
     setOpenMenuId(null);
+    setMenuPosition(null);
   };
 
   // Close edit panel
@@ -303,7 +306,7 @@ export default function DatasetsPage() {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -430,17 +433,30 @@ export default function DatasetsPage() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setOpenMenuId(openMenuId === dataset.id ? null : dataset.id);
+                            if (openMenuId === dataset.id) {
+                              setOpenMenuId(null);
+                              setMenuPosition(null);
+                            } else {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              setMenuPosition({
+                                top: rect.bottom + 8,
+                                left: rect.right - 208, // 208 = dropdown width (w-52 = 13rem = 208px)
+                              });
+                              setOpenMenuId(dataset.id);
+                            }
                           }}
                           className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
                         >
                           <span className="material-symbols-outlined text-xl">more_vert</span>
                         </button>
-                        {openMenuId === dataset.id && (
-                          <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-10">
+                        {openMenuId === dataset.id && menuPosition && (
+                          <div
+                            className="fixed w-52 bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 py-2 z-50 animate-dropdown"
+                            style={{ top: menuPosition.top, left: menuPosition.left }}
+                          >
                             <Link
                               href={`/datasets/${dataset.id}`}
-                              className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                              className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg mx-2 transition-all"
                               onClick={() => setOpenMenuId(null)}
                             >
                               <span className="material-symbols-outlined text-lg">visibility</span>
@@ -448,22 +464,23 @@ export default function DatasetsPage() {
                             </Link>
                             <Link
                               href={`/evaluations/new?dataset=${dataset.id}`}
-                              className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                              className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg mx-2 transition-all"
                               onClick={() => setOpenMenuId(null)}
                             >
                               <span className="material-symbols-outlined text-lg">science</span>
                               Run Evaluation
                             </Link>
                             <button
-                              className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors w-full text-left"
+                              disabled
+                              className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-400 cursor-not-allowed rounded-lg mx-2 w-full text-left"
                               onClick={() => setOpenMenuId(null)}
                             >
                               <span className="material-symbols-outlined text-lg">download</span>
                               Export
                             </button>
-                            <div className="border-t border-slate-100 my-1"></div>
+                            <div className="border-t border-slate-100 my-2 mx-2"></div>
                             <button
-                              className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                              className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg mx-2 transition-all w-full text-left"
                               onClick={() => openEditPanel(dataset)}
                             >
                               <span className="material-symbols-outlined text-lg">delete</span>
@@ -572,7 +589,10 @@ export default function DatasetsPage() {
                   <span className="material-symbols-outlined text-base">science</span>
                   Run Evaluation
                 </Link>
-                <button className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors text-left">
+                <button
+                  disabled
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-slate-400 cursor-not-allowed rounded-lg text-left"
+                >
                   <span className="material-symbols-outlined text-base">download</span>
                   Export Dataset
                 </button>

@@ -9,6 +9,7 @@ import {
   MCPMarketplaceModal,
   MCP_SERVERS as MARKETPLACE_SERVERS,
 } from '@/components/ui/mcp-marketplace-modal';
+import { TestConnectionButton } from '@/components/ui/test-connection-button';
 import { useDatasets } from '@/hooks/use-datasets';
 import { useCreateEvaluation } from '@/hooks/use-evaluations';
 import type { CreateEvaluationRequest, MCPServer } from '@/lib/api/types';
@@ -25,7 +26,6 @@ interface CustomMCPServer {
 interface AgentConfigState {
   evaluationName: string;
   name: string;
-  url: string;
   model: string;
   apiKey: string;
   systemPrompt: string;
@@ -114,7 +114,6 @@ function NewEvaluationWizardContent() {
   const [agentConfig, setAgentConfig] = useState<AgentConfigState>({
     evaluationName: '',
     name: '',
-    url: '',
     model: '',
     apiKey: '',
     systemPrompt: '',
@@ -221,7 +220,7 @@ function NewEvaluationWizardContent() {
       dataset_id: datasetSelection.existingId,
       agent_config: {
         name: agentConfig.name,
-        url: agentConfig.url,
+        url: agentConfig.agentUrl,
         model: agentConfig.model || undefined,
         api_key: agentConfig.apiKey || undefined,
         system_prompt: agentConfig.systemPrompt || undefined,
@@ -316,23 +315,6 @@ function NewEvaluationWizardContent() {
                 />
               </div>
 
-              {/* Agent URL */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Agent URL <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="url"
-                  value={agentConfig.url}
-                  onChange={(e) => setAgentConfig({ ...agentConfig, url: e.target.value })}
-                  placeholder="https://api.your-agent.com/v1/chat/completions"
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
-                />
-                <p className="text-xs text-slate-500 mt-1.5">
-                  Endpoint must accept OpenAI Chat Completions format
-                </p>
-              </div>
-
               {/* Model (Optional) */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
@@ -408,9 +390,15 @@ function NewEvaluationWizardContent() {
                   placeholder="https://api.example.com/agent"
                   className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
                 />
-                <p className="text-xs text-slate-500 mt-1.5">
-                  The endpoint URL where your agent is hosted
-                </p>
+                <div className="flex items-center gap-3 mt-1.5">
+                  <p className="text-xs text-slate-500">
+                    The endpoint URL where your agent is hosted
+                  </p>
+                  <TestConnectionButton
+                    url={agentConfig.agentUrl}
+                    disabled={!agentConfig.agentUrl}
+                  />
+                </div>
               </div>
             </div>
 
@@ -536,6 +524,12 @@ function NewEvaluationWizardContent() {
                       placeholder="https://your-mcp-server.com"
                       className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all bg-white"
                     />
+                    <div className="mt-2">
+                      <TestConnectionButton
+                        url={agentConfig.customMcp.url}
+                        disabled={!agentConfig.customMcp.url}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -757,6 +751,9 @@ function NewEvaluationWizardContent() {
                     <p className="text-sm font-mono text-slate-700 mt-1 break-all">
                       {agentConfig.agentUrl}
                     </p>
+                    <div className="mt-2">
+                      <TestConnectionButton url={agentConfig.agentUrl} />
+                    </div>
                   </div>
                   <div>
                     <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">

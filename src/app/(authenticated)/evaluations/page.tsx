@@ -73,9 +73,7 @@ function TableSkeleton() {
     <div className="animate-pulse">
       {[...Array(5)].map((_, i) => (
         <div key={i} className="flex items-center gap-4 px-6 py-4 border-b border-slate-100">
-          <div className="h-4 w-16 bg-slate-200 rounded" />
           <div className="h-4 w-48 bg-slate-200 rounded" />
-          <div className="h-4 w-32 bg-slate-200 rounded" />
           <div className="h-4 w-20 bg-slate-200 rounded" />
           <div className="h-4 w-24 bg-slate-200 rounded" />
           <div className="h-4 w-16 bg-slate-200 rounded" />
@@ -93,6 +91,7 @@ export default function EvaluationsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   // SlideOverPanel state for delete confirmation
@@ -104,6 +103,7 @@ export default function EvaluationsPage() {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setOpenMenuId(null);
+        setMenuPosition(null);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -115,6 +115,7 @@ export default function EvaluationsPage() {
     setDeletingRun(run);
     setDeleteConfirm(false);
     setOpenMenuId(null);
+    setMenuPosition(null);
   };
 
   // Close delete panel
@@ -271,19 +272,13 @@ export default function EvaluationsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
                 <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  ID
-                </th>
-                <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Evaluation Name
-                </th>
-                <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Dataset
                 </th>
                 <th className="px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Status
@@ -302,13 +297,13 @@ export default function EvaluationsPage() {
             <tbody className="divide-y divide-slate-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7}>
+                  <td colSpan={5}>
                     <TableSkeleton />
                   </td>
                 </tr>
               ) : filteredRuns.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center">
+                  <td colSpan={5} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <span className="material-symbols-outlined text-4xl text-slate-300">
                         {evaluations.length === 0 ? 'science' : 'search_off'}
@@ -345,29 +340,13 @@ export default function EvaluationsPage() {
                   const total = run.results_summary?.total_count || 0;
 
                   return (
-                    <tr key={run.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4">
-                        <span className="text-sm font-mono text-slate-500">
-                          #{run.id.slice(0, 8)}
-                        </span>
-                      </td>
+                    <tr
+                      key={run.id}
+                      className="hover:bg-slate-50 transition-colors cursor-pointer"
+                      onClick={() => (window.location.href = `/evaluations/${run.id}`)}
+                    >
                       <td className="px-6 py-4">
                         <span className="text-sm font-medium text-slate-900">{run.name}</span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-mono text-slate-500">
-                            {run.dataset_id.slice(0, 8)}
-                          </span>
-                          <span className="text-slate-300">•</span>
-                          <Link
-                            href={`/datasets/${run.dataset_id}`}
-                            className="text-sm text-[#135bec] hover:underline"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {run.dataset_name || 'View Dataset'}
-                          </Link>
-                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <span
@@ -421,22 +400,37 @@ export default function EvaluationsPage() {
                           <span className="text-sm text-slate-400">--</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                         <div
                           className="relative inline-block"
                           ref={openMenuId === run.id ? menuRef : null}
                         >
                           <button
-                            onClick={() => setOpenMenuId(openMenuId === run.id ? null : run.id)}
+                            onClick={(e) => {
+                              if (openMenuId === run.id) {
+                                setOpenMenuId(null);
+                                setMenuPosition(null);
+                              } else {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setMenuPosition({
+                                  top: rect.bottom + 8,
+                                  left: rect.right - 208,
+                                });
+                                setOpenMenuId(run.id);
+                              }
+                            }}
                             className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
                           >
                             <span className="material-symbols-outlined text-xl">more_vert</span>
                           </button>
-                          {openMenuId === run.id && (
-                            <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-10">
+                          {openMenuId === run.id && menuPosition && (
+                            <div
+                              className="fixed w-52 bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 py-2 z-50 animate-dropdown"
+                              style={{ top: menuPosition.top, left: menuPosition.left }}
+                            >
                               <Link
                                 href={`/evaluations/${run.id}`}
-                                className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg mx-2 transition-all"
                                 onClick={() => setOpenMenuId(null)}
                               >
                                 <span className="material-symbols-outlined text-lg">
@@ -445,15 +439,15 @@ export default function EvaluationsPage() {
                                 View Details
                               </Link>
                               <button
-                                className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors w-full text-left opacity-50 cursor-not-allowed"
+                                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg mx-2 transition-all w-full text-left opacity-50 cursor-not-allowed"
                                 disabled
                               >
                                 <span className="material-symbols-outlined text-lg">download</span>
                                 Export
                               </button>
-                              <div className="border-t border-slate-100 my-1"></div>
+                              <div className="border-t border-slate-100 my-2 mx-2"></div>
                               <button
-                                className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
+                                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg mx-2 transition-all w-full text-left"
                                 onClick={() => openDeletePanel(run)}
                               >
                                 <span className="material-symbols-outlined text-lg">delete</span>

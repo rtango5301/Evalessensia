@@ -156,6 +156,21 @@ body {
   animation: spin 1s linear infinite;
 }
 
+@keyframes dropdown-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-dropdown {
+  animation: dropdown-enter 0.15s ease-out;
+}
+
 /* Material Symbols configuration */
 .material-symbols-outlined {
   font-family: 'Material Symbols Outlined';
