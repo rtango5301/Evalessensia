@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { OrDivider } from '@/components/ui/or-divider';
 import { MCPMarketplaceModal, MCP_SERVERS } from '@/components/ui/mcp-marketplace-modal';
+import { TestConnectionButton } from '@/components/ui/test-connection-button';
 import { useCreateDataset } from '@/hooks/use-datasets';
 import { uploadDatasetFile, StorageError } from '@/lib/supabase/storage';
 import type {
@@ -528,14 +529,16 @@ export default function NewDatasetPage() {
               </p>
             </div>
 
-            {/* MCP Marketplace Modal */}
-            <MCPMarketplaceModal
-              isOpen={isMcpModalOpen}
-              onClose={() => setIsMcpModalOpen(false)}
-              selectedServers={selectedMCPServers}
-              onSelectionChange={setSelectedMCPServers}
-              maxSelections={3}
-            />
+            {/* MCP Marketplace Modal - lazy loaded for faster page navigation */}
+            {isMcpModalOpen && (
+              <MCPMarketplaceModal
+                isOpen={isMcpModalOpen}
+                onClose={() => setIsMcpModalOpen(false)}
+                selectedServers={selectedMCPServers}
+                onSelectionChange={setSelectedMCPServers}
+                maxSelections={3}
+              />
+            )}
 
             {/* Custom MCP Server */}
             <div>
@@ -593,9 +596,15 @@ export default function NewDatasetPage() {
                     onChange={(e) =>
                       setCustomMcpServer({ ...customMcpServer, url: e.target.value })
                     }
-                    placeholder="mcp://your-server-url"
+                    placeholder="https://your-mcp-server.com"
                     className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all bg-white"
                   />
+                  <div className="mt-2">
+                    <TestConnectionButton
+                      url={customMcpServer.url}
+                      disabled={!customMcpServer.url}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

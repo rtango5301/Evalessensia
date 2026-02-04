@@ -7,7 +7,8 @@ import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useEvaluations, useDeleteEvaluation } from '@/hooks/use-evaluations';
-import type { Evaluation } from '@/lib/api/types';
+import { useDatasets } from '@/hooks/use-datasets';
+import type { Evaluation, DatasetSource, DatasetStatus } from '@/lib/api/types';
 
 // Helper to format relative time
 function formatRelativeTime(dateString: string): string {
@@ -42,33 +43,27 @@ function mapStatus(status: Evaluation['status']): DisplayStatus {
   }
 }
 
-// Mock data for datasets (used in dashboard datasets section)
-const datasets = [
-  {
-    id: 'ds-001',
-    name: 'Customer Support Q&A',
-    type: 'uploaded' as const,
-    size: 150,
-    createdAt: 'Jan 15, 2024',
-    status: 'ready' as const,
-  },
-  {
-    id: 'ds-002',
-    name: 'Financial Reports Dataset',
-    type: 'generated' as const,
-    size: 200,
-    createdAt: 'Jan 14, 2024',
-    status: 'ready' as const,
-  },
-  {
-    id: 'ds-003',
-    name: 'Safety Test Cases',
-    type: 'generated' as const,
-    size: 100,
-    createdAt: 'Jan 10, 2024',
-    status: 'processing' as const,
-  },
-];
+// Dataset mapping helpers
+type UiDatasetType = 'uploaded' | 'generated';
+type UiDatasetStatus = 'ready' | 'processing' | 'error';
+
+function mapSourceToType(source: DatasetSource): UiDatasetType {
+  return source === 'uploaded' ? 'uploaded' : 'generated';
+}
+
+function mapApiStatusToUiStatus(status: DatasetStatus): UiDatasetStatus {
+  if (status === 'completed') return 'ready';
+  if (status === 'in_progress') return 'processing';
+  return 'error';
+}
+
+function formatDatasetDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
 
 function getStatusBadgeStyles(status: 'running' | 'completed' | 'failed') {
   switch (status) {
@@ -182,26 +177,26 @@ function ActionsDropdown({
         <span className="material-symbols-outlined text-lg">more_vert</span>
       </button>
       {isOpen && (
-        <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-10">
+        <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 py-2 z-20 animate-dropdown">
           <Link
             href={`/evaluations/${evalId}`}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+            className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg mx-2 transition-all"
           >
             <span className="material-symbols-outlined text-base">visibility</span>
             View Details
           </Link>
           <button
             disabled
-            className="flex items-center gap-2 px-3 py-2 text-sm text-slate-400 cursor-not-allowed w-full text-left"
+            className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-400 cursor-not-allowed rounded-lg mx-2 w-full text-left"
           >
             <span className="material-symbols-outlined text-base">download</span>
             Export
           </button>
-          <div className="border-t border-slate-200 my-1"></div>
+          <div className="border-t border-slate-100 my-2 mx-2"></div>
           <button
             onClick={handleDelete}
             disabled={isDeleting}
-            className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left disabled:opacity-50"
+            className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg mx-2 transition-all w-full text-left disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-base">delete</span>
             {isDeleting ? 'Deleting...' : 'Delete'}
@@ -215,6 +210,12 @@ function ActionsDropdown({
 export default function DashboardPage() {
   const { evaluations, isLoading, error, refetch } = useEvaluations();
   const { deleteEvaluation, isDeleting } = useDeleteEvaluation();
+  const {
+    datasets: apiDatasets,
+    isLoading: datasetsLoading,
+    error: datasetsError,
+    refetch: refetchDatasets,
+  } = useDatasets();
 
   // Handle delete
   const handleDelete = async (id: string) => {
@@ -226,6 +227,18 @@ export default function DashboardPage() {
 
   // Get recent evaluations (limit to 5)
   const recentEvaluations = evaluations.slice(0, 5);
+
+  // Map API datasets to UI format and limit to 3
+  const recentDatasets = apiDatasets
+    .map((d) => ({
+      id: d.id,
+      name: d.name,
+      type: mapSourceToType(d.source),
+      size: d.query_count,
+      createdAt: formatDatasetDate(d.created_at),
+      status: mapApiStatusToUiStatus(d.status),
+    }))
+    .slice(0, 3);
 
   // Loading skeleton
   if (isLoading) {
@@ -356,7 +369,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
         <div>
           <table className="w-full text-left border-collapse">
             <thead>
@@ -488,7 +501,9 @@ export default function DashboardPage() {
             </div>
             <div>
               <h2 className="text-xl font-bold text-slate-900 tracking-tight">Your Datasets</h2>
-              <p className="text-slate-500 text-sm">{datasets.length} datasets</p>
+              <p className="text-slate-500 text-sm">
+                {datasetsLoading ? 'Loading...' : `${apiDatasets.length} datasets`}
+              </p>
             </div>
           </div>
           <Link
@@ -500,75 +515,136 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Card Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {datasets.map((dataset) => {
-            const typeStyles = getDatasetTypeStyles(dataset.type);
-            return (
-              <Link
-                key={dataset.id}
-                href={`/datasets/${dataset.id}`}
-                className="group bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
+        {/* Loading State */}
+        {datasetsLoading && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-pulse"
               >
                 <div className="p-4">
-                  {/* Icon */}
-                  <div
-                    className={cn(
-                      'w-10 h-10 rounded-lg flex items-center justify-center mb-3',
-                      typeStyles.bg
-                    )}
-                  >
-                    <span className={cn('material-symbols-outlined', typeStyles.iconColor)}>
-                      {typeStyles.icon}
-                    </span>
+                  <div className="w-10 h-10 rounded-lg bg-slate-200 mb-3"></div>
+                  <div className="h-4 bg-slate-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-slate-200 rounded w-1/3"></div>
+                </div>
+                <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                  <div className="h-5 bg-slate-200 rounded w-16"></div>
+                  <div className="h-3 bg-slate-200 rounded w-20"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Error State */}
+        {!datasetsLoading && datasetsError && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+            <span className="material-symbols-outlined text-red-500 text-3xl mb-2">error</span>
+            <p className="text-red-800 font-medium">Failed to load datasets</p>
+            <p className="text-red-600 text-sm mt-1">{datasetsError.message}</p>
+            <button
+              onClick={() => refetchDatasets()}
+              className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!datasetsLoading && !datasetsError && recentDatasets.length === 0 && (
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm p-12 text-center">
+            <div className="size-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+              <span className="material-symbols-outlined text-slate-400 text-3xl">storage</span>
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">No datasets yet</h3>
+            <p className="text-slate-500 text-sm mb-6">
+              Create your first dataset to start evaluating your AI agents.
+            </p>
+            <Link
+              href="/datasets/new"
+              className="inline-flex items-center gap-2 bg-[#135bec] hover:bg-[#135bec]/90 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all"
+            >
+              <span className="material-symbols-outlined text-xl">add</span>
+              New Dataset
+            </Link>
+          </div>
+        )}
+
+        {/* Card Grid */}
+        {!datasetsLoading && !datasetsError && recentDatasets.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {recentDatasets.map((dataset) => {
+              const typeStyles = getDatasetTypeStyles(dataset.type);
+              return (
+                <Link
+                  key={dataset.id}
+                  href={`/datasets/${dataset.id}`}
+                  className="group bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
+                >
+                  <div className="p-4">
+                    {/* Icon */}
+                    <div
+                      className={cn(
+                        'w-10 h-10 rounded-lg flex items-center justify-center mb-3',
+                        typeStyles.bg
+                      )}
+                    >
+                      <span className={cn('material-symbols-outlined', typeStyles.iconColor)}>
+                        {typeStyles.icon}
+                      </span>
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="text-sm font-medium text-slate-900 line-clamp-1 group-hover:text-[#135bec] transition-colors">
+                      {dataset.name}
+                    </h3>
+
+                    {/* Meta */}
+                    <p className="text-xs text-slate-500 mt-1">{dataset.size} queries</p>
                   </div>
 
-                  {/* Title */}
-                  <h3 className="text-sm font-medium text-slate-900 line-clamp-1 group-hover:text-[#135bec] transition-colors">
-                    {dataset.name}
-                  </h3>
-
-                  {/* Meta */}
-                  <p className="text-xs text-slate-500 mt-1">{dataset.size} queries</p>
-                </div>
-
-                {/* Footer */}
-                <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                  <span
-                    className={cn(
-                      'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border',
-                      getDatasetStatusStyles(dataset.status)
-                    )}
-                  >
-                    {dataset.status === 'processing' ? (
-                      <span className="relative flex h-1.5 w-1.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
-                      </span>
-                    ) : dataset.status === 'ready' ? (
-                      <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                    ) : (
-                      <span className="flex h-1.5 w-1.5 rounded-full bg-red-500"></span>
-                    )}
-                    {getDatasetStatusLabel(dataset.status)}
-                  </span>
-                  <span className="text-xs text-slate-400">{dataset.createdAt}</span>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
+                  {/* Footer */}
+                  <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                    <span
+                      className={cn(
+                        'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border',
+                        getDatasetStatusStyles(dataset.status)
+                      )}
+                    >
+                      {dataset.status === 'processing' ? (
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
+                        </span>
+                      ) : dataset.status === 'ready' ? (
+                        <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                      ) : (
+                        <span className="flex h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                      )}
+                      {getDatasetStatusLabel(dataset.status)}
+                    </span>
+                    <span className="text-xs text-slate-400">{dataset.createdAt}</span>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
 
         {/* View All Link */}
-        <div className="flex justify-center">
-          <Link
-            href="/datasets"
-            className="text-sm font-medium text-[#135bec] hover:underline flex items-center gap-1"
-          >
-            View all datasets
-            <span className="material-symbols-outlined text-base">arrow_forward</span>
-          </Link>
-        </div>
+        {!datasetsLoading && !datasetsError && recentDatasets.length > 0 && (
+          <div className="flex justify-center">
+            <Link
+              href="/datasets"
+              className="text-sm font-medium text-[#135bec] hover:underline flex items-center gap-1"
+            >
+              View all datasets
+              <span className="material-symbols-outlined text-base">arrow_forward</span>
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

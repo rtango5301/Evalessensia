@@ -109,7 +109,7 @@ export function Navigation({ user: initialUser }: NavigationProps) {
           : 'bg-white/80 backdrop-blur-md'
       }`}
     >
-      <div className="max-w-[1080px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 text-[var(--foreground)] no-underline">
           <motion.div
