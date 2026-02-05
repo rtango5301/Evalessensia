@@ -5,8 +5,15 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { headers } from 'next/headers';
 
+const SUPABASE_NOT_CONFIGURED_ERROR =
+  'Authentication is not configured. Please set up Supabase credentials.';
+
 export async function signInWithEmail(formData: FormData) {
   const supabase = await createClient();
+
+  if (!supabase) {
+    return { error: SUPABASE_NOT_CONFIGURED_ERROR };
+  }
 
   const { error } = await supabase.auth.signInWithPassword({
     email: formData.get('email') as string,
@@ -23,6 +30,11 @@ export async function signInWithEmail(formData: FormData) {
 
 export async function signUpWithEmail(formData: FormData) {
   const supabase = await createClient();
+
+  if (!supabase) {
+    return { error: SUPABASE_NOT_CONFIGURED_ERROR };
+  }
+
   const origin = (await headers()).get('origin');
 
   const { error } = await supabase.auth.signUp({
@@ -45,6 +57,11 @@ export async function signUpWithEmail(formData: FormData) {
 
 export async function signInWithOAuth(provider: 'github' | 'google') {
   const supabase = await createClient();
+
+  if (!supabase) {
+    return { error: SUPABASE_NOT_CONFIGURED_ERROR };
+  }
+
   const origin = (await headers()).get('origin');
 
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -63,13 +80,22 @@ export async function signInWithOAuth(provider: 'github' | 'google') {
 
 export async function signOut() {
   const supabase = await createClient();
-  await supabase.auth.signOut();
+
+  if (supabase) {
+    await supabase.auth.signOut({ scope: 'global' });
+  }
   revalidatePath('/', 'layout');
-  redirect('/login');
+  // Don't redirect here - let client handle navigation with router.refresh()
+  // to ensure Next.js Router Cache is properly cleared
 }
 
 export async function requestPasswordReset(email: string) {
   const supabase = await createClient();
+
+  if (!supabase) {
+    return { error: SUPABASE_NOT_CONFIGURED_ERROR };
+  }
+
   const origin = (await headers()).get('origin');
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -88,6 +114,10 @@ export async function requestPasswordReset(email: string) {
 
 export async function updatePassword(newPassword: string) {
   const supabase = await createClient();
+
+  if (!supabase) {
+    return { error: SUPABASE_NOT_CONFIGURED_ERROR };
+  }
 
   const { error } = await supabase.auth.updateUser({
     password: newPassword,

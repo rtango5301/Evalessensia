@@ -10,9 +10,24 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # Placeholder values for build-time validation (non-functional, CI only)
+  NEXT_PUBLIC_SUPABASE_URL: 'https://ci-placeholder.supabase.co'
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ci-placeholder-key'
+
+# ====================
+# CI STRATEGY
+# ====================
+# Development branch: Fast checks (typecheck + build) ~1.5 min
+# Main branch/PRs to main: Full checks (+ lint + format) ~2 min
+# Pre-commit hooks handle lint/format locally, CI catches what slips through
+
 jobs:
-  build:
-    name: Build
+  # ====================
+  # FAST CHECKS (All branches)
+  # ====================
+  typecheck:
+    name: TypeScript
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,5 +41,89 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Type check
+        run: npm run typecheck
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Build
         run: npm run build
+
+  # ====================
+  # STRICT CHECKS (Main branch & PRs to main only)
+  # ====================
+  lint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.base_ref == 'main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+  format:
+    name: Prettier
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.base_ref == 'main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
+
+  # ====================
+  # QUALITY GATE (Main branch & PRs to main only)
+  # ====================
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: [typecheck, build, lint, format]
+    if: always() && (github.ref == 'refs/heads/main' || github.base_ref == 'main')
+    steps:
+      - name: Check all jobs passed
+        run: |
+          if [[ "${{ needs.typecheck.result }}" != "success" || "${{ needs.build.result }}" != "success" || "${{ needs.lint.result }}" != "success" || "${{ needs.format.result }}" != "success" ]]; then
+            echo "One or more checks failed"
+            exit 1
+          fi
+          echo "All quality checks passed for production"

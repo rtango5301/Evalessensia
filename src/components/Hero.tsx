@@ -33,9 +33,9 @@ const itemVariants = {
 
 export function Hero() {
   return (
-    <section className="pt-[80px] pb-[60px] px-6 bg-gradient-to-b from-[var(--bg-subtle)] to-[var(--background)] overflow-hidden">
-      <div className="max-w-[1200px] mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-8 lg:gap-[40px] items-center">
+    <section className="pt-[72px] pb-[54px] px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[var(--bg-subtle)] to-[var(--background)]">
+      <div className="max-w-[1400px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-7 lg:gap-8 items-center">
           {/* Left Content */}
           <motion.div variants={containerVariants} initial="hidden" animate="visible">
             {/* Pill Badge */}
@@ -52,7 +52,7 @@ export function Hero() {
             {/* Headline - Big, Clean, Confident */}
             <motion.h1
               variants={itemVariants}
-              className="text-5xl md:text-[4rem] lg:text-[4.5rem] font-extrabold leading-[1.05] mb-5 tracking-tight"
+              className="text-[2.75rem] md:text-[3.5rem] lg:text-[4rem] font-extrabold leading-[1.05] mb-5 tracking-tight"
             >
               CI/CD for
               <br />
@@ -64,7 +64,7 @@ export function Hero() {
             {/* Subheadline */}
             <motion.div
               variants={itemVariants}
-              className="mb-6 max-w-[460px] px-5 py-3 rounded-lg bg-[#f0f0f5] border-l-[3px] border-l-[var(--primary)]"
+              className="mb-6 max-w-[480px] px-5 py-3 rounded-lg bg-[#f0f0f5] border-l-[3px] border-l-[var(--primary)]"
             >
               <p className="text-base text-[#6b7280] leading-relaxed">
                 Ship agent improvements in hours, not weeks. Automated evals. Instant feedback.{' '}
@@ -73,7 +73,7 @@ export function Hero() {
             </motion.div>
 
             {/* Features List - Emphasize titles, de-emphasize descriptions */}
-            <motion.div variants={itemVariants} className="space-y-3 mb-6 max-w-[460px]">
+            <motion.div variants={itemVariants} className="space-y-3 mb-6 max-w-[480px]">
               {[
                 {
                   icon: GitBranch,
@@ -134,7 +134,7 @@ export function Hero() {
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="w-full lg:ml-20"
+            className="w-full"
           >
             {/* Mobile - Same Dashboard Scaled */}
             <div className="block lg:hidden relative w-full overflow-x-auto pb-4 -mx-4 px-4">
@@ -145,8 +145,8 @@ export function Hero() {
                 <EvaluationDashboard />
               </div>
             </div>
-            {/* Desktop - Full Version */}
-            <div className="hidden lg:block">
+            {/* Desktop - Full Version - Scaled to fit */}
+            <div className="hidden lg:block lg:scale-[0.92] xl:scale-100 origin-top-left">
               <EvaluationDashboard />
             </div>
           </motion.div>
@@ -189,7 +189,7 @@ function EvaluationDashboard() {
           </div>
 
           {/* Dashboard Content - LANDSCAPE */}
-          <div className="bg-[#fbfbfc] p-5" style={{ minWidth: '700px' }}>
+          <div className="bg-[#fbfbfc] p-5 min-w-[680px]">
             {/* Header */}
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">

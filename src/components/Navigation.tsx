@@ -2,8 +2,12 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Layers, Menu, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Layers, Menu, X, LayoutDashboard, Settings, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { createClient } from '@/lib/supabase/client';
+import { LandingProfileDropdown } from '@/components/ui/landing-profile-dropdown';
+import { signOut } from '@/app/login/actions';
 
 const navLinks = [
   { href: '#', label: 'Docs' },
@@ -14,10 +18,59 @@ const navLinks = [
   { href: '#pricing', label: 'Pricing' },
 ];
 
-export function Navigation() {
+type AuthUser = {
+  id: string;
+  email?: string | undefined;
+  name?: string | null;
+  avatarUrl?: string | null;
+} | null;
+
+/**
+ * Extracts initials from a user's name for avatar fallback.
+ */
+function getInitials(name: string): string {
+  const trimmed = name.trim();
+  if (!trimmed) return 'U';
+
+  const parts = trimmed.split(' ');
+  if (parts.length === 1) {
+    return parts[0].charAt(0).toUpperCase();
+  }
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
+
+interface NavigationProps {
+  user?: AuthUser;
+}
+
+export function Navigation({ user: initialUser }: NavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
   const [scrolled, setScrolled] = useState(false);
+  const [user, setUser] = useState<AuthUser>(initialUser ?? null);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const router = useRouter();
+
+  // Listen for auth state changes (logout in another tab, etc.)
+  useEffect(() => {
+    const supabase = createClient();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      const newUser = session?.user
+        ? {
+            id: session.user.id,
+            email: session.user.email,
+            name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || null,
+            avatarUrl: session.user.user_metadata?.avatar_url || null,
+          }
+        : null;
+      setUser(newUser);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,7 +109,7 @@ export function Navigation() {
           : 'bg-white/80 backdrop-blur-md'
       }`}
     >
-      <div className="max-w-[1200px] mx-auto px-6 flex items-center justify-between h-16">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 text-[var(--foreground)] no-underline">
           <motion.div
@@ -98,24 +151,43 @@ export function Navigation() {
 
         {/* Desktop Actions */}
         <div className="hidden lg:flex items-center gap-3">
-          <Link href="/login">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="px-4 py-2 text-[var(--text-secondary)] hover:text-[var(--foreground)] text-[15px] font-medium transition-colors rounded-lg hover:bg-[var(--bg-subtle)]"
-            >
-              Sign In
-            </motion.button>
-          </Link>
-          <Link href="/signup">
-            <motion.button
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg text-[15px] font-semibold transition-all shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/30"
-            >
-              Start Free Trial
-            </motion.button>
-          </Link>
+          {user ? (
+            <>
+              <Link href="/dashboard">
+                <motion.button
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg text-[15px] font-semibold transition-all shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/30"
+                  aria-label="Go to Dashboard"
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </motion.button>
+              </Link>
+              <LandingProfileDropdown user={user} />
+            </>
+          ) : (
+            <>
+              <Link href="/login">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-4 py-2 text-[var(--text-secondary)] hover:text-[var(--foreground)] text-[15px] font-medium transition-colors rounded-lg hover:bg-[var(--bg-subtle)]"
+                >
+                  Sign In
+                </motion.button>
+              </Link>
+              <Link href="/signup">
+                <motion.button
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg text-[15px] font-semibold transition-all shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/30"
+                >
+                  Start Free Trial
+                </motion.button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -123,6 +195,8 @@ export function Navigation() {
           whileTap={{ scale: 0.95 }}
           className="lg:hidden p-2 rounded-lg hover:bg-[var(--bg-subtle)] transition-colors"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={mobileMenuOpen}
         >
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </motion.button>
@@ -160,16 +234,75 @@ export function Navigation() {
             </motion.div>
           ))}
           <div className="flex flex-col gap-2 pt-4 mt-2 border-t border-[var(--border-light)]">
-            <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-              <button className="w-full py-3 text-[var(--foreground)] text-base font-semibold border border-[var(--border)] rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
-                Sign In
-              </button>
-            </Link>
-            <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
-              <button className="w-full py-3 bg-[var(--primary)] text-white rounded-lg text-base font-semibold hover:bg-[var(--primary-dark)] transition-colors">
-                Start Free Trial
-              </button>
-            </Link>
+            {user ? (
+              <>
+                {/* User Info Header */}
+                <div className="flex items-center gap-3 px-4 py-3 mb-2 bg-[var(--bg-subtle)] rounded-lg">
+                  {user.avatarUrl ? (
+                    <img
+                      src={user.avatarUrl}
+                      alt={`${user.name || 'User'}'s avatar`}
+                      className="size-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="size-10 rounded-full bg-[var(--primary)] flex items-center justify-center text-white text-sm font-semibold">
+                      {getInitials(user.name || user.email || 'U')}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-[var(--foreground)] truncate">
+                      {user.name || user.email?.split('@')[0] || 'User'}
+                    </p>
+                    {user.email && (
+                      <p className="text-xs text-[var(--text-secondary)] truncate">{user.email}</p>
+                    )}
+                  </div>
+                </div>
+
+                <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                  <button className="w-full py-3 bg-[var(--primary)] text-white rounded-lg text-base font-semibold hover:bg-[var(--primary-dark)] transition-colors flex items-center justify-center gap-2">
+                    <LayoutDashboard className="w-4 h-4" />
+                    Go to Dashboard
+                  </button>
+                </Link>
+
+                <Link href="/dashboard/settings" onClick={() => setMobileMenuOpen(false)}>
+                  <button className="w-full py-3 text-[var(--foreground)] border border-[var(--border)] rounded-lg text-base font-medium hover:bg-[var(--bg-subtle)] transition-colors flex items-center justify-center gap-2">
+                    <Settings className="w-4 h-4" />
+                    Settings
+                  </button>
+                </Link>
+
+                <button
+                  onClick={async () => {
+                    if (isSigningOut) return;
+                    setIsSigningOut(true);
+                    setMobileMenuOpen(false);
+                    await signOut();
+                    router.push('/');
+                    router.refresh();
+                  }}
+                  disabled={isSigningOut}
+                  className={`w-full py-3 text-red-600 border border-red-200 rounded-lg text-base font-medium hover:bg-red-50 transition-colors flex items-center justify-center gap-2 ${isSigningOut ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  <LogOut className="w-4 h-4" />
+                  {isSigningOut ? 'Signing out...' : 'Sign out'}
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <button className="w-full py-3 text-[var(--foreground)] text-base font-semibold border border-[var(--border)] rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
+                    Sign In
+                  </button>
+                </Link>
+                <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
+                  <button className="w-full py-3 bg-[var(--primary)] text-white rounded-lg text-base font-semibold hover:bg-[var(--primary-dark)] transition-colors">
+                    Start Free Trial
+                  </button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </motion.div>
