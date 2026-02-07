@@ -204,7 +204,7 @@ export function Navigation({ user: initialUser }: NavigationProps) {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-4 py-2 text-[var(--text-secondary)] hover:text-[var(--foreground)] text-[15px] font-medium transition-colors rounded-lg hover:bg-[var(--bg-subtle)]"
+                  className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg text-[15px] font-semibold transition-all shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/30"
                 >
                   Sign In
                 </motion.button>
@@ -310,7 +310,7 @@ export function Navigation({ user: initialUser }: NavigationProps) {
             ) : (
               <>
                 <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                  <button className="w-full py-3 text-[var(--foreground)] text-base font-semibold border border-[var(--border)] rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
+                  <button className="w-full py-3 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white text-base font-semibold rounded-lg transition-colors">
                     Sign In
                   </button>
                 </Link>
