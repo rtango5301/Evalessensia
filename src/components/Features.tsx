@@ -196,12 +196,74 @@ function WindowHeader({ title }: { title: string }) {
 }
 
 function QueryGeneratorFeature() {
-  const capabilities = [
-    { name: 'DOM Tree Access', checked: true },
-    { name: 'Event Listeners', checked: true },
-    { name: 'Network Intercept', checked: true },
+  // Agent configurations for all 3 agent types
+  const agents = [
+    {
+      name: 'Browser Agent',
+      iconBg: '#e0f2fe',
+      iconColor: '#0ea5e9',
+      capabilities: ['DOM Tree Access', 'Event Listeners', 'Network Intercept'],
+      icon: (
+        <svg
+          className="w-3.5 h-3.5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+          />
+        </svg>
+      ),
+    },
+    {
+      name: 'Coding Agent',
+      iconBg: '#fef3c7',
+      iconColor: '#f59e0b',
+      capabilities: ['Code Generation', 'Bug Detection', 'Refactoring'],
+      icon: (
+        <svg
+          className="w-3.5 h-3.5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"
+          />
+        </svg>
+      ),
+    },
+    {
+      name: 'Data Analyst Agent',
+      iconBg: '#dbeafe',
+      iconColor: '#3b82f6',
+      capabilities: ['Data Processing', 'Statistical Analysis', 'Visualization'],
+      icon: (
+        <svg
+          className="w-3.5 h-3.5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"
+          />
+        </svg>
+      ),
+    },
   ];
 
+  // Generic dataset chips that span all agent types
   const datasets = [
     {
       icon: (
@@ -210,11 +272,11 @@ function QueryGeneratorFeature() {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+            d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
           />
         </svg>
       ),
-      label: 'E-comm',
+      label: 'APIs',
       active: false,
     },
     {
@@ -224,30 +286,30 @@ function QueryGeneratorFeature() {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
       ),
-      label: 'Forms',
-      active: false,
-    },
-    {
-      icon: (
-        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
-        </svg>
-      ),
-      label: 'Nav',
+      label: 'Files',
       active: true,
+    },
+    {
+      icon: (
+        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
+          />
+        </svg>
+      ),
+      label: 'Database',
+      active: false,
     },
   ];
 
+  // Mixed output queries - one from each agent type
   const outputQueries = [
     {
       category: 'Shopping Flow',
@@ -255,14 +317,14 @@ function QueryGeneratorFeature() {
       query: 'Add item to cart and initiate checkout process',
     },
     {
-      category: 'Navigation',
-      categoryColor: '#22c55e',
-      query: 'Locate return policy link in footer area',
+      category: 'Code Review',
+      categoryColor: '#8b5cf6',
+      query: 'Analyze function for security vulnerabilities',
     },
     {
-      category: 'Form Interaction',
-      categoryColor: '#ef4444',
-      query: 'Populate shipping address with saved profile',
+      category: 'Trend Analysis',
+      categoryColor: '#3b82f6',
+      query: 'Identify seasonal patterns in sales data',
     },
   ];
 
@@ -272,78 +334,70 @@ function QueryGeneratorFeature() {
       <div className="h-[calc(100%-44px)] flex bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] overflow-hidden px-4 py-2">
         {/* Three Column Layout */}
         <div className="flex-1 grid grid-cols-[0.85fr_1.3fr_1fr] gap-3 items-center">
-          {/* Left Column - Browser Agent Card */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            whileHover={{ scale: 1.02, boxShadow: '0 8px 25px rgba(0,0,0,0.08)' }}
-            transition={{ type: 'spring', stiffness: 300 }}
-            className="bg-white rounded-xl border border-gray-100 p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
-          >
-            {/* Agent Header */}
-            <div className="flex items-center gap-2.5 mb-3">
+          {/* Left Column - Stacked Agent Cards */}
+          <div className="flex flex-col gap-2 justify-center">
+            {agents.map((agent, agentIdx) => (
               <motion.div
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                className="w-9 h-9 bg-[#e0f2fe] rounded-xl flex items-center justify-center"
+                key={agent.name}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                whileHover={{ scale: 1.02, boxShadow: '0 8px 25px rgba(0,0,0,0.08)' }}
+                transition={{ type: 'spring', stiffness: 300, delay: agentIdx * 0.1 }}
+                className="bg-white rounded-xl border border-gray-100 p-2 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
               >
-                <svg
-                  className="w-4 h-4 text-[#0ea5e9]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-                  />
-                </svg>
-              </motion.div>
-              <div>
-                <h4 className="text-[12px] font-bold text-gray-900">Browser Agent</h4>
-                <div className="flex items-center gap-1">
-                  <motion.span
-                    animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    className="w-1.5 h-1.5 rounded-full bg-[#22c55e]"
-                  />
-                  <p className="text-[10px] text-gray-400">Status: Active</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Capabilities */}
-            <div className="space-y-2">
-              {capabilities.map((cap, idx) => (
-                <motion.div
-                  key={cap.name}
-                  initial={{ opacity: 0, x: -15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 + idx * 0.15, type: 'spring' }}
-                  className="flex items-center gap-2"
-                >
+                {/* Agent Header */}
+                <div className="flex items-center gap-2 mb-1.5">
                   <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.5 + idx * 0.15, type: 'spring', stiffness: 500 }}
-                    className="w-4 h-4 rounded-full bg-[#22c55e] flex items-center justify-center"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                      delay: agentIdx * 0.3,
+                    }}
+                    className="w-7 h-7 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: agent.iconBg }}
                   >
-                    <Check className="w-2 h-2 text-white" strokeWidth={3} />
+                    <span style={{ color: agent.iconColor }}>{agent.icon}</span>
                   </motion.div>
-                  <span className="text-[11px] text-gray-600">{cap.name}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-[11px] font-bold text-gray-900 truncate">{agent.name}</h4>
+                    <div className="flex items-center gap-1">
+                      <motion.span
+                        animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: agentIdx * 0.2 }}
+                        className="w-1.5 h-1.5 rounded-full bg-[#22c55e]"
+                      />
+                      <p className="text-[9px] text-gray-400">Active</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Capabilities - compact text list */}
+                <div className="flex flex-wrap gap-x-2 gap-y-0.5 pl-1">
+                  {agent.capabilities.map((cap, idx) => (
+                    <motion.span
+                      key={cap}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.3 + agentIdx * 0.1 + idx * 0.05 }}
+                      className="text-[9px] text-gray-500"
+                    >
+                      • {cap}
+                    </motion.span>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
 
           {/* Center Column - Processing Engine */}
           <div className="flex flex-col items-center relative px-2">
-            {/* Animated dashed line from left card */}
-            <svg className="absolute left-0 top-1/2 -translate-y-1/2 w-6 h-12 -ml-1 overflow-visible">
+            {/* Animated dashed lines from left cards (Browser, Coding, Data Analyst) */}
+            <svg className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-44 -ml-1 overflow-visible">
+              {/* Top line - from Browser Agent */}
               <motion.path
-                d="M 24 24 L 0 24"
+                d="M 0 5 Q 10 5, 20 30 L 32 71"
                 fill="none"
                 stroke="#c7d2fe"
                 strokeWidth="2"
@@ -352,12 +406,58 @@ function QueryGeneratorFeature() {
                 animate={{ pathLength: 1 }}
                 transition={{ duration: 0.8, ease: 'easeOut' }}
               />
-              {/* Animated dot */}
+              {/* Middle line - from Coding Agent */}
+              <motion.path
+                d="M 0 88 L 32 88"
+                fill="none"
+                stroke="#c7d2fe"
+                strokeWidth="2"
+                strokeDasharray="5 4"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
+              />
+              {/* Bottom line - from Data Analyst Agent */}
+              <motion.path
+                d="M 0 171 Q 10 171, 20 146 L 32 105"
+                fill="none"
+                stroke="#c7d2fe"
+                strokeWidth="2"
+                strokeDasharray="5 4"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+              />
+              {/* Animated dot for top line */}
               <motion.circle
                 r="3"
                 fill="#7c3aed"
-                animate={{ cx: [0, 24], cy: [24, 24] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                initial={{ opacity: 0 }}
+                animate={{
+                  cx: [0, 16, 32],
+                  cy: [5, 18, 71],
+                  opacity: [0, 1, 0],
+                }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              {/* Animated dot for middle line */}
+              <motion.circle
+                r="3"
+                fill="#7c3aed"
+                animate={{ cx: [0, 32], cy: [88, 88] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: 0.5, ease: 'easeInOut' }}
+              />
+              {/* Animated dot for bottom line */}
+              <motion.circle
+                r="3"
+                fill="#7c3aed"
+                initial={{ opacity: 0 }}
+                animate={{
+                  cx: [0, 16, 32],
+                  cy: [171, 158, 105],
+                  opacity: [0, 1, 0],
+                }}
+                transition={{ duration: 2, repeat: Infinity, delay: 1, ease: 'easeInOut' }}
               />
             </svg>
 
@@ -599,7 +699,9 @@ function QueryGeneratorFeature() {
                   />
                 ))}
               </motion.div>
-              <span className="text-[10px] text-gray-400 italic">Analyzing next browser state</span>
+              <span className="text-[10px] text-gray-400 italic">
+                Generating synthetic queries...
+              </span>
             </motion.div>
           </div>
         </div>
