@@ -14,8 +14,6 @@ import {
   Users,
   BarChart3,
 } from 'lucide-react';
-import { useState } from 'react';
-import { ComingSoonBanner } from '@/components/ui/coming-soon-banner';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -34,8 +32,6 @@ const itemVariants = {
 };
 
 export function Hero() {
-  const [showComingSoon, setShowComingSoon] = useState(false);
-
   return (
     <section className="pt-[72px] pb-[54px] px-6 sm:px-8 lg:px-12 bg-gradient-to-b from-[var(--bg-subtle)] to-[var(--background)]">
       <div className="max-w-[1400px] mx-auto">
@@ -114,14 +110,6 @@ export function Hero() {
             {/* CTA Buttons */}
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3">
               <motion.button
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setShowComingSoon(true)}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg font-semibold text-sm transition-all shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/30"
-              >
-                Start Free Trial
-              </motion.button>
-              <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-[var(--bg-subtle)] text-[var(--foreground)] border border-[var(--border)] rounded-lg font-semibold text-sm transition-colors"
@@ -155,7 +143,6 @@ export function Hero() {
           </motion.div>
         </div>
       </div>
-      <ComingSoonBanner show={showComingSoon} onClose={() => setShowComingSoon(false)} />
     </section>
   );
 }

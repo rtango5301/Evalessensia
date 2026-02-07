@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { SlideOverPanel } from '@/components/ui/slide-over-panel';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -148,6 +148,124 @@ function TableRowSkeleton() {
   );
 }
 
+// Memoized table row component to avoid unnecessary re-renders
+interface DatasetRowProps {
+  dataset: UiDataset;
+  openMenuId: string | null;
+  menuPosition: { top: number; left: number } | null;
+  menuRef: React.RefObject<HTMLDivElement | null>;
+  onToggleMenu: (datasetId: string, rect: DOMRect) => void;
+  onCloseMenu: () => void;
+  onOpenEditPanel: (dataset: UiDataset) => void;
+}
+
+const DatasetRow = React.memo(function DatasetRow({
+  dataset,
+  openMenuId,
+  menuPosition,
+  menuRef,
+  onToggleMenu,
+  onCloseMenu,
+  onOpenEditPanel,
+}: DatasetRowProps) {
+  return (
+    <tr
+      className="hover:bg-slate-50 transition-colors cursor-pointer"
+      onClick={() => (window.location.href = `/datasets/${dataset.id}`)}
+    >
+      <td className="px-6 py-4">
+        <span className="text-sm font-medium text-slate-900">{dataset.name}</span>
+      </td>
+      <td className="px-6 py-4">
+        <span
+          className={cn(
+            'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
+            getTypeBadgeStyles(dataset.type)
+          )}
+        >
+          <span className="material-symbols-outlined text-sm">{getTypeIcon(dataset.type)}</span>
+          {dataset.type === 'uploaded' ? 'Uploaded' : 'Generated'}
+        </span>
+      </td>
+      <td className="px-6 py-4">
+        <span className="text-sm text-slate-600">{dataset.size} queries</span>
+      </td>
+      <td className="px-6 py-4">
+        <span className="text-sm text-slate-600">{formatDate(dataset.createdAt)}</span>
+      </td>
+      <td className="px-6 py-4">
+        <span
+          className={cn(
+            'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
+            getStatusBadgeStyles(dataset.status)
+          )}
+        >
+          {dataset.status === 'processing' && (
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+            </span>
+          )}
+          {getStatusLabel(dataset.status)}
+        </span>
+      </td>
+      <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+        <div className="relative inline-block" ref={openMenuId === dataset.id ? menuRef : null}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              const rect = e.currentTarget.getBoundingClientRect();
+              onToggleMenu(dataset.id, rect);
+            }}
+            className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            <span className="material-symbols-outlined text-xl">more_vert</span>
+          </button>
+          {openMenuId === dataset.id && menuPosition && (
+            <div
+              className="fixed w-52 bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 py-2 z-50 animate-dropdown"
+              style={{ top: menuPosition.top, left: menuPosition.left }}
+            >
+              <Link
+                href={`/datasets/${dataset.id}`}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg mx-2 transition-all"
+                onClick={onCloseMenu}
+              >
+                <span className="material-symbols-outlined text-lg">visibility</span>
+                View Details
+              </Link>
+              <Link
+                href={`/evaluations/new?dataset=${dataset.id}`}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg mx-2 transition-all"
+                onClick={onCloseMenu}
+              >
+                <span className="material-symbols-outlined text-lg">science</span>
+                Run Evaluation
+              </Link>
+              <button
+                disabled
+                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-400 cursor-not-allowed rounded-lg mx-2 w-full text-left"
+                onClick={onCloseMenu}
+              >
+                <span className="material-symbols-outlined text-lg">download</span>
+                Export
+              </button>
+              <div className="border-t border-slate-100 my-2 mx-2"></div>
+              <button
+                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg mx-2 transition-all w-full text-left"
+                onClick={() => onOpenEditPanel(dataset)}
+              >
+                <span className="material-symbols-outlined text-lg">delete</span>
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+});
+
 export default function DatasetsPage() {
   const { datasets: apiDatasets, isLoading, error, refetch } = useDatasets();
   const { deleteDataset, isDeleting } = useDeleteDataset();
@@ -181,13 +299,34 @@ export default function DatasetsPage() {
   }, [apiDatasets]);
 
   // Open edit panel for a dataset
-  const openEditPanel = (dataset: UiDataset) => {
+  const openEditPanel = useCallback((dataset: UiDataset) => {
     setEditingDataset(dataset);
     setEditName(dataset.name);
     setDeleteConfirm(false);
     setOpenMenuId(null);
     setMenuPosition(null);
-  };
+  }, []);
+
+  // Toggle context menu for a row
+  const handleToggleMenu = useCallback((datasetId: string, rect: DOMRect) => {
+    setOpenMenuId((prev) => {
+      if (prev === datasetId) {
+        setMenuPosition(null);
+        return null;
+      }
+      setMenuPosition({
+        top: rect.bottom + 8,
+        left: rect.right - 208,
+      });
+      return datasetId;
+    });
+  }, []);
+
+  // Close context menu
+  const handleCloseMenu = useCallback(() => {
+    setOpenMenuId(null);
+    setMenuPosition(null);
+  }, []);
 
   // Close edit panel
   const closeEditPanel = () => {
@@ -380,117 +519,16 @@ export default function DatasetsPage() {
                 </tr>
               ) : (
                 filteredDatasets.map((dataset) => (
-                  <tr
+                  <DatasetRow
                     key={dataset.id}
-                    className="hover:bg-slate-50 transition-colors cursor-pointer"
-                    onClick={() => (window.location.href = `/datasets/${dataset.id}`)}
-                  >
-                    <td className="px-6 py-4">
-                      <span className="text-sm font-medium text-slate-900">{dataset.name}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={cn(
-                          'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
-                          getTypeBadgeStyles(dataset.type)
-                        )}
-                      >
-                        <span className="material-symbols-outlined text-sm">
-                          {getTypeIcon(dataset.type)}
-                        </span>
-                        {dataset.type === 'uploaded' ? 'Uploaded' : 'Generated'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm text-slate-600">{dataset.size} queries</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm text-slate-600">
-                        {formatDate(dataset.createdAt)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={cn(
-                          'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
-                          getStatusBadgeStyles(dataset.status)
-                        )}
-                      >
-                        {dataset.status === 'processing' && (
-                          <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
-                          </span>
-                        )}
-                        {getStatusLabel(dataset.status)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
-                      <div
-                        className="relative inline-block"
-                        ref={openMenuId === dataset.id ? menuRef : null}
-                      >
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (openMenuId === dataset.id) {
-                              setOpenMenuId(null);
-                              setMenuPosition(null);
-                            } else {
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              setMenuPosition({
-                                top: rect.bottom + 8,
-                                left: rect.right - 208, // 208 = dropdown width (w-52 = 13rem = 208px)
-                              });
-                              setOpenMenuId(dataset.id);
-                            }
-                          }}
-                          className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
-                        >
-                          <span className="material-symbols-outlined text-xl">more_vert</span>
-                        </button>
-                        {openMenuId === dataset.id && menuPosition && (
-                          <div
-                            className="fixed w-52 bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 py-2 z-50 animate-dropdown"
-                            style={{ top: menuPosition.top, left: menuPosition.left }}
-                          >
-                            <Link
-                              href={`/datasets/${dataset.id}`}
-                              className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg mx-2 transition-all"
-                              onClick={() => setOpenMenuId(null)}
-                            >
-                              <span className="material-symbols-outlined text-lg">visibility</span>
-                              View Details
-                            </Link>
-                            <Link
-                              href={`/evaluations/new?dataset=${dataset.id}`}
-                              className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg mx-2 transition-all"
-                              onClick={() => setOpenMenuId(null)}
-                            >
-                              <span className="material-symbols-outlined text-lg">science</span>
-                              Run Evaluation
-                            </Link>
-                            <button
-                              disabled
-                              className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-400 cursor-not-allowed rounded-lg mx-2 w-full text-left"
-                              onClick={() => setOpenMenuId(null)}
-                            >
-                              <span className="material-symbols-outlined text-lg">download</span>
-                              Export
-                            </button>
-                            <div className="border-t border-slate-100 my-2 mx-2"></div>
-                            <button
-                              className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg mx-2 transition-all w-full text-left"
-                              onClick={() => openEditPanel(dataset)}
-                            >
-                              <span className="material-symbols-outlined text-lg">delete</span>
-                              Delete
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
+                    dataset={dataset}
+                    openMenuId={openMenuId}
+                    menuPosition={menuPosition}
+                    menuRef={menuRef}
+                    onToggleMenu={handleToggleMenu}
+                    onCloseMenu={handleCloseMenu}
+                    onOpenEditPanel={openEditPanel}
+                  />
                 ))
               )}
             </tbody>

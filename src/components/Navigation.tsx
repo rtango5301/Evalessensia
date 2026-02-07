@@ -2,13 +2,13 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Layers, Menu, X, LayoutDashboard, Settings, LogOut } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { LandingProfileDropdown } from '@/components/ui/landing-profile-dropdown';
 import { signOut } from '@/app/login/actions';
-import { ComingSoonBanner } from '@/components/ui/coming-soon-banner';
 
 const navLinks = [
   { href: '#', label: 'Docs' },
@@ -50,7 +50,7 @@ export function Navigation({ user: initialUser }: NavigationProps) {
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<AuthUser>(initialUser ?? null);
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const [showComingSoon, setShowComingSoon] = useState(false);
+
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -69,45 +69,65 @@ export function Navigation({ user: initialUser }: NavigationProps) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      const newUser = session?.user
-        ? {
-            id: session.user.id,
-            email: session.user.email,
-            name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || null,
-            avatarUrl: session.user.user_metadata?.avatar_url || null,
-          }
-        : null;
-      setUser(newUser);
-    });
+    } = supabase.auth.onAuthStateChange(
+      (
+        _event: string,
+        session: {
+          user?: { id: string; email?: string; user_metadata?: Record<string, string> };
+        } | null
+      ) => {
+        const newUser = session?.user
+          ? {
+              id: session.user.id,
+              email: session.user.email,
+              name:
+                session.user.user_metadata?.full_name || session.user.user_metadata?.name || null,
+              avatarUrl: session.user.user_metadata?.avatar_url || null,
+            }
+          : null;
+        setUser(newUser);
+      }
+    );
 
     return () => subscription.unsubscribe();
   }, []);
 
+  const rafRef = useRef<number | null>(null);
+
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      if (rafRef.current) return;
+      rafRef.current = requestAnimationFrame(() => {
+        setScrolled(window.scrollY > 20);
 
-      // Detect active section
-      const sections = navLinks
-        .filter((link) => link.href.startsWith('#') && link.href !== '#')
-        .map((link) => link.href.slice(1));
+        // Detect active section
+        const sections = navLinks
+          .filter((link) => link.href.startsWith('#') && link.href !== '#')
+          .map((link) => link.href.slice(1));
 
-      for (const section of sections.reverse()) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 100) {
-            setActiveSection(section);
-            return;
+        for (const section of sections.reverse()) {
+          const element = document.getElementById(section);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            if (rect.top <= 100) {
+              setActiveSection(section);
+              rafRef.current = null;
+              return;
+            }
           }
         }
-      }
-      setActiveSection('');
+        setActiveSection('');
+        rafRef.current = null;
+      });
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
   }, []);
 
   return (
@@ -189,14 +209,6 @@ export function Navigation({ user: initialUser }: NavigationProps) {
                   Sign In
                 </motion.button>
               </Link>
-              <motion.button
-                whileHover={{ scale: 1.02, y: -1 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setShowComingSoon(true)}
-                className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg text-[15px] font-semibold transition-all shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/30"
-              >
-                Start Free Trial
-              </motion.button>
             </>
           )}
         </div>
@@ -250,9 +262,11 @@ export function Navigation({ user: initialUser }: NavigationProps) {
                 {/* User Info Header */}
                 <div className="flex items-center gap-3 px-4 py-3 mb-2 bg-[var(--bg-subtle)] rounded-lg">
                   {user.avatarUrl ? (
-                    <img
+                    <Image
                       src={user.avatarUrl}
                       alt={`${user.name || 'User'}'s avatar`}
+                      width={40}
+                      height={40}
                       className="size-10 rounded-full object-cover"
                     />
                   ) : (
@@ -300,21 +314,11 @@ export function Navigation({ user: initialUser }: NavigationProps) {
                     Sign In
                   </button>
                 </Link>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setShowComingSoon(true);
-                  }}
-                  className="w-full py-3 bg-[var(--primary)] text-white rounded-lg text-base font-semibold hover:bg-[var(--primary-dark)] transition-colors"
-                >
-                  Start Free Trial
-                </button>
               </>
             )}
           </div>
         </div>
       </motion.div>
-      <ComingSoonBanner show={showComingSoon} onClose={() => setShowComingSoon(false)} />
     </motion.nav>
   );
 }

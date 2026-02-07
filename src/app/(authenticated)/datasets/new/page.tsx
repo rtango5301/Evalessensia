@@ -2,10 +2,11 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { OrDivider } from '@/components/ui/or-divider';
-import { MCPMarketplaceModal, MCP_SERVERS } from '@/components/ui/mcp-marketplace-modal';
+import { MCP_SERVERS } from '@/components/ui/mcp-marketplace-modal';
 import { TestConnectionButton } from '@/components/ui/test-connection-button';
 import { useCreateDataset } from '@/hooks/use-datasets';
 import { uploadDatasetFile, StorageError } from '@/lib/supabase/storage';
@@ -14,6 +15,11 @@ import type {
   CreateDatasetUploadedRequest,
   MCPServer,
 } from '@/lib/api/types';
+
+const MCPMarketplaceModal = dynamic(
+  () => import('@/components/ui/mcp-marketplace-modal').then((mod) => mod.MCPMarketplaceModal),
+  { ssr: false }
+);
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
 

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 interface User {
@@ -70,9 +71,11 @@ export function ProfileDropdown({ user, onLogout }: ProfileDropdownProps) {
         aria-label="Open profile menu"
       >
         {user.avatarUrl ? (
-          <img
+          <Image
             src={user.avatarUrl}
             alt={`${user.name}'s avatar`}
+            width={32}
+            height={32}
             className="size-8 rounded-full object-cover"
           />
         ) : (

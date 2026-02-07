@@ -12,7 +12,7 @@ export function AuthenticatedShell({ children }: AuthenticatedShellProps) {
   return (
     <div
       className="flex min-h-screen w-full bg-[#f6f6f8]"
-      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+      style={{ fontFamily: 'var(--font-space-grotesk), sans-serif' }}
     >
       <Sidebar />
 

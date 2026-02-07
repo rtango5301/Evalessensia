@@ -1,13 +1,15 @@
+import dynamic from 'next/dynamic';
 import { Navigation } from '@/components/Navigation';
 import { Hero } from '@/components/Hero';
-import { Demo } from '@/components/Demo';
-import { Workflow } from '@/components/Workflow';
-import { Features } from '@/components/Features';
-import { UseCases } from '@/components/UseCases';
-import { Pricing } from '@/components/Pricing';
-import { CTA } from '@/components/CTA';
-import { Footer } from '@/components/Footer';
 import { createClient } from '@/lib/supabase/server';
+
+const Demo = dynamic(() => import('@/components/Demo').then((mod) => mod.Demo));
+const Workflow = dynamic(() => import('@/components/Workflow').then((mod) => mod.Workflow));
+const Features = dynamic(() => import('@/components/Features').then((mod) => mod.Features));
+const UseCases = dynamic(() => import('@/components/UseCases').then((mod) => mod.UseCases));
+const Pricing = dynamic(() => import('@/components/Pricing').then((mod) => mod.Pricing));
+const CTA = dynamic(() => import('@/components/CTA').then((mod) => mod.CTA));
+const Footer = dynamic(() => import('@/components/Footer').then((mod) => mod.Footer));
 
 export default async function Home() {
   const supabase = await createClient();
