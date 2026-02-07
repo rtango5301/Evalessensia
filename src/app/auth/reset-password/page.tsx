@@ -3,7 +3,8 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Zap, Lock, Eye, EyeOff, AlertCircle, CheckCircle, Check } from 'lucide-react';
+import { Lock, Eye, EyeOff, AlertCircle, CheckCircle, Check } from 'lucide-react';
+import { Logo } from '@/components/logo';
 import { useState, useMemo, useTransition, useEffect } from 'react';
 import { updatePassword } from '@/app/login/actions';
 import { createClient } from '@/lib/supabase/client';
@@ -102,11 +103,8 @@ export default function ResetPasswordPage() {
           className="w-full max-w-[440px] bg-white rounded-3xl shadow-xl p-10"
         >
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 mb-8 justify-center">
-            <div className="w-10 h-10 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] rounded-xl flex items-center justify-center text-white">
-              <Zap className="w-5 h-5" />
-            </div>
-            <span className="font-bold text-xl text-[var(--foreground)]">TensorEval</span>
+          <Link href="/" className="flex items-center mb-8 justify-center">
+            <Logo size="md" />
           </Link>
 
           <div className="text-center">
@@ -138,11 +136,8 @@ export default function ResetPasswordPage() {
         className="w-full max-w-[440px] bg-white rounded-3xl shadow-xl p-10"
       >
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 mb-8 justify-center">
-          <div className="w-10 h-10 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] rounded-xl flex items-center justify-center text-white">
-            <Zap className="w-5 h-5" />
-          </div>
-          <span className="font-bold text-xl text-[var(--foreground)]">TensorEval</span>
+        <Link href="/" className="flex items-center mb-8 justify-center">
+          <Logo size="md" />
         </Link>
 
         {/* Header */}
