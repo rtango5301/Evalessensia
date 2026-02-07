@@ -1,8 +1,12 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { ComingSoonBanner } from '@/components/ui/coming-soon-banner';
 
 export function CTA() {
+  const [showComingSoon, setShowComingSoon] = useState(false);
+
   return (
     <section className="py-14 lg:py-[90px] px-4 sm:px-6 lg:px-8 bg-[var(--bg-subtle)]">
       <div className="max-w-[1080px] mx-auto">
@@ -24,6 +28,7 @@ export function CTA() {
             <motion.button
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => setShowComingSoon(true)}
               className="px-6 py-3 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg font-semibold text-sm transition-all shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/30"
             >
               Start Your Free Trial
@@ -38,6 +43,7 @@ export function CTA() {
           </div>
         </motion.div>
       </div>
+      <ComingSoonBanner show={showComingSoon} onClose={() => setShowComingSoon(false)} />
     </section>
   );
 }

@@ -4,10 +4,11 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Layers, Menu, X, LayoutDashboard, Settings, LogOut } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { LandingProfileDropdown } from '@/components/ui/landing-profile-dropdown';
 import { signOut } from '@/app/login/actions';
+import { ComingSoonBanner } from '@/components/ui/coming-soon-banner';
 
 const navLinks = [
   { href: '#', label: 'Docs' },
@@ -49,6 +50,7 @@ export function Navigation({ user: initialUser }: NavigationProps) {
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<AuthUser>(initialUser ?? null);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -187,15 +189,14 @@ export function Navigation({ user: initialUser }: NavigationProps) {
                   Sign In
                 </motion.button>
               </Link>
-              <Link href="/signup">
-                <motion.button
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg text-[15px] font-semibold transition-all shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/30"
-                >
-                  Start Free Trial
-                </motion.button>
-              </Link>
+              <motion.button
+                whileHover={{ scale: 1.02, y: -1 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowComingSoon(true)}
+                className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg text-[15px] font-semibold transition-all shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/30"
+              >
+                Start Free Trial
+              </motion.button>
             </>
           )}
         </div>
@@ -299,16 +300,21 @@ export function Navigation({ user: initialUser }: NavigationProps) {
                     Sign In
                   </button>
                 </Link>
-                <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
-                  <button className="w-full py-3 bg-[var(--primary)] text-white rounded-lg text-base font-semibold hover:bg-[var(--primary-dark)] transition-colors">
-                    Start Free Trial
-                  </button>
-                </Link>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setShowComingSoon(true);
+                  }}
+                  className="w-full py-3 bg-[var(--primary)] text-white rounded-lg text-base font-semibold hover:bg-[var(--primary-dark)] transition-colors"
+                >
+                  Start Free Trial
+                </button>
               </>
             )}
           </div>
         </div>
       </motion.div>
+      <ComingSoonBanner show={showComingSoon} onClose={() => setShowComingSoon(false)} />
     </motion.nav>
   );
 }

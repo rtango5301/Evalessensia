@@ -2,6 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
+import { useState } from 'react';
+import { ComingSoonBanner } from '@/components/ui/coming-soon-banner';
 
 const pricingPlans = [
   {
@@ -48,6 +50,8 @@ const pricingPlans = [
 ];
 
 export function Pricing() {
+  const [showComingSoon, setShowComingSoon] = useState(false);
+
   return (
     <section
       id="pricing"
@@ -129,6 +133,7 @@ export function Pricing() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowComingSoon(true)}
                   className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all ${
                     plan.featured
                       ? 'bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white shadow-sm hover:shadow-md hover:shadow-[var(--primary)]/30'
@@ -142,6 +147,7 @@ export function Pricing() {
           ))}
         </div>
       </div>
+      <ComingSoonBanner show={showComingSoon} onClose={() => setShowComingSoon(false)} />
     </section>
   );
 }
