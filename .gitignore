@@ -49,6 +49,19 @@ next-env.d.ts
 # Claude Code
 .claude/
 
+# macOS duplicate files (from parallel Claude Code sessions)
+*\ [0-9].ts
+*\ [0-9].tsx
+*\ [0-9].js
+*\ [0-9].jsx
+*\ [0-9].json
+*\ [0-9].css
+*\ [0-9].md
+*\ copy.ts
+*\ copy.tsx
+*\ copy.js
+*\ copy.jsx
+
 # Playwright MCP
 .playwright-mcp/
 

@@ -27,7 +27,7 @@ export function AuthenticatedHeader() {
   const pageTitle = getPageTitle(pathname);
 
   return (
-    <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-2 h-14 shrink-0 z-20">
+    <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-2 h-14 shrink-0 z-20 sticky top-0">
       <div className="flex items-center gap-4">
         <button className="md:hidden text-slate-500 hover:text-slate-700">
           <span className="material-symbols-outlined">menu</span>

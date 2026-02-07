@@ -12,12 +12,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 npm run dev          # Start development server at localhost:3000
+npm run dev:clean    # Clear .next cache and start dev server (use if Turbopack corrupts)
 npm run build        # Production build
 npm run start        # Start production server
 npm run lint         # Run ESLint
 npm run typecheck    # Run TypeScript type checking
 npm run format       # Format code with Prettier
 npm run format:check # Check if code is formatted
+```
+
+## Environment Setup
+
+Copy `.env.example` to `.env.local` and configure:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=      # From Supabase dashboard > Settings > API
+NEXT_PUBLIC_SUPABASE_ANON_KEY= # Public anon key
+SUPABASE_SERVICE_ROLE_KEY=     # Service role key (server-side only)
+TENSOREVALS_BACKEND_URL=       # TensorEvals API endpoint
+TENSOREVALS_BACKEND_API_KEY=   # Backend API key
 ```
 
 ## Code Quality
