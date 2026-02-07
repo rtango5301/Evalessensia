@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { Logo } from '@/components/logo';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -18,12 +19,8 @@ export function Sidebar() {
       <div className="flex flex-col h-full p-4">
         {/* Logo */}
         <div className="flex flex-col mb-8 px-2 mt-2">
-          <Link
-            href="/dashboard"
-            className="text-slate-900 text-xl font-bold leading-normal tracking-tight flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined text-[#135bec] text-3xl">hub</span>
-            TensorEval
+          <Link href="/dashboard" className="flex items-center">
+            <Logo variant="dashboard" size="md" />
           </Link>
         </div>
 

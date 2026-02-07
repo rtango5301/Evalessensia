@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
-  Zap,
   Check,
   Mail,
   Lock,
@@ -17,6 +16,7 @@ import {
   AlertCircle,
   CheckCircle,
 } from 'lucide-react';
+import { Logo } from '@/components/logo';
 import { useState, useMemo, useTransition, Suspense } from 'react';
 import { signInWithEmail, signUpWithEmail, signInWithOAuth } from './actions';
 
@@ -144,11 +144,8 @@ function AuthPageContent() {
         {/* Left Side - Branding */}
         <div className="p-10 lg:p-14 bg-gradient-to-br from-[#1a1f3c] to-[#0d1025] flex flex-col justify-center">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 mb-10">
-            <div className="w-10 h-10 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] rounded-xl flex items-center justify-center text-white">
-              <Zap className="w-5 h-5" />
-            </div>
-            <span className="font-bold text-xl text-white">TensorEval</span>
+          <Link href="/" className="flex items-center mb-10">
+            <Logo variant="light" size="md" />
           </Link>
 
           {/* Heading */}
