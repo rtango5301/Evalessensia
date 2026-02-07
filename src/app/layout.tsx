@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, IBM_Plex_Mono } from 'next/font/google';
+import { Inter, IBM_Plex_Mono, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import { ToastProvider } from '@/components/ui/toast-context';
 import { Toast } from '@/components/ui/toast';
@@ -12,6 +12,13 @@ const inter = Inter({
 
 const ibmPlexMono = IBM_Plex_Mono({
   variable: '--font-ibm-plex-mono',
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  display: 'swap',
+});
+
+const spaceGrotesk = Space_Grotesk({
+  variable: '--font-space-grotesk',
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   display: 'swap',
@@ -71,19 +78,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Preconnect to Google Fonts for Material Symbols */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* Material Symbols for dashboard icons */}
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
         />
-        {/* Space Grotesk for dashboard typography */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
-        />
       </head>
       <body
-        className={`${inter.variable} ${ibmPlexMono.variable} font-sans antialiased`}
+        className={`${inter.variable} ${ibmPlexMono.variable} ${spaceGrotesk.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
         <ToastProvider>

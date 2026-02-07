@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { SlideOverPanel } from '@/components/ui/slide-over-panel';
 import { useEvaluations, useDeleteEvaluation } from '@/hooks/use-evaluations';
@@ -84,6 +84,138 @@ function TableSkeleton() {
   );
 }
 
+// Memoized table row component to avoid unnecessary re-renders
+interface EvaluationRowProps {
+  run: Evaluation;
+  openMenuId: string | null;
+  menuPosition: { top: number; left: number } | null;
+  menuRef: React.RefObject<HTMLDivElement | null>;
+  onToggleMenu: (runId: string, rect: DOMRect) => void;
+  onCloseMenu: () => void;
+  onOpenDeletePanel: (run: Evaluation) => void;
+}
+
+const EvaluationRow = React.memo(function EvaluationRow({
+  run,
+  openMenuId,
+  menuPosition,
+  menuRef,
+  onToggleMenu,
+  onCloseMenu,
+  onOpenDeletePanel,
+}: EvaluationRowProps) {
+  const uiStatus = mapStatus(run.status);
+  const passRate = run.results_summary ? (run.results_summary.pass_rate * 100).toFixed(1) : null;
+  const completed = run.results_summary
+    ? run.results_summary.passed_count + run.results_summary.failed_count
+    : 0;
+  const total = run.results_summary?.total_count || 0;
+
+  return (
+    <tr
+      className="hover:bg-slate-50 transition-colors cursor-pointer"
+      onClick={() => (window.location.href = `/evaluations/${run.id}`)}
+    >
+      <td className="px-6 py-4">
+        <span className="text-sm font-medium text-slate-900">{run.name}</span>
+      </td>
+      <td className="px-6 py-4">
+        <span
+          className={cn(
+            'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
+            getStatusBadgeStyles(uiStatus)
+          )}
+        >
+          {uiStatus === 'running' && (
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+            </span>
+          )}
+          {getStatusLabel(uiStatus)}
+        </span>
+      </td>
+      <td className="px-6 py-4">
+        <span className="text-sm text-slate-600">{formatRelativeTime(run.created_at)}</span>
+      </td>
+      <td className="px-6 py-4 text-right">
+        {uiStatus === 'running' ? (
+          <div className="flex flex-col items-end gap-1">
+            <span className="text-sm text-slate-400">
+              {completed}/{total}
+            </span>
+            {total > 0 && (
+              <div className="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-blue-500 rounded-full transition-all"
+                  style={{ width: `${(completed / total) * 100}%` }}
+                />
+              </div>
+            )}
+          </div>
+        ) : passRate !== null ? (
+          <span
+            className={`text-sm font-bold ${
+              parseFloat(passRate) >= 80
+                ? 'text-green-600'
+                : parseFloat(passRate) >= 60
+                  ? 'text-amber-600'
+                  : 'text-red-600'
+            }`}
+          >
+            {passRate}%
+          </span>
+        ) : (
+          <span className="text-sm text-slate-400">--</span>
+        )}
+      </td>
+      <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+        <div className="relative inline-block" ref={openMenuId === run.id ? menuRef : null}>
+          <button
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              onToggleMenu(run.id, rect);
+            }}
+            className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+          >
+            <span className="material-symbols-outlined text-xl">more_vert</span>
+          </button>
+          {openMenuId === run.id && menuPosition && (
+            <div
+              className="fixed w-52 bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 py-2 z-50 animate-dropdown"
+              style={{ top: menuPosition.top, left: menuPosition.left }}
+            >
+              <Link
+                href={`/evaluations/${run.id}`}
+                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg mx-2 transition-all"
+                onClick={onCloseMenu}
+              >
+                <span className="material-symbols-outlined text-lg">visibility</span>
+                View Details
+              </Link>
+              <button
+                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg mx-2 transition-all w-full text-left opacity-50 cursor-not-allowed"
+                disabled
+              >
+                <span className="material-symbols-outlined text-lg">download</span>
+                Export
+              </button>
+              <div className="border-t border-slate-100 my-2 mx-2"></div>
+              <button
+                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg mx-2 transition-all w-full text-left"
+                onClick={() => onOpenDeletePanel(run)}
+              >
+                <span className="material-symbols-outlined text-lg">delete</span>
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+});
+
 export default function EvaluationsPage() {
   const { evaluations, isLoading, error, refetch } = useEvaluations();
   const { deleteEvaluation, isDeleting } = useDeleteEvaluation();
@@ -111,12 +243,33 @@ export default function EvaluationsPage() {
   }, []);
 
   // Open delete panel for an evaluation run
-  const openDeletePanel = (run: Evaluation) => {
+  const openDeletePanel = useCallback((run: Evaluation) => {
     setDeletingRun(run);
     setDeleteConfirm(false);
     setOpenMenuId(null);
     setMenuPosition(null);
-  };
+  }, []);
+
+  // Toggle context menu for a row
+  const handleToggleMenu = useCallback((runId: string, rect: DOMRect) => {
+    setOpenMenuId((prev) => {
+      if (prev === runId) {
+        setMenuPosition(null);
+        return null;
+      }
+      setMenuPosition({
+        top: rect.bottom + 8,
+        left: rect.right - 208,
+      });
+      return runId;
+    });
+  }, []);
+
+  // Close context menu
+  const handleCloseMenu = useCallback(() => {
+    setOpenMenuId(null);
+    setMenuPosition(null);
+  }, []);
 
   // Close delete panel
   const closeDeletePanel = () => {
@@ -329,137 +482,18 @@ export default function EvaluationsPage() {
                   </td>
                 </tr>
               ) : (
-                filteredRuns.map((run) => {
-                  const uiStatus = mapStatus(run.status);
-                  const passRate = run.results_summary
-                    ? (run.results_summary.pass_rate * 100).toFixed(1)
-                    : null;
-                  const completed = run.results_summary
-                    ? run.results_summary.passed_count + run.results_summary.failed_count
-                    : 0;
-                  const total = run.results_summary?.total_count || 0;
-
-                  return (
-                    <tr
-                      key={run.id}
-                      className="hover:bg-slate-50 transition-colors cursor-pointer"
-                      onClick={() => (window.location.href = `/evaluations/${run.id}`)}
-                    >
-                      <td className="px-6 py-4">
-                        <span className="text-sm font-medium text-slate-900">{run.name}</span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={cn(
-                            'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
-                            getStatusBadgeStyles(uiStatus)
-                          )}
-                        >
-                          {uiStatus === 'running' && (
-                            <span className="relative flex h-2 w-2">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                            </span>
-                          )}
-                          {getStatusLabel(uiStatus)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm text-slate-600">
-                          {formatRelativeTime(run.created_at)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        {uiStatus === 'running' ? (
-                          <div className="flex flex-col items-end gap-1">
-                            <span className="text-sm text-slate-400">
-                              {completed}/{total}
-                            </span>
-                            {total > 0 && (
-                              <div className="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                                <div
-                                  className="h-full bg-blue-500 rounded-full transition-all"
-                                  style={{ width: `${(completed / total) * 100}%` }}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        ) : passRate !== null ? (
-                          <span
-                            className={`text-sm font-bold ${
-                              parseFloat(passRate) >= 80
-                                ? 'text-green-600'
-                                : parseFloat(passRate) >= 60
-                                  ? 'text-amber-600'
-                                  : 'text-red-600'
-                            }`}
-                          >
-                            {passRate}%
-                          </span>
-                        ) : (
-                          <span className="text-sm text-slate-400">--</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
-                        <div
-                          className="relative inline-block"
-                          ref={openMenuId === run.id ? menuRef : null}
-                        >
-                          <button
-                            onClick={(e) => {
-                              if (openMenuId === run.id) {
-                                setOpenMenuId(null);
-                                setMenuPosition(null);
-                              } else {
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                setMenuPosition({
-                                  top: rect.bottom + 8,
-                                  left: rect.right - 208,
-                                });
-                                setOpenMenuId(run.id);
-                              }
-                            }}
-                            className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-xl">more_vert</span>
-                          </button>
-                          {openMenuId === run.id && menuPosition && (
-                            <div
-                              className="fixed w-52 bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 py-2 z-50 animate-dropdown"
-                              style={{ top: menuPosition.top, left: menuPosition.left }}
-                            >
-                              <Link
-                                href={`/evaluations/${run.id}`}
-                                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg mx-2 transition-all"
-                                onClick={() => setOpenMenuId(null)}
-                              >
-                                <span className="material-symbols-outlined text-lg">
-                                  visibility
-                                </span>
-                                View Details
-                              </Link>
-                              <button
-                                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg mx-2 transition-all w-full text-left opacity-50 cursor-not-allowed"
-                                disabled
-                              >
-                                <span className="material-symbols-outlined text-lg">download</span>
-                                Export
-                              </button>
-                              <div className="border-t border-slate-100 my-2 mx-2"></div>
-                              <button
-                                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg mx-2 transition-all w-full text-left"
-                                onClick={() => openDeletePanel(run)}
-                              >
-                                <span className="material-symbols-outlined text-lg">delete</span>
-                                Delete
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
+                filteredRuns.map((run) => (
+                  <EvaluationRow
+                    key={run.id}
+                    run={run}
+                    openMenuId={openMenuId}
+                    menuPosition={menuPosition}
+                    menuRef={menuRef}
+                    onToggleMenu={handleToggleMenu}
+                    onCloseMenu={handleCloseMenu}
+                    onOpenDeletePanel={openDeletePanel}
+                  />
+                ))
               )}
             </tbody>
           </table>

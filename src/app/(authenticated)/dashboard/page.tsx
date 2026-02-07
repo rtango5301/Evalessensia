@@ -492,7 +492,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Datasets Section */}
-      <div className="flex flex-col gap-4 mt-2">
+      <div className="flex flex-col gap-4">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -507,11 +507,11 @@ export default function DashboardPage() {
             </div>
           </div>
           <Link
-            href="/datasets/new"
-            className="flex items-center gap-2 bg-[#135bec] hover:bg-[#135bec]/90 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-sm shadow-[#135bec]/30 w-fit"
+            href="/datasets"
+            className="text-sm font-medium text-[#135bec] hover:underline flex items-center gap-1"
           >
-            <span className="material-symbols-outlined text-xl">add</span>
-            New Dataset
+            View All
+            <span className="material-symbols-outlined text-base">arrow_forward</span>
           </Link>
         </div>
 

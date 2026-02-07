@@ -387,58 +387,120 @@ function ConfigureScreen() {
 }
 
 function QueryGeneratorScreen() {
-  const capabilities = [
-    { name: 'DOM Tree Access', checked: true },
-    { name: 'Event Listeners', checked: true },
-    { name: 'Network Intercept', checked: true },
+  // Agent configurations for all 3 agent types
+  const agents = [
+    {
+      name: 'Browser Agent',
+      iconBg: '#e0f2fe',
+      iconColor: '#0ea5e9',
+      capabilities: ['DOM Tree Access', 'Event Listeners', 'Network Intercept'],
+      icon: (
+        <svg
+          className="w-3 h-3"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+          />
+        </svg>
+      ),
+    },
+    {
+      name: 'Coding Agent',
+      iconBg: '#fef3c7',
+      iconColor: '#f59e0b',
+      capabilities: ['Code Generation', 'Bug Detection', 'Refactoring'],
+      icon: (
+        <svg
+          className="w-3 h-3"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"
+          />
+        </svg>
+      ),
+    },
+    {
+      name: 'Data Analyst Agent',
+      iconBg: '#dbeafe',
+      iconColor: '#3b82f6',
+      capabilities: ['Data Processing', 'Statistical Analysis', 'Visualization'],
+      icon: (
+        <svg
+          className="w-3 h-3"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"
+          />
+        </svg>
+      ),
+    },
   ];
 
+  // Generic dataset chips that span all agent types
   const datasets = [
     {
       icon: (
-        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+            d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
           />
         </svg>
       ),
-      label: 'E-comm',
+      label: 'APIs',
       active: false,
     },
     {
       icon: (
-        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
       ),
-      label: 'Forms',
-      active: false,
-    },
-    {
-      icon: (
-        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
-        </svg>
-      ),
-      label: 'Nav',
+      label: 'Files',
       active: true,
+    },
+    {
+      icon: (
+        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
+          />
+        </svg>
+      ),
+      label: 'Database',
+      active: false,
     },
   ];
 
+  // Mixed output queries - one from each agent type
   const outputQueries = [
     {
       category: 'Shopping Flow',
@@ -446,95 +508,87 @@ function QueryGeneratorScreen() {
       query: 'Add item to cart and initiate checkout process',
     },
     {
-      category: 'Navigation',
-      categoryColor: '#22c55e',
-      query: 'Locate return policy link in footer area',
+      category: 'Code Review',
+      categoryColor: '#8b5cf6',
+      query: 'Analyze function for security vulnerabilities',
     },
     {
-      category: 'Form Interaction',
-      categoryColor: '#ef4444',
-      query: 'Populate shipping address with saved profile',
+      category: 'Trend Analysis',
+      categoryColor: '#3b82f6',
+      query: 'Identify seasonal patterns in sales data',
     },
   ];
 
   return (
     <>
       <WindowHeader title="Synthetic Query Generation" />
-      <div className="h-[calc(100%-44px)] flex bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] overflow-hidden px-4 py-2">
+      <div className="h-[calc(100%-44px)] flex bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] overflow-hidden px-3 py-2">
         {/* Three Column Layout */}
-        <div className="flex-1 grid grid-cols-[0.85fr_1.3fr_1fr] gap-3 items-center">
-          {/* Left Column - Browser Agent Card */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            whileHover={{ scale: 1.02, boxShadow: '0 8px 25px rgba(0,0,0,0.08)' }}
-            transition={{ type: 'spring', stiffness: 300 }}
-            className="bg-white rounded-xl border border-gray-100 p-3 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
-          >
-            {/* Agent Header */}
-            <div className="flex items-center gap-2.5 mb-3">
+        <div className="flex-1 grid grid-cols-[0.8fr_1.3fr_1fr] gap-2 items-center">
+          {/* Left Column - Stacked Agent Cards */}
+          <div className="flex flex-col gap-1.5 justify-center">
+            {agents.map((agent, agentIdx) => (
               <motion.div
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                className="w-9 h-9 bg-[#e0f2fe] rounded-xl flex items-center justify-center"
+                key={agent.name}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                whileHover={{ scale: 1.02, boxShadow: '0 8px 25px rgba(0,0,0,0.08)' }}
+                transition={{ type: 'spring', stiffness: 300, delay: agentIdx * 0.1 }}
+                className="bg-white rounded-lg border border-gray-100 p-1.5 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
               >
-                <svg
-                  className="w-4 h-4 text-[#0ea5e9]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-                  />
-                </svg>
-              </motion.div>
-              <div>
-                <h4 className="text-[12px] font-bold text-gray-900">Browser Agent</h4>
-                <div className="flex items-center gap-1">
-                  <motion.span
-                    animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    className="w-1.5 h-1.5 rounded-full bg-[#22c55e]"
-                  />
-                  <p className="text-[10px] text-gray-400">Status: Active</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Capabilities */}
-            <div className="space-y-2">
-              {capabilities.map((cap, idx) => (
-                <motion.div
-                  key={cap.name}
-                  initial={{ opacity: 0, x: -15 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 + idx * 0.15, type: 'spring' }}
-                  className="flex items-center gap-2"
-                >
+                {/* Agent Header */}
+                <div className="flex items-center gap-1.5 mb-1">
                   <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.5 + idx * 0.15, type: 'spring', stiffness: 500 }}
-                    className="w-4 h-4 rounded-full bg-[#22c55e] flex items-center justify-center"
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                      delay: agentIdx * 0.3,
+                    }}
+                    className="w-5 h-5 rounded-md flex items-center justify-center"
+                    style={{ backgroundColor: agent.iconBg }}
                   >
-                    <Check className="w-2 h-2 text-white" strokeWidth={3} />
+                    <span style={{ color: agent.iconColor }}>{agent.icon}</span>
                   </motion.div>
-                  <span className="text-[11px] text-gray-600">{cap.name}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-[9px] font-bold text-gray-900 truncate">{agent.name}</h4>
+                    <div className="flex items-center gap-0.5">
+                      <motion.span
+                        animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
+                        transition={{ duration: 1.5, repeat: Infinity, delay: agentIdx * 0.2 }}
+                        className="w-1 h-1 rounded-full bg-[#22c55e]"
+                      />
+                      <p className="text-[7px] text-gray-400">Active</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Capabilities - compact text list */}
+                <div className="flex flex-wrap gap-x-1.5 gap-y-0 pl-0.5">
+                  {agent.capabilities.map((cap, idx) => (
+                    <motion.span
+                      key={cap}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.3 + agentIdx * 0.1 + idx * 0.05 }}
+                      className="text-[7px] text-gray-500"
+                    >
+                      • {cap}
+                    </motion.span>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
 
           {/* Center Column - Processing Engine */}
           <div className="flex flex-col items-center relative px-2">
-            {/* Animated dashed line from left card */}
-            <svg className="absolute left-0 top-1/2 -translate-y-1/2 w-6 h-12 -ml-1 overflow-visible">
+            {/* Animated dashed lines from left cards (Browser, Coding, Data Analyst) */}
+            <svg className="absolute left-0 top-1/2 -translate-y-1/2 w-6 h-36 -ml-1 overflow-visible">
+              {/* Top line - from Browser Agent */}
               <motion.path
-                d="M 24 24 L 0 24"
+                d="M 0 5 Q 8 5, 16 22 L 24 58"
                 fill="none"
                 stroke="#c7d2fe"
                 strokeWidth="2"
@@ -543,20 +597,66 @@ function QueryGeneratorScreen() {
                 animate={{ pathLength: 1 }}
                 transition={{ duration: 0.8, ease: 'easeOut' }}
               />
-              {/* Animated dot */}
+              {/* Middle line - from Coding Agent */}
+              <motion.path
+                d="M 0 72 L 24 72"
+                fill="none"
+                stroke="#c7d2fe"
+                strokeWidth="2"
+                strokeDasharray="5 4"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
+              />
+              {/* Bottom line - from Data Analyst Agent */}
+              <motion.path
+                d="M 0 139 Q 8 139, 16 122 L 24 86"
+                fill="none"
+                stroke="#c7d2fe"
+                strokeWidth="2"
+                strokeDasharray="5 4"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+              />
+              {/* Animated dot for top line */}
               <motion.circle
-                r="3"
+                r="2.5"
                 fill="#7c3aed"
-                animate={{ cx: [0, 24], cy: [24, 24] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                initial={{ opacity: 0 }}
+                animate={{
+                  cx: [0, 12, 24],
+                  cy: [5, 14, 58],
+                  opacity: [0, 1, 0],
+                }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              {/* Animated dot for middle line */}
+              <motion.circle
+                r="2.5"
+                fill="#7c3aed"
+                animate={{ cx: [0, 24], cy: [72, 72] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: 0.5, ease: 'easeInOut' }}
+              />
+              {/* Animated dot for bottom line */}
+              <motion.circle
+                r="2.5"
+                fill="#7c3aed"
+                initial={{ opacity: 0 }}
+                animate={{
+                  cx: [0, 12, 24],
+                  cy: [139, 130, 86],
+                  opacity: [0, 1, 0],
+                }}
+                transition={{ duration: 2, repeat: Infinity, delay: 1, ease: 'easeInOut' }}
               />
             </svg>
 
             {/* Animated dashed lines to right cards */}
-            <svg className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-44 -mr-1 overflow-visible">
+            <svg className="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-36 -mr-1 overflow-visible">
               {/* Top line */}
               <motion.path
-                d="M 0 35 Q 15 35, 25 15 L 32 5"
+                d="M 0 30 Q 10 30, 18 12 L 24 4"
                 fill="none"
                 stroke="#c7d2fe"
                 strokeWidth="2"
@@ -567,7 +667,7 @@ function QueryGeneratorScreen() {
               />
               {/* Middle line */}
               <motion.path
-                d="M 0 88 L 32 88"
+                d="M 0 72 L 24 72"
                 fill="none"
                 stroke="#c7d2fe"
                 strokeWidth="2"
@@ -578,7 +678,7 @@ function QueryGeneratorScreen() {
               />
               {/* Bottom line */}
               <motion.path
-                d="M 0 141 Q 15 141, 25 161 L 32 171"
+                d="M 0 114 Q 10 114, 18 132 L 24 140"
                 fill="none"
                 stroke="#c7d2fe"
                 strokeWidth="2"
@@ -589,34 +689,34 @@ function QueryGeneratorScreen() {
               />
               {/* Animated dots on lines */}
               <motion.circle
-                r="2.5"
+                r="2"
                 fill="#7c3aed"
                 initial={{ opacity: 0 }}
                 animate={{
-                  cx: [0, 16, 32],
-                  cy: [35, 25, 5],
+                  cx: [0, 12, 24],
+                  cy: [30, 21, 4],
                   opacity: [0, 1, 0],
                 }}
                 transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
               />
               <motion.circle
-                r="2.5"
+                r="2"
                 fill="#7c3aed"
                 initial={{ opacity: 0 }}
                 animate={{
-                  cx: [0, 16, 32],
-                  cy: [88, 88, 88],
+                  cx: [0, 12, 24],
+                  cy: [72, 72, 72],
                   opacity: [0, 1, 0],
                 }}
                 transition={{ duration: 2, repeat: Infinity, delay: 1 }}
               />
               <motion.circle
-                r="2.5"
+                r="2"
                 fill="#7c3aed"
                 initial={{ opacity: 0 }}
                 animate={{
-                  cx: [0, 16, 32],
-                  cy: [141, 151, 171],
+                  cx: [0, 12, 24],
+                  cy: [114, 123, 140],
                   opacity: [0, 1, 0],
                 }}
                 transition={{ duration: 2, repeat: Infinity, delay: 1.5 }}
@@ -631,7 +731,7 @@ function QueryGeneratorScreen() {
                 y: 0,
                 boxShadow: [
                   '0 0 0 0 rgba(124, 58, 237, 0.4)',
-                  '0 0 0 8px rgba(124, 58, 237, 0)',
+                  '0 0 0 6px rgba(124, 58, 237, 0)',
                   '0 0 0 0 rgba(124, 58, 237, 0.4)',
                 ],
               }}
@@ -640,7 +740,7 @@ function QueryGeneratorScreen() {
                 y: { duration: 0.3 },
                 boxShadow: { duration: 2, repeat: Infinity },
               }}
-              className="px-3 py-1 bg-[#7c3aed] text-white text-[9px] font-bold uppercase tracking-wider rounded-full mb-2 z-20"
+              className="px-2 py-0.5 bg-[#7c3aed] text-white text-[8px] font-bold uppercase tracking-wider rounded-full mb-1.5 z-20"
             >
               Processing Engine
             </motion.div>
@@ -650,17 +750,17 @@ function QueryGeneratorScreen() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
-              className="bg-white rounded-xl border-2 border-dashed border-gray-200 p-3 w-full"
+              className="bg-white rounded-lg border-2 border-dashed border-gray-200 p-2 w-full"
             >
               {/* Gear Icon with rotation */}
-              <div className="flex justify-center mb-3">
+              <div className="flex justify-center mb-2">
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-                  className="w-12 h-12 rounded-full border-2 border-[#c7d2fe] flex items-center justify-center bg-[#f5f3ff]"
+                  className="w-10 h-10 rounded-full border-2 border-[#c7d2fe] flex items-center justify-center bg-[#f5f3ff]"
                 >
                   <svg
-                    className="w-6 h-6 text-[#7c3aed]"
+                    className="w-5 h-5 text-[#7c3aed]"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -681,15 +781,15 @@ function QueryGeneratorScreen() {
               </div>
 
               {/* Pipeline Status */}
-              <div className="mb-3">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] font-medium text-gray-600">Synthesis Pipeline</span>
-                  <span className="text-[10px] font-semibold">
+              <div className="mb-2">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[9px] font-medium text-gray-600">Synthesis Pipeline</span>
+                  <span className="text-[8px] font-semibold">
                     <span className="text-[#7c3aed]">STEP</span>{' '}
                     <span className="text-gray-400">03/04</span>
                   </span>
                 </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: '75%' }}
@@ -707,7 +807,7 @@ function QueryGeneratorScreen() {
               </div>
 
               {/* Dataset Chips */}
-              <div className="flex justify-center gap-1.5">
+              <div className="flex justify-center gap-1">
                 {datasets.map((ds, idx) => (
                   <motion.div
                     key={ds.label}
@@ -715,7 +815,7 @@ function QueryGeneratorScreen() {
                     animate={{ opacity: 1, y: 0 }}
                     whileHover={{ scale: 1.05 }}
                     transition={{ delay: 0.5 + idx * 0.1 }}
-                    className={`flex items-center gap-1 px-2 py-1.5 rounded-full text-[9px] font-medium border cursor-pointer transition-colors ${
+                    className={`flex items-center gap-0.5 px-1.5 py-1 rounded-full text-[7px] font-medium border cursor-pointer transition-colors ${
                       ds.active
                         ? 'bg-[#dcfce7] border-[#86efac] text-[#15803d]'
                         : 'bg-white border-gray-200 text-gray-500 hover:border-gray-300'
@@ -732,7 +832,7 @@ function QueryGeneratorScreen() {
           </div>
 
           {/* Right Column - Output Queue */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             {outputQueries.map((item, idx) => (
               <motion.div
                 key={item.category}
@@ -744,14 +844,14 @@ function QueryGeneratorScreen() {
                   x: -3,
                 }}
                 transition={{ delay: 0.4 + idx * 0.15, type: 'spring', stiffness: 300 }}
-                className="bg-white rounded-xl border border-gray-100 p-2.5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] relative cursor-pointer"
+                className="bg-white rounded-lg border border-gray-100 p-2 shadow-[0_2px_8px_rgba(0,0,0,0.04)] relative cursor-pointer"
               >
                 {/* Category Badge */}
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.6 + idx * 0.15, type: 'spring', stiffness: 500 }}
-                  className="inline-block px-2 py-0.5 rounded text-[9px] font-semibold mb-1"
+                  className="inline-block px-1.5 py-0.5 rounded text-[8px] font-semibold mb-0.5"
                   style={{
                     backgroundColor: `${item.categoryColor}15`,
                     color: item.categoryColor,
@@ -760,15 +860,15 @@ function QueryGeneratorScreen() {
                   {item.category}
                 </motion.div>
                 {/* Query Text */}
-                <p className="text-[10px] text-gray-600 leading-relaxed pr-5">{item.query}</p>
+                <p className="text-[9px] text-gray-600 leading-relaxed pr-4">{item.query}</p>
                 {/* Animated Checkmark */}
                 <motion.div
                   initial={{ scale: 0, rotate: -180 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ delay: 0.8 + idx * 0.15, type: 'spring', stiffness: 500 }}
-                  className="absolute top-2.5 right-2.5 w-4 h-4 rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm"
+                  className="absolute top-2 right-2 w-3.5 h-3.5 rounded-full bg-[#22c55e] flex items-center justify-center shadow-sm"
                 >
-                  <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+                  <Check className="w-2 h-2 text-white" strokeWidth={3} />
                 </motion.div>
               </motion.div>
             ))}
@@ -778,19 +878,21 @@ function QueryGeneratorScreen() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.2 }}
-              className="flex items-center gap-1.5 pl-1 mt-1"
+              className="flex items-center gap-1 pl-0.5 mt-0.5"
             >
               <motion.div className="flex gap-0.5">
                 {[0, 1, 2].map((i) => (
                   <motion.span
                     key={i}
-                    animate={{ y: [0, -3, 0], opacity: [0.3, 1, 0.3] }}
+                    animate={{ y: [0, -2, 0], opacity: [0.3, 1, 0.3] }}
                     transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
-                    className="w-1 h-1 rounded-full bg-gray-400"
+                    className="w-0.5 h-0.5 rounded-full bg-gray-400"
                   />
                 ))}
               </motion.div>
-              <span className="text-[10px] text-gray-400 italic">Analyzing next browser state</span>
+              <span className="text-[8px] text-gray-400 italic">
+                Generating synthetic queries...
+              </span>
             </motion.div>
           </div>
         </div>

@@ -2,6 +2,9 @@
 
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { WaitlistDialog } from '@/components/ui/waitlist-dialog';
 
 const pricingPlans = [
   {
@@ -48,6 +51,9 @@ const pricingPlans = [
 ];
 
 export function Pricing() {
+  const [showWaitlist, setShowWaitlist] = useState(false);
+  const router = useRouter();
+
   return (
     <section
       id="pricing"
@@ -116,32 +122,29 @@ export function Pricing() {
                 ))}
               </ul>
 
-              {plan.cta === 'Contact Sales' ? (
-                <motion.a
-                  href="mailto:contact@tensoreval.com"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="block w-full py-2.5 rounded-lg font-semibold text-sm text-center transition-all bg-white hover:bg-[var(--primary)] text-[var(--foreground)] hover:text-white border border-[var(--border)] hover:border-[var(--primary)] hover:shadow-md hover:shadow-[var(--primary)]/30"
-                >
-                  {plan.cta}
-                </motion.a>
-              ) : (
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all ${
-                    plan.featured
-                      ? 'bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white shadow-sm hover:shadow-md hover:shadow-[var(--primary)]/30'
-                      : 'bg-white hover:bg-[var(--primary)] text-[var(--foreground)] hover:text-white border border-[var(--border)] hover:border-[var(--primary)] hover:shadow-md hover:shadow-[var(--primary)]/30'
-                  }`}
-                >
-                  {plan.cta}
-                </motion.button>
-              )}
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => {
+                  if (plan.cta === 'Start Free') {
+                    router.push('/login');
+                  } else {
+                    setShowWaitlist(true);
+                  }
+                }}
+                className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all ${
+                  plan.featured
+                    ? 'bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white shadow-sm hover:shadow-md hover:shadow-[var(--primary)]/30'
+                    : 'bg-white hover:bg-[var(--primary)] text-[var(--foreground)] hover:text-white border border-[var(--border)] hover:border-[var(--primary)] hover:shadow-md hover:shadow-[var(--primary)]/30'
+                }`}
+              >
+                {plan.cta}
+              </motion.button>
             </motion.div>
           ))}
         </div>
       </div>
+      <WaitlistDialog open={showWaitlist} onClose={() => setShowWaitlist(false)} />
     </section>
   );
 }

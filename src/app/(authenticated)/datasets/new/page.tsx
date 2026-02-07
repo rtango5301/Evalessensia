@@ -2,10 +2,11 @@
 
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { OrDivider } from '@/components/ui/or-divider';
-import { MCPMarketplaceModal, MCP_SERVERS } from '@/components/ui/mcp-marketplace-modal';
+import { MCP_SERVERS } from '@/components/ui/mcp-marketplace-modal';
 import { TestConnectionButton } from '@/components/ui/test-connection-button';
 import { useCreateDataset } from '@/hooks/use-datasets';
 import { uploadDatasetFile, StorageError } from '@/lib/supabase/storage';
@@ -14,6 +15,11 @@ import type {
   CreateDatasetUploadedRequest,
   MCPServer,
 } from '@/lib/api/types';
+
+const MCPMarketplaceModal = dynamic(
+  () => import('@/components/ui/mcp-marketplace-modal').then((mod) => mod.MCPMarketplaceModal),
+  { ssr: false }
+);
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
 
@@ -39,7 +45,6 @@ export default function NewDatasetPage() {
   const [generateDatasetDescription, setGenerateDatasetDescription] = useState('');
   const [agentName, setAgentName] = useState('');
   const [agentDescription, setAgentDescription] = useState('');
-  const [capabilities, setCapabilities] = useState('');
   const [queryCount, setQueryCount] = useState(50);
 
   // MCP state (UI only for now)
@@ -607,23 +612,6 @@ export default function NewDatasetPage() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            {/* Capabilities (Optional) */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Capabilities <span className="text-slate-400 font-normal">(Optional)</span>
-              </label>
-              <input
-                type="text"
-                value={capabilities}
-                onChange={(e) => setCapabilities(e.target.value)}
-                placeholder="e.g., answer questions, process refunds, escalate issues"
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
-              />
-              <p className="text-xs text-slate-500 mt-1.5">
-                Comma-separated list of agent capabilities
-              </p>
             </div>
 
             {/* Query Count */}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense, useMemo } from 'react';
+import { useState, useEffect, Suspense, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -126,6 +126,10 @@ function NewEvaluationWizardContent() {
   const [selectedMCPServers, setSelectedMCPServers] = useState<string[]>([]);
   const [isMcpModalOpen, setIsMcpModalOpen] = useState(false);
 
+  // Inline title editing state
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
   // Dataset selection state
   const [datasetSelection, setDatasetSelection] = useState<DatasetSelection>({
     type: 'existing',
@@ -159,11 +163,15 @@ function NewEvaluationWizardContent() {
     window.history.replaceState({}, '', url.toString());
   }, [currentStep]);
 
-  const canProceedFromAgent =
-    agentConfig.evaluationName &&
-    agentConfig.name &&
-    agentConfig.description &&
-    agentConfig.agentUrl;
+  // Focus title input when editing starts
+  useEffect(() => {
+    if (isEditingTitle && titleInputRef.current) {
+      titleInputRef.current.focus();
+      titleInputRef.current.select();
+    }
+  }, [isEditingTitle]);
+
+  const canProceedFromAgent = agentConfig.name && agentConfig.description && agentConfig.agentUrl;
   const canProceedFromDataset = datasetSelection.type === 'new' || datasetSelection.existingId;
 
   const handleNext = () => {
@@ -250,7 +258,40 @@ function NewEvaluationWizardContent() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">New Evaluation</h1>
+          {isEditingTitle ? (
+            <input
+              ref={titleInputRef}
+              type="text"
+              value={agentConfig.evaluationName}
+              onChange={(e) => setAgentConfig({ ...agentConfig, evaluationName: e.target.value })}
+              onBlur={() => {
+                setIsEditingTitle(false);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === 'Escape') {
+                  setIsEditingTitle(false);
+                }
+              }}
+              placeholder="Eval-123"
+              className="text-3xl font-bold text-slate-900 tracking-tight bg-slate-100 px-3 py-1 -mx-3 -my-1 rounded-lg border border-slate-200 outline-none focus:ring-2 focus:ring-[#135bec]/30 focus:border-[#135bec] transition-all w-full max-w-md placeholder:text-slate-400 placeholder:font-normal"
+              aria-label="Evaluation name"
+            />
+          ) : (
+            <button
+              onClick={() => setIsEditingTitle(true)}
+              className="group flex items-center gap-2 text-left px-3 py-1 -mx-3 -my-1 rounded-lg hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#135bec] focus-visible:ring-offset-2 transition-colors"
+              aria-label="Edit evaluation name"
+            >
+              <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+                {agentConfig.evaluationName || (
+                  <span className="text-slate-400 font-normal">Eval-123</span>
+                )}
+              </h1>
+              <span className="material-symbols-outlined text-xl text-slate-400 opacity-0 group-hover:opacity-100 group-hover:text-[#135bec] transition-all">
+                edit
+              </span>
+            </button>
+          )}
           <p className="text-slate-500 text-sm mt-1">
             Configure your agent and select a dataset to evaluate.
           </p>
@@ -725,7 +766,9 @@ function NewEvaluationWizardContent() {
                       Evaluation Name
                     </label>
                     <p className="text-sm font-medium text-slate-900 mt-1">
-                      {agentConfig.evaluationName}
+                      {agentConfig.evaluationName || (
+                        <span className="text-slate-400 italic">Untitled</span>
+                      )}
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">

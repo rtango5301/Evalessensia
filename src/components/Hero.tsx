@@ -33,7 +33,7 @@ const itemVariants = {
 
 export function Hero() {
   return (
-    <section className="pt-[72px] pb-[54px] px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[var(--bg-subtle)] to-[var(--background)]">
+    <section className="pt-[72px] pb-[54px] px-6 sm:px-8 lg:px-12 bg-gradient-to-b from-[var(--bg-subtle)] to-[var(--background)]">
       <div className="max-w-[1400px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-7 lg:gap-8 items-center">
           {/* Left Content */}
@@ -52,19 +52,17 @@ export function Hero() {
             {/* Headline - Big, Clean, Confident */}
             <motion.h1
               variants={itemVariants}
-              className="text-[2.75rem] md:text-[3.5rem] lg:text-[4rem] font-extrabold leading-[1.05] mb-5 tracking-tight"
+              className="text-[2.75rem] md:text-[3.5rem] lg:text-[4rem] font-extrabold leading-[1.1] mb-4 tracking-tight"
             >
-              CI/CD for
-              <br />
-              <span className="text-[var(--primary)]">Agentic</span>
-              <br />
-              <span className="text-[var(--primary)]">Workflows</span>
+              <span className="block">CI/CD for</span>
+              <span className="block text-[var(--primary)]">Agentic</span>
+              <span className="block text-[var(--primary)]">Workflows</span>
             </motion.h1>
 
             {/* Subheadline */}
             <motion.div
               variants={itemVariants}
-              className="mb-6 max-w-[480px] px-5 py-3 rounded-lg bg-[#f0f0f5] border-l-[3px] border-l-[var(--primary)]"
+              className="mb-5 max-w-[500px] px-5 py-3 rounded-lg bg-[#f0f0f5] border-l-[3px] border-l-[var(--primary)]"
             >
               <p className="text-base text-[#6b7280] leading-relaxed">
                 Ship agent improvements in hours, not weeks. Automated evals. Instant feedback.{' '}
@@ -73,7 +71,7 @@ export function Hero() {
             </motion.div>
 
             {/* Features List - Emphasize titles, de-emphasize descriptions */}
-            <motion.div variants={itemVariants} className="space-y-3 mb-6 max-w-[480px]">
+            <motion.div variants={itemVariants} className="space-y-3 mb-5 max-w-[500px]">
               {[
                 {
                   icon: GitBranch,
@@ -112,13 +110,6 @@ export function Hero() {
             {/* CTA Buttons */}
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3">
               <motion.button
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg font-semibold text-sm transition-all shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/30"
-              >
-                Start Free Trial
-              </motion.button>
-              <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-[var(--bg-subtle)] text-[var(--foreground)] border border-[var(--border)] rounded-lg font-semibold text-sm transition-colors"
@@ -146,7 +137,7 @@ export function Hero() {
               </div>
             </div>
             {/* Desktop - Full Version - Scaled to fit */}
-            <div className="hidden lg:block lg:scale-[0.92] xl:scale-100 origin-top-left">
+            <div className="hidden lg:block lg:scale-[0.85] xl:scale-[0.95] 2xl:scale-100 origin-top-left">
               <EvaluationDashboard />
             </div>
           </motion.div>

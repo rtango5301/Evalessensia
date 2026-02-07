@@ -3,13 +3,18 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { signOut } from '@/app/login/actions';
-import type { AuthUser } from '@/contexts/user-context';
 
-interface AuthProfileDropdownProps {
-  user: AuthUser;
+interface User {
+  name: string;
+  role: string;
+  avatarUrl?: string;
+  email?: string;
+}
+
+interface ProfileDropdownProps {
+  user: User;
+  onLogout?: () => void;
 }
 
 /**
@@ -24,11 +29,9 @@ function getInitials(name: string): string {
   return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 }
 
-export function AuthProfileDropdown({ user }: AuthProfileDropdownProps) {
+export function ProfileDropdown({ user, onLogout }: ProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   // Click-outside detection to close dropdown
   useEffect(() => {
@@ -52,12 +55,9 @@ export function AuthProfileDropdown({ user }: AuthProfileDropdownProps) {
     return () => document.removeEventListener('keydown', handleEscape);
   }, []);
 
-  const handleLogout = async () => {
-    setIsLoggingOut(true);
+  const handleLogout = () => {
     setIsOpen(false);
-    await signOut();
-    router.push('/');
-    router.refresh();
+    onLogout?.();
   };
 
   return (
@@ -95,7 +95,8 @@ export function AuthProfileDropdown({ user }: AuthProfileDropdownProps) {
           {/* User Info Header */}
           <div className="px-3 py-2 border-b border-slate-200">
             <p className="text-sm font-medium text-slate-900 truncate">{user.name}</p>
-            <p className="text-xs text-slate-500 truncate">{user.email}</p>
+            {user.email && <p className="text-xs text-slate-500 truncate">{user.email}</p>}
+            <p className="text-xs text-slate-400 mt-0.5">{user.role}</p>
           </div>
 
           {/* Menu Items */}
@@ -120,16 +121,14 @@ export function AuthProfileDropdown({ user }: AuthProfileDropdownProps) {
           {/* Logout */}
           <button
             onClick={handleLogout}
-            disabled={isLoggingOut}
             className={cn(
               'flex items-center gap-2 px-3 py-2 text-sm w-full text-left',
-              'text-red-600 hover:bg-red-50 transition-colors',
-              isLoggingOut && 'opacity-50 cursor-not-allowed'
+              'text-red-600 hover:bg-red-50 transition-colors'
             )}
             role="menuitem"
           >
             <span className="material-symbols-outlined text-base">logout</span>
-            {isLoggingOut ? 'Signing out...' : 'Sign out'}
+            Logout
           </button>
         </div>
       )}

@@ -1,1 +1,12 @@
+# Check for macOS duplicate files before committing
+duplicates=$(git diff --cached --name-only | grep -E ' [0-9]\.(ts|tsx|js|jsx|json|css|md)$| copy\.(ts|tsx|js|jsx)$' || true)
+if [ -n "$duplicates" ]; then
+  echo "❌ Duplicate files detected (likely from parallel Claude Code sessions):"
+  echo "$duplicates"
+  echo ""
+  echo "Please resolve these duplicates before committing."
+  echo "Usually you want to delete the ' 2.tsx' versions."
+  exit 1
+fi
+
 npx lint-staged

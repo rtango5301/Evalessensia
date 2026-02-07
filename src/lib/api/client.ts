@@ -37,15 +37,45 @@ export class ApiError extends Error {
 }
 
 /**
+ * In-memory token cache to avoid calling supabase.auth.getSession() on every request
+ */
+let cachedToken: string | null = null;
+let tokenExpiresAt: number = 0;
+
+/**
+ * Clears the cached auth token. Call this on logout.
+ */
+export function clearTokenCache() {
+  cachedToken = null;
+  tokenExpiresAt = 0;
+}
+
+/**
  * Gets the current user's JWT access token from Supabase
+ * Uses an in-memory cache to avoid redundant getSession() calls
  * @returns The access token or null if not authenticated
  */
 async function getAccessToken(): Promise<string | null> {
+  const now = Date.now();
+  if (cachedToken && now < tokenExpiresAt) {
+    return cachedToken;
+  }
+
   const supabase = createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  return session?.access_token ?? null;
+
+  if (session?.access_token) {
+    cachedToken = session.access_token;
+    // Cache until 60 seconds before expiry (session.expires_at is in seconds)
+    tokenExpiresAt = session.expires_at ? session.expires_at * 1000 - 60000 : now + 4 * 60 * 1000; // default 4 min cache
+  } else {
+    cachedToken = null;
+    tokenExpiresAt = 0;
+  }
+
+  return cachedToken;
 }
 
 /**

@@ -2,9 +2,10 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Layers, Menu, X, LayoutDashboard, Settings, LogOut } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { LandingProfileDropdown } from '@/components/ui/landing-profile-dropdown';
 import { signOut } from '@/app/login/actions';
@@ -49,7 +50,18 @@ export function Navigation({ user: initialUser }: NavigationProps) {
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<AuthUser>(initialUser ?? null);
   const [isSigningOut, setIsSigningOut] = useState(false);
+
   const router = useRouter();
+
+  const handleSignOut = async () => {
+    if (isSigningOut) return;
+    setIsSigningOut(true);
+    setMobileMenuOpen(false);
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    await signOut();
+    router.refresh();
+  };
 
   // Listen for auth state changes (logout in another tab, etc.)
   useEffect(() => {
@@ -57,45 +69,65 @@ export function Navigation({ user: initialUser }: NavigationProps) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      const newUser = session?.user
-        ? {
-            id: session.user.id,
-            email: session.user.email,
-            name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || null,
-            avatarUrl: session.user.user_metadata?.avatar_url || null,
-          }
-        : null;
-      setUser(newUser);
-    });
+    } = supabase.auth.onAuthStateChange(
+      (
+        _event: string,
+        session: {
+          user?: { id: string; email?: string; user_metadata?: Record<string, string> };
+        } | null
+      ) => {
+        const newUser = session?.user
+          ? {
+              id: session.user.id,
+              email: session.user.email,
+              name:
+                session.user.user_metadata?.full_name || session.user.user_metadata?.name || null,
+              avatarUrl: session.user.user_metadata?.avatar_url || null,
+            }
+          : null;
+        setUser(newUser);
+      }
+    );
 
     return () => subscription.unsubscribe();
   }, []);
 
+  const rafRef = useRef<number | null>(null);
+
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      if (rafRef.current) return;
+      rafRef.current = requestAnimationFrame(() => {
+        setScrolled(window.scrollY > 20);
 
-      // Detect active section
-      const sections = navLinks
-        .filter((link) => link.href.startsWith('#') && link.href !== '#')
-        .map((link) => link.href.slice(1));
+        // Detect active section
+        const sections = navLinks
+          .filter((link) => link.href.startsWith('#') && link.href !== '#')
+          .map((link) => link.href.slice(1));
 
-      for (const section of sections.reverse()) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 100) {
-            setActiveSection(section);
-            return;
+        for (const section of sections.reverse()) {
+          const element = document.getElementById(section);
+          if (element) {
+            const rect = element.getBoundingClientRect();
+            if (rect.top <= 100) {
+              setActiveSection(section);
+              rafRef.current = null;
+              return;
+            }
           }
         }
-      }
-      setActiveSection('');
+        setActiveSection('');
+        rafRef.current = null;
+      });
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
   }, []);
 
   return (
@@ -172,18 +204,9 @@ export function Navigation({ user: initialUser }: NavigationProps) {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-4 py-2 text-[var(--text-secondary)] hover:text-[var(--foreground)] text-[15px] font-medium transition-colors rounded-lg hover:bg-[var(--bg-subtle)]"
-                >
-                  Sign In
-                </motion.button>
-              </Link>
-              <Link href="/signup">
-                <motion.button
-                  whileHover={{ scale: 1.02, y: -1 }}
-                  whileTap={{ scale: 0.98 }}
                   className="px-5 py-2.5 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg text-[15px] font-semibold transition-all shadow-sm hover:shadow-lg hover:shadow-[var(--primary)]/30"
                 >
-                  Start Free Trial
+                  Sign In
                 </motion.button>
               </Link>
             </>
@@ -239,9 +262,11 @@ export function Navigation({ user: initialUser }: NavigationProps) {
                 {/* User Info Header */}
                 <div className="flex items-center gap-3 px-4 py-3 mb-2 bg-[var(--bg-subtle)] rounded-lg">
                   {user.avatarUrl ? (
-                    <img
+                    <Image
                       src={user.avatarUrl}
                       alt={`${user.name || 'User'}'s avatar`}
+                      width={40}
+                      height={40}
                       className="size-10 rounded-full object-cover"
                     />
                   ) : (
@@ -274,14 +299,7 @@ export function Navigation({ user: initialUser }: NavigationProps) {
                 </Link>
 
                 <button
-                  onClick={async () => {
-                    if (isSigningOut) return;
-                    setIsSigningOut(true);
-                    setMobileMenuOpen(false);
-                    await signOut();
-                    router.push('/');
-                    router.refresh();
-                  }}
+                  onClick={handleSignOut}
                   disabled={isSigningOut}
                   className={`w-full py-3 text-red-600 border border-red-200 rounded-lg text-base font-medium hover:bg-red-50 transition-colors flex items-center justify-center gap-2 ${isSigningOut ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
@@ -292,13 +310,8 @@ export function Navigation({ user: initialUser }: NavigationProps) {
             ) : (
               <>
                 <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                  <button className="w-full py-3 text-[var(--foreground)] text-base font-semibold border border-[var(--border)] rounded-lg hover:bg-[var(--bg-subtle)] transition-colors">
+                  <button className="w-full py-3 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white text-base font-semibold rounded-lg transition-colors">
                     Sign In
-                  </button>
-                </Link>
-                <Link href="/signup" onClick={() => setMobileMenuOpen(false)}>
-                  <button className="w-full py-3 bg-[var(--primary)] text-white rounded-lg text-base font-semibold hover:bg-[var(--primary-dark)] transition-colors">
-                    Start Free Trial
                   </button>
                 </Link>
               </>

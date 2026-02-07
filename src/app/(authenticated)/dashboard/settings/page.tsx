@@ -4,6 +4,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/contexts/user-context';
 
@@ -84,9 +85,11 @@ export default function SettingsPage() {
       {/* Avatar Section */}
       <div className="flex items-center gap-4">
         {user.avatarUrl ? (
-          <img
+          <Image
             src={user.avatarUrl}
             alt={`${user.name}'s avatar`}
+            width={80}
+            height={80}
             className="size-20 rounded-full object-cover"
           />
         ) : (

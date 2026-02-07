@@ -1,9 +1,27 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Play } from 'lucide-react';
+import { Play, Pause } from 'lucide-react';
 
 export function Demo() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const togglePlay = () => {
+    if (!videoRef.current) return;
+    if (isPlaying) {
+      videoRef.current.pause();
+    } else {
+      videoRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleVideoEnd = () => {
+    setIsPlaying(false);
+  };
+
   return (
     <section
       id="demo"
@@ -25,7 +43,7 @@ export function Demo() {
             See it in action
           </h2>
           <p className="text-base lg:text-lg text-[var(--text-secondary)] max-w-[600px] mx-auto">
-            Watch how TensorEval evaluates your agent in under 10 seconds
+            Watch how TensorEval evaluates your agent in under 20 seconds
           </p>
         </motion.div>
 
@@ -37,29 +55,37 @@ export function Demo() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="max-w-[900px] mx-auto"
         >
-          <motion.div
-            whileHover={{ scale: 1.01 }}
-            className="bg-[var(--bg-muted)] rounded-xl p-4 sm:p-8 lg:p-12 cursor-pointer"
-          >
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="bg-white border-2 border-dashed border-[var(--border)] rounded-lg p-8 sm:p-12 lg:p-16 xl:p-20 text-center group"
+          <div className="relative rounded-xl overflow-hidden shadow-2xl shadow-black/10 bg-[#2d2d2d] cursor-pointer group">
+            <video
+              ref={videoRef}
+              src="/demo/demo.mp4"
+              playsInline
+              onEnded={handleVideoEnd}
+              onPause={() => setIsPlaying(false)}
+              onPlay={() => setIsPlaying(true)}
+              className="w-full aspect-video block"
+            />
+            {/* Play/Pause Overlay */}
+            <button
+              onClick={togglePlay}
+              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+                isPlaying ? 'opacity-0 hover:opacity-100 bg-black/10' : 'opacity-100 bg-black/30'
+              }`}
+              aria-label={isPlaying ? 'Pause video' : 'Play video'}
             >
               <motion.div
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
-                className="inline-flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 bg-[var(--primary)] rounded-full mb-4 lg:mb-6 group-hover:shadow-lg group-hover:shadow-[var(--primary)]/30 transition-shadow"
+                className="inline-flex items-center justify-center w-16 h-16 lg:w-20 lg:h-20 bg-[var(--primary)] rounded-full shadow-lg shadow-[var(--primary)]/30"
               >
-                <Play className="w-6 h-6 lg:w-8 lg:h-8 text-white ml-1" fill="white" />
+                {isPlaying ? (
+                  <Pause className="w-6 h-6 lg:w-8 lg:h-8 text-white" fill="white" />
+                ) : (
+                  <Play className="w-6 h-6 lg:w-8 lg:h-8 text-white ml-1" fill="white" />
+                )}
               </motion.div>
-              <p className="text-[var(--text-muted)] text-base lg:text-lg mb-2">
-                10-second product walkthrough video
-              </p>
-              <p className="text-[var(--text-muted)] text-xs lg:text-sm">
-                Configure → Generate Queries → Run Eval → View Results
-              </p>
-            </motion.div>
-          </motion.div>
+            </button>
+          </div>
         </motion.div>
       </div>
     </section>
