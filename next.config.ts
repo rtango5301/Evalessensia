@@ -16,6 +16,26 @@ if (process.env.NODE_ENV === 'production') {
 
 const nextConfig: NextConfig = {
   /* config options here */
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion'],
+  },
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.gravatar.com',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

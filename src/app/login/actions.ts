@@ -8,6 +8,16 @@ import { headers } from 'next/headers';
 const SUPABASE_NOT_CONFIGURED_ERROR =
   'Authentication is not configured. Please set up Supabase credentials.';
 
+async function getOrigin() {
+  const h = await headers();
+  const origin = h.get('origin');
+  if (origin) return origin;
+
+  const host = h.get('x-forwarded-host') || h.get('host') || 'localhost:3000';
+  const proto = h.get('x-forwarded-proto') || 'http';
+  return `${proto}://${host}`;
+}
+
 export async function signInWithEmail(formData: FormData) {
   const supabase = await createClient();
 
@@ -35,7 +45,7 @@ export async function signUpWithEmail(formData: FormData) {
     return { error: SUPABASE_NOT_CONFIGURED_ERROR };
   }
 
-  const origin = (await headers()).get('origin');
+  const origin = await getOrigin();
 
   const { error } = await supabase.auth.signUp({
     email: formData.get('email') as string,
@@ -62,7 +72,7 @@ export async function signInWithOAuth(provider: 'github' | 'google') {
     return { error: SUPABASE_NOT_CONFIGURED_ERROR };
   }
 
-  const origin = (await headers()).get('origin');
+  const origin = await getOrigin();
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
@@ -96,7 +106,7 @@ export async function requestPasswordReset(email: string) {
     return { error: SUPABASE_NOT_CONFIGURED_ERROR };
   }
 
-  const origin = (await headers()).get('origin');
+  const origin = await getOrigin();
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${origin}/auth/reset-password`,
