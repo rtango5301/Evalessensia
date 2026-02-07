@@ -1,8 +1,12 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { WaitlistDialog } from '@/components/ui/waitlist-dialog';
 
 export function CTA() {
+  const [showWaitlist, setShowWaitlist] = useState(false);
+
   return (
     <section className="py-14 lg:py-[90px] px-4 sm:px-6 lg:px-8 bg-[var(--bg-subtle)]">
       <div className="max-w-[1080px] mx-auto">
@@ -24,6 +28,7 @@ export function CTA() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => setShowWaitlist(true)}
               className="px-6 py-3 bg-white hover:bg-[var(--bg-subtle)] text-[var(--foreground)] border border-[var(--border)] rounded-lg font-semibold text-sm transition-colors"
             >
               Schedule a Demo
@@ -31,6 +36,7 @@ export function CTA() {
           </div>
         </motion.div>
       </div>
+      <WaitlistDialog open={showWaitlist} onClose={() => setShowWaitlist(false)} />
     </section>
   );
 }
