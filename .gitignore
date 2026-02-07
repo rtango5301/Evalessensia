@@ -62,8 +62,12 @@ next-env.d.ts
 *\ copy.js
 *\ copy.jsx
 
-# Playwright MCP
+# Playwright / E2E testing (do not push test artifacts to GitHub)
 .playwright-mcp/
+playwright.config.ts
+playwright-report/
+test-results/
+e2e/
 
 # Generated artifacts
 artifacts/

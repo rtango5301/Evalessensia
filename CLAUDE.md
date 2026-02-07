@@ -5,7 +5,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Important Rules
 
 - **Always ask for permission before running any git commands** (commit, push, checkout, merge, etc.)
-- **Always stop the dev server after every Playwright MCP test** - Use `pkill -f "next dev"` after completing E2E tests. If Turbopack cache gets corrupted, run `npm run dev:clean` to clear it
+- **Do NOT generate Playwright/E2E test files in this repo** - No `.spec.ts` files, no `playwright.config.ts`, no test screenshots. Playwright artifacts are gitignored and must never be committed. If the QA testing agent needs to run E2E tests, it should do so locally only and clean up after itself
+- **Always stop the dev server after any local test run** - Use `pkill -f "next dev"` after completing tests. If Turbopack cache gets corrupted, run `npm run dev:clean` to clear it
 - **Check for duplicate/conflict files at session start** - Scan for macOS duplicate files (patterns like `file 2.tsx`, `file 3.tsx`, `file copy.tsx`) and other file conflicts. Analyze them, compare with originals if present, and ask the user before cleaning up
 
 ## Commands
