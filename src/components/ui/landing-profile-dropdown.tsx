@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, LogOut, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { createClient } from '@/lib/supabase/client';
 import { signOut } from '@/app/login/actions';
 
 interface User {
@@ -67,8 +68,11 @@ export function LandingProfileDropdown({ user }: LandingProfileDropdownProps) {
     if (isLoggingOut) return;
     setIsLoggingOut(true);
     setIsOpen(false);
+    // Sign out client-side first so onAuthStateChange fires and clears UI state
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    // Then sign out server-side to invalidate the session cookie
     await signOut();
-    router.push('/');
     router.refresh();
   };
 

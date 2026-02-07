@@ -51,6 +51,16 @@ export function Navigation({ user: initialUser }: NavigationProps) {
   const [isSigningOut, setIsSigningOut] = useState(false);
   const router = useRouter();
 
+  const handleSignOut = async () => {
+    if (isSigningOut) return;
+    setIsSigningOut(true);
+    setMobileMenuOpen(false);
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    await signOut();
+    router.refresh();
+  };
+
   // Listen for auth state changes (logout in another tab, etc.)
   useEffect(() => {
     const supabase = createClient();
@@ -274,14 +284,7 @@ export function Navigation({ user: initialUser }: NavigationProps) {
                 </Link>
 
                 <button
-                  onClick={async () => {
-                    if (isSigningOut) return;
-                    setIsSigningOut(true);
-                    setMobileMenuOpen(false);
-                    await signOut();
-                    router.push('/');
-                    router.refresh();
-                  }}
+                  onClick={handleSignOut}
                   disabled={isSigningOut}
                   className={`w-full py-3 text-red-600 border border-red-200 rounded-lg text-base font-medium hover:bg-red-50 transition-colors flex items-center justify-center gap-2 ${isSigningOut ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
