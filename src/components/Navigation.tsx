@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Layers, Menu, X, LayoutDashboard, Settings, LogOut } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Settings, LogOut } from 'lucide-react';
+import { Logo } from '@/components/logo';
 import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { LandingProfileDropdown } from '@/components/ui/landing-profile-dropdown';
@@ -143,14 +144,8 @@ export function Navigation({ user: initialUser }: NavigationProps) {
     >
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 text-[var(--foreground)] no-underline">
-          <motion.div
-            whileHover={{ scale: 1.05, rotate: 5 }}
-            className="w-8 h-8 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] rounded-lg flex items-center justify-center text-white"
-          >
-            <Layers className="w-4 h-4" />
-          </motion.div>
-          <span className="font-bold text-lg">TensorEval</span>
+        <Link href="/" className="flex items-center text-[var(--foreground)] no-underline">
+          <Logo size="sm" />
         </Link>
 
         {/* Desktop Nav Links */}
