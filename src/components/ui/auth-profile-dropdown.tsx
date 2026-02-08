@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { signOut } from '@/app/login/actions';
+import { clearTokenCache } from '@/lib/api/client';
 import type { AuthUser } from '@/contexts/user-context';
 
 interface AuthProfileDropdownProps {
@@ -55,6 +56,7 @@ export function AuthProfileDropdown({ user }: AuthProfileDropdownProps) {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     setIsOpen(false);
+    clearTokenCache();
     await signOut();
     router.push('/');
     router.refresh();

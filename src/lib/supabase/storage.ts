@@ -23,7 +23,8 @@ export async function uploadDatasetFile(file: File): Promise<string> {
   }
 
   const supabase = createClient();
-  const fileName = `${Date.now()}-${file.name}`;
+  const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const fileName = `${crypto.randomUUID()}-${sanitizedName}`;
 
   const { data, error } = await supabase.storage
     .from('datasets')
@@ -33,7 +34,11 @@ export async function uploadDatasetFile(file: File): Promise<string> {
     throw new StorageError(`Upload failed: ${error.message}`);
   }
 
-  const { data: urlData } = supabase.storage.from('datasets').getPublicUrl(data.path);
-
-  return urlData.publicUrl;
+  const { data: urlData, error: urlError } = await supabase.storage
+    .from('datasets')
+    .createSignedUrl(data.path, 3600);
+  if (urlError || !urlData?.signedUrl) {
+    throw new Error('Failed to generate access URL for uploaded file');
+  }
+  return urlData.signedUrl;
 }

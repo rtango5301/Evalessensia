@@ -40,6 +40,31 @@ interface DatasetSelection {
   existingName?: string;
 }
 
+function isValidExternalUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return false;
+    const hostname = parsed.hostname.toLowerCase();
+    // Block internal/private addresses
+    if (
+      hostname === 'localhost' ||
+      hostname === '0.0.0.0' ||
+      hostname === '127.0.0.1' ||
+      hostname.startsWith('10.') ||
+      hostname.startsWith('192.168.') ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(hostname) ||
+      hostname === '169.254.169.254' ||
+      hostname.endsWith('.internal') ||
+      hostname.endsWith('.local')
+    ) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function WizardStepIndicator({ currentStep }: { currentStep: WizardStep }) {
   const steps: { key: WizardStep; label: string; icon: string }[] = [
     { key: 'agent', label: 'Configure Agent', icon: 'smart_toy' },
@@ -193,6 +218,16 @@ function NewEvaluationWizardContent() {
   const handleStartEvaluation = async () => {
     if (!datasetSelection.existingId) {
       showToast('Please select a dataset', 'error');
+      return;
+    }
+
+    if (agentConfig.agentUrl && !isValidExternalUrl(agentConfig.agentUrl)) {
+      showToast('Agent URL must be a valid external HTTP(S) URL', 'error');
+      return;
+    }
+
+    if (agentConfig.apiKey && agentConfig.apiKey.length > 256) {
+      showToast('API key exceeds maximum length of 256 characters', 'error');
       return;
     }
 

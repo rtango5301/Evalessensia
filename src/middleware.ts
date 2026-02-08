@@ -6,7 +6,7 @@ const PROTECTED_ROUTES = ['/dashboard', '/datasets', '/evaluations'];
 export async function middleware(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const devAuthBypass = process.env.DEV_AUTH_BYPASS === 'true';
 
   // Handle missing Supabase configuration
   if (!supabaseUrl || !supabaseAnonKey) {
@@ -14,11 +14,11 @@ export async function middleware(request: NextRequest) {
       request.nextUrl.pathname.startsWith(route)
     );
 
-    if (isDevelopment) {
-      // Development: allow bypass with warning
+    if (devAuthBypass) {
+      // Explicit dev bypass: allow access only when DEV_AUTH_BYPASS=true and Supabase is not configured
       if (isProtectedRoute) {
         console.warn(
-          `[DEV] Supabase not configured - auth bypassed for: ${request.nextUrl.pathname}`
+          `[DEV_AUTH_BYPASS] Supabase not configured and DEV_AUTH_BYPASS=true - auth bypassed for: ${request.nextUrl.pathname}`
         );
       }
       return NextResponse.next({ request });
@@ -78,5 +78,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|auth/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };
