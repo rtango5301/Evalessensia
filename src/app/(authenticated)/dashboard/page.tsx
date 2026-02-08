@@ -4,6 +4,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useEvaluations, useDeleteEvaluation } from '@/hooks/use-evaluations';
@@ -208,6 +209,7 @@ function ActionsDropdown({
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { evaluations, isLoading, error, refetch } = useEvaluations();
   const { deleteEvaluation, isDeleting } = useDeleteEvaluation();
   const {
@@ -401,7 +403,7 @@ export default function DashboardPage() {
                   <tr
                     key={evaluation.id}
                     className="hover:bg-slate-50 transition-colors cursor-pointer"
-                    onClick={() => (window.location.href = `/evaluations/${evaluation.id}`)}
+                    onClick={() => router.push(`/evaluations/${evaluation.id}`)}
                   >
                     <td className="px-6 py-4">
                       <div className="flex flex-col">

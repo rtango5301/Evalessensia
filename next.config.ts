@@ -2,7 +2,11 @@ import type { NextConfig } from 'next';
 
 // Build-time validation: ensure required env vars are set in production
 if (process.env.NODE_ENV === 'production') {
-  const requiredEnvVars = ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'];
+  const requiredEnvVars = [
+    'NEXT_PUBLIC_SUPABASE_URL',
+    'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+    'NEXT_PUBLIC_SITE_URL',
+  ];
 
   const missing = requiredEnvVars.filter((key) => !process.env[key]);
 
@@ -15,7 +19,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  productionBrowserSourceMaps: false,
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
@@ -32,9 +36,43 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '*.gravatar.com',
+        hostname: 'secure.gravatar.com',
       },
     ],
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value:
+              "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.googleusercontent.com https://lh3.googleusercontent.com https://secure.gravatar.com https://avatars.githubusercontent.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.hf.space;",
+          },
+        ],
+      },
+    ];
   },
 };
 

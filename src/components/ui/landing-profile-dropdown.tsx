@@ -9,6 +9,7 @@ import { Settings, LogOut, LayoutDashboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 import { signOut } from '@/app/login/actions';
+import { clearTokenCache } from '@/lib/api/client';
 
 interface User {
   id: string;
@@ -69,9 +70,10 @@ export function LandingProfileDropdown({ user }: LandingProfileDropdownProps) {
     if (isLoggingOut) return;
     setIsLoggingOut(true);
     setIsOpen(false);
+    clearTokenCache();
     // Sign out client-side first so onAuthStateChange fires and clears UI state
     const supabase = createClient();
-    await supabase.auth.signOut();
+    if (supabase) await supabase.auth.signOut();
     // Then sign out server-side to invalidate the session cookie
     await signOut();
     router.refresh();

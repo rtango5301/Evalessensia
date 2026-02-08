@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { SlideOverPanel } from '@/components/ui/slide-over-panel';
@@ -168,10 +169,11 @@ const DatasetRow = React.memo(function DatasetRow({
   onCloseMenu,
   onOpenEditPanel,
 }: DatasetRowProps) {
+  const router = useRouter();
   return (
     <tr
       className="hover:bg-slate-50 transition-colors cursor-pointer"
-      onClick={() => (window.location.href = `/datasets/${dataset.id}`)}
+      onClick={() => router.push(`/datasets/${dataset.id}`)}
     >
       <td className="px-6 py-4">
         <span className="text-sm font-medium text-slate-900">{dataset.name}</span>
