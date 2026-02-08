@@ -249,6 +249,7 @@ function AuthPageContent() {
                   <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
                     <AlertCircle className="w-4 h-4 flex-shrink-0" />
                     <span>
+                      {/* Strict equality prevents reflecting arbitrary URL params — do not change to {urlError} */}
                       {error ||
                         (urlError === 'auth_failed' && 'Authentication failed. Please try again.')}
                     </span>

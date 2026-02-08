@@ -108,16 +108,7 @@ export function Hero() {
             </motion.div>
 
             {/* CTA Buttons */}
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white hover:bg-[var(--bg-subtle)] text-[var(--foreground)] border border-[var(--border)] rounded-lg font-semibold text-sm transition-colors"
-              >
-                Schedule Demo
-                <ArrowRight className="w-4 h-4" />
-              </motion.button>
-            </motion.div>
+            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3" />
           </motion.div>
 
           {/* Right - Dashboard Mockup */}

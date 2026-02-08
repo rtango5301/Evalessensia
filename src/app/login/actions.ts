@@ -3,40 +3,98 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { headers } from 'next/headers';
+import { createServerClient } from '@supabase/ssr';
+import { cookies, headers } from 'next/headers';
+import { z } from 'zod';
 
 const SUPABASE_NOT_CONFIGURED_ERROR =
   'Authentication is not configured. Please set up Supabase credentials.';
 
+const signInSchema = z.object({
+  email: z.string().email('Invalid email address').max(254),
+  password: z.string().min(1, 'Password is required').max(128),
+});
+
+const signUpSchema = z.object({
+  email: z.string().email('Invalid email address').max(254),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(128)
+    .regex(/[A-Z]/, 'Password must contain an uppercase letter')
+    .regex(/[0-9!@#$%^&*]/, 'Password must contain a number or symbol'),
+  fullName: z.string().min(1).max(100).optional(),
+});
+
+const ALLOWED_PROVIDERS = ['google'] as const;
+type AllowedProvider = (typeof ALLOWED_PROVIDERS)[number];
+
+/**
+ * Create a Supabase client with explicit cookie handling (no try-catch).
+ * Used by signInWithEmail and signInWithOAuth where cookies MUST be written
+ * (session cookies and PKCE code verifier respectively).
+ */
+async function createAuthClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return null;
+  }
+
+  const cookieStore = await cookies();
+
+  return createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+      },
+    },
+  });
+}
+
 async function getOrigin() {
-  // Prefer explicit env var — eliminates header guessing in production
+  // NEXT_PUBLIC_SITE_URL should always be set in production to avoid
+  // relying on host headers which can be spoofed.
   if (process.env.NEXT_PUBLIC_SITE_URL) {
     return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '');
   }
 
+  // Fallback: construct from host headers (needed for local dev)
   const h = await headers();
-  const origin = h.get('origin');
-  if (origin) return origin;
-
   const host = h.get('x-forwarded-host') || h.get('host') || 'localhost:3000';
   const proto = (h.get('x-forwarded-proto') || 'http').split(',')[0].trim();
   return `${proto}://${host}`;
 }
 
 export async function signInWithEmail(formData: FormData) {
-  const supabase = await createClient();
+  const supabase = await createAuthClient();
 
   if (!supabase) {
     return { error: SUPABASE_NOT_CONFIGURED_ERROR };
   }
 
+  const parsed = signInSchema.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message };
+  }
+
   const { error } = await supabase.auth.signInWithPassword({
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
+    email: parsed.data.email,
+    password: parsed.data.password,
   });
 
   if (error) {
-    return { error: error.message };
+    if (error.message.includes('Invalid login credentials')) {
+      return { error: 'Invalid email or password.' };
+    }
+    return { error: 'An unexpected error occurred. Please try again.' };
   }
 
   revalidatePath('/', 'layout');
@@ -50,28 +108,44 @@ export async function signUpWithEmail(formData: FormData) {
     return { error: SUPABASE_NOT_CONFIGURED_ERROR };
   }
 
+  const parsed = signUpSchema.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+    fullName: formData.get('fullName') || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message };
+  }
+
   const origin = await getOrigin();
 
   const { error } = await supabase.auth.signUp({
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
+    email: parsed.data.email,
+    password: parsed.data.password,
     options: {
       emailRedirectTo: `${origin}/auth/callback`,
       data: {
-        full_name: formData.get('fullName') as string,
+        full_name: parsed.data.fullName,
       },
     },
   });
 
   if (error) {
-    return { error: error.message };
+    if (error.message.includes('User already registered')) {
+      return { error: 'An account with this email already exists.' };
+    }
+    return { error: 'An unexpected error occurred. Please try again.' };
   }
 
   return { success: 'Check your email to confirm your account' };
 }
 
 export async function signInWithOAuth(provider: 'github' | 'google') {
-  const supabase = await createClient();
+  if (!ALLOWED_PROVIDERS.includes(provider as AllowedProvider)) {
+    return { error: 'Unsupported authentication provider' };
+  }
+
+  const supabase = await createAuthClient();
 
   if (!supabase) {
     return { error: SUPABASE_NOT_CONFIGURED_ERROR };
@@ -128,6 +202,17 @@ export async function requestPasswordReset(email: string) {
 }
 
 export async function updatePassword(newPassword: string) {
+  const passwordSchema = z
+    .string()
+    .min(8)
+    .max(128)
+    .regex(/[A-Z]/, 'Must contain an uppercase letter')
+    .regex(/[0-9!@#$%^&*]/, 'Must contain a number or symbol');
+  const result = passwordSchema.safeParse(newPassword);
+  if (!result.success) {
+    return { success: false, error: result.error.issues[0].message };
+  }
+
   const supabase = await createClient();
 
   if (!supabase) {
@@ -139,7 +224,7 @@ export async function updatePassword(newPassword: string) {
   });
 
   if (error) {
-    return { error: error.message };
+    return { success: false, error: 'Failed to update password. Please try again.' };
   }
 
   return { success: 'Password updated successfully! Redirecting to dashboard...' };

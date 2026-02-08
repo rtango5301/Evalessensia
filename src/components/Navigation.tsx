@@ -10,6 +10,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { LandingProfileDropdown } from '@/components/ui/landing-profile-dropdown';
 import { signOut } from '@/app/login/actions';
+import { clearTokenCache } from '@/lib/api/client';
 
 const navLinks = [
   { href: '#', label: 'Docs' },
@@ -58,8 +59,9 @@ export function Navigation({ user: initialUser }: NavigationProps) {
     if (isSigningOut) return;
     setIsSigningOut(true);
     setMobileMenuOpen(false);
+    clearTokenCache();
     const supabase = createClient();
-    await supabase.auth.signOut();
+    if (supabase) await supabase.auth.signOut();
     await signOut();
     router.refresh();
   };
@@ -67,6 +69,7 @@ export function Navigation({ user: initialUser }: NavigationProps) {
   // Listen for auth state changes (logout in another tab, etc.)
   useEffect(() => {
     const supabase = createClient();
+    if (!supabase) return;
 
     const {
       data: { subscription },

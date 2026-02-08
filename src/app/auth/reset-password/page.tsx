@@ -35,10 +35,14 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const checkSession = async () => {
       const supabase = createClient();
+      if (!supabase) {
+        setIsValidSession(false);
+        return;
+      }
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setIsValidSession(!!session);
+        data: { user },
+      } = await supabase.auth.getUser();
+      setIsValidSession(!!user);
     };
     checkSession();
   }, []);
@@ -66,7 +70,7 @@ export default function ResetPasswordPage() {
       const result = await updatePassword(password);
       if (result?.error) {
         setError(result.error);
-      } else if (result?.success) {
+      } else if (result?.success && typeof result.success === 'string') {
         setSuccess(result.success);
         // Redirect to dashboard after a short delay
         setTimeout(() => {

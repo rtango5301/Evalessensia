@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main, development]
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -13,7 +16,8 @@ concurrency:
 env:
   # Placeholder values for build-time validation (non-functional, CI only)
   NEXT_PUBLIC_SUPABASE_URL: 'https://ci-placeholder.supabase.co'
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ci-placeholder-key'
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: 'placeholder-ci-only-not-a-real-key'
+  NEXT_PUBLIC_SITE_URL: 'https://ci-placeholder.example.com'
 
 # ====================
 # CI STRATEGY
