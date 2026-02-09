@@ -64,7 +64,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(targetUrl);
     }
 
-    console.error('[auth/callback] Code exchange failed:', exchangeError.message);
+    const allCookies = cookieStore.getAll();
+    const codeVerifierCookie = allCookies.find((c) => c.name.includes('code-verifier'));
+
+    console.error('[auth/callback] Code exchange failed:', {
+      message: exchangeError.message,
+      code: exchangeError.code,
+      redirectOrigin,
+      siteUrlSet: !!process.env.NEXT_PUBLIC_SITE_URL,
+      forwardedHost: request.headers.get('x-forwarded-host'),
+      hasCodeVerifierCookie: !!codeVerifierCookie,
+      cookieNames: allCookies.map((c) => c.name),
+    });
   }
 
   return NextResponse.redirect(`${redirectOrigin}/login?error=auth_failed`);
