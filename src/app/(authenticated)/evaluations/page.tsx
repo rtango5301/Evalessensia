@@ -107,7 +107,9 @@ const EvaluationRow = React.memo(function EvaluationRow({
 }: EvaluationRowProps) {
   const router = useRouter();
   const uiStatus = mapStatus(run.status);
-  const passRate = run.results_summary ? (run.results_summary.pass_rate * 100).toFixed(1) : null;
+  const passRate = run.results_summary
+    ? (run.results_summary.overall_score * 100).toFixed(1)
+    : null;
   const completed = run.results_summary
     ? run.results_summary.passed_count + run.results_summary.failed_count
     : 0;
@@ -561,14 +563,14 @@ export default function EvaluationsPage() {
                     <span className="text-sm text-slate-500">Score</span>
                     <span
                       className={`text-sm font-bold ${
-                        deletingRun.results_summary.pass_rate * 100 >= 80
+                        deletingRun.results_summary.overall_score * 100 >= 80
                           ? 'text-green-600'
-                          : deletingRun.results_summary.pass_rate * 100 >= 60
+                          : deletingRun.results_summary.overall_score * 100 >= 60
                             ? 'text-amber-600'
                             : 'text-red-600'
                       }`}
                     >
-                      {(deletingRun.results_summary.pass_rate * 100).toFixed(1)}%
+                      {(deletingRun.results_summary.overall_score * 100).toFixed(1)}%
                     </span>
                   </div>
                 )}
