@@ -82,5 +82,6 @@ artifacts/
 remotion-demo/
 
 # Demo video (rendered from remotion-demo)
+public/demo/*.mp4
 stitch/
 .stitch/
