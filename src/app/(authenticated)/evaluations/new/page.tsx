@@ -10,6 +10,7 @@ import {
   MCP_SERVERS as MARKETPLACE_SERVERS,
 } from '@/components/ui/mcp-marketplace-modal';
 import { TestConnectionButton } from '@/components/ui/test-connection-button';
+import { isValidExternalUrl } from '@/lib/validation/url';
 import { useDatasets } from '@/hooks/use-datasets';
 import { useCreateEvaluation } from '@/hooks/use-evaluations';
 import type { CreateEvaluationRequest, MCPServer } from '@/lib/api/types';
@@ -38,31 +39,6 @@ interface DatasetSelection {
   type: 'existing' | 'new';
   existingId?: string;
   existingName?: string;
-}
-
-function isValidExternalUrl(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return false;
-    const hostname = parsed.hostname.toLowerCase();
-    // Block internal/private addresses
-    if (
-      hostname === 'localhost' ||
-      hostname === '0.0.0.0' ||
-      hostname === '127.0.0.1' ||
-      hostname.startsWith('10.') ||
-      hostname.startsWith('192.168.') ||
-      /^172\.(1[6-9]|2\d|3[01])\./.test(hostname) ||
-      hostname === '169.254.169.254' ||
-      hostname.endsWith('.internal') ||
-      hostname.endsWith('.local')
-    ) {
-      return false;
-    }
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 function WizardStepIndicator({ currentStep }: { currentStep: WizardStep }) {
@@ -463,7 +439,7 @@ function NewEvaluationWizardContent() {
                   type="url"
                   value={agentConfig.agentUrl}
                   onChange={(e) => setAgentConfig({ ...agentConfig, agentUrl: e.target.value })}
-                  placeholder="https://api.example.com/agent"
+                  placeholder="https://api.example.com/v1/chat/completions"
                   className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
                 />
                 <div className="flex items-center gap-3 mt-1.5">
@@ -473,6 +449,8 @@ function NewEvaluationWizardContent() {
                   <TestConnectionButton
                     url={agentConfig.agentUrl}
                     disabled={!agentConfig.agentUrl}
+                    validateAgent={true}
+                    successLabel="Agent Reachable"
                   />
                 </div>
               </div>
@@ -604,6 +582,8 @@ function NewEvaluationWizardContent() {
                       <TestConnectionButton
                         url={agentConfig.customMcp.url}
                         disabled={!agentConfig.customMcp.url}
+                        mode="mcp"
+                        label="Test MCP Connection"
                       />
                     </div>
                   </div>
@@ -830,7 +810,11 @@ function NewEvaluationWizardContent() {
                       {agentConfig.agentUrl}
                     </p>
                     <div className="mt-2">
-                      <TestConnectionButton url={agentConfig.agentUrl} />
+                      <TestConnectionButton
+                        url={agentConfig.agentUrl}
+                        validateAgent={true}
+                        successLabel="Agent Reachable"
+                      />
                     </div>
                   </div>
                   <div>

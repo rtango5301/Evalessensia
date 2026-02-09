@@ -9,7 +9,12 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 
 export type TestUrlStatus = 'idle' | 'loading' | 'success' | 'error';
 
-export type TestUrlErrorCode = 'NETWORK_ERROR' | 'TIMEOUT' | 'SERVER_ERROR' | 'INVALID_URL';
+export type TestUrlErrorCode =
+  | 'NETWORK_ERROR'
+  | 'TIMEOUT'
+  | 'SERVER_ERROR'
+  | 'INVALID_URL'
+  | 'NOT_AGENT_URL';
 
 export interface TestUrlResult {
   status: TestUrlStatus;
@@ -18,10 +23,14 @@ export interface TestUrlResult {
   errorMessage?: string;
 }
 
+interface TestUrlOptions {
+  validateAgent?: boolean;
+}
+
 interface UseTestUrlReturn {
   isLoading: boolean;
   result: TestUrlResult;
-  testUrl: (url: string) => Promise<void>;
+  testUrl: (url: string, options?: TestUrlOptions) => Promise<void>;
   reset: () => void;
 }
 
@@ -47,6 +56,8 @@ function getErrorMessage(errorCode: TestUrlErrorCode): string {
       return 'Server error (5xx). Try again later.';
     case 'INVALID_URL':
       return 'Invalid URL. Must start with http:// or https://';
+    case 'NOT_AGENT_URL':
+      return 'URL does not appear to be an API endpoint. Agent URLs should return JSON responses.';
     default:
       return 'An unknown error occurred.';
   }
@@ -73,7 +84,7 @@ export function useTestUrl(): UseTestUrlReturn {
     setResult({ status: 'idle' });
   }, []);
 
-  const testUrl = useCallback(async (url: string) => {
+  const testUrl = useCallback(async (url: string, options?: TestUrlOptions) => {
     // Clear any pending auto-reset timer
     if (autoResetTimerRef.current) {
       clearTimeout(autoResetTimerRef.current);
@@ -112,47 +123,105 @@ export function useTestUrl(): UseTestUrlReturn {
     }, TIMEOUT_MS);
 
     try {
-      // Try HEAD first, fall back to GET if CORS blocks HEAD
-      let response: Response;
-      try {
-        response = await fetch(url, {
-          method: 'HEAD',
-          mode: 'cors',
+      if (options?.validateAgent) {
+        // Agent validation: call server-side route to avoid CORS issues
+        const response = await fetch('/api/test-agent-connection', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
           signal: abortController.signal,
         });
-      } catch {
-        // HEAD might fail due to CORS, try GET with no-cors mode
-        response = await fetch(url, {
-          method: 'GET',
-          mode: 'no-cors',
-          signal: abortController.signal,
-        });
-      }
 
-      clearTimeout(timeoutId);
-      const endTime = performance.now();
-      const responseTime = Math.round(endTime - startTime);
+        clearTimeout(timeoutId);
+        const data = await response.json();
+        const agentStatus: string = data.status;
 
-      // In no-cors mode, we get an opaque response (type: 'opaque')
-      // which has status 0, but means the request succeeded
-      if (response.type === 'opaque' || (response.status >= 200 && response.status < 400)) {
-        setResult({
-          status: 'success',
-          responseTime,
-        });
-      } else if (response.status >= 500) {
-        setResult({
-          status: 'error',
-          errorCode: 'SERVER_ERROR',
-          errorMessage: getErrorMessage('SERVER_ERROR'),
-        });
+        switch (agentStatus) {
+          case 'agent_valid':
+          case 'reachable_not_agent':
+            setResult({ status: 'success', responseTime: data.responseTime });
+            break;
+          case 'not_agent_url':
+            setResult({
+              status: 'error',
+              errorCode: 'NOT_AGENT_URL',
+              errorMessage: getErrorMessage('NOT_AGENT_URL'),
+            });
+            break;
+          case 'server_error':
+            setResult({
+              status: 'error',
+              errorCode: 'SERVER_ERROR',
+              errorMessage: getErrorMessage('SERVER_ERROR'),
+            });
+            break;
+          case 'timeout':
+            setResult({
+              status: 'error',
+              errorCode: 'TIMEOUT',
+              errorMessage: getErrorMessage('TIMEOUT'),
+            });
+            break;
+          case 'ssrf_blocked':
+          case 'invalid_url':
+            setResult({
+              status: 'error',
+              errorCode: 'INVALID_URL',
+              errorMessage: getErrorMessage('INVALID_URL'),
+            });
+            break;
+          case 'unreachable':
+          default:
+            setResult({
+              status: 'error',
+              errorCode: 'NETWORK_ERROR',
+              errorMessage: data.errorMessage || getErrorMessage('NETWORK_ERROR'),
+            });
+            break;
+        }
       } else {
-        // 4xx errors - URL is reachable but might have auth issues
-        // For our purposes, we consider it reachable
-        setResult({
-          status: 'success',
-          responseTime,
-        });
+        // Standard reachability check: HEAD with GET fallback
+        let response: Response;
+        try {
+          response = await fetch(url, {
+            method: 'HEAD',
+            mode: 'cors',
+            signal: abortController.signal,
+          });
+        } catch {
+          // HEAD might fail due to CORS, try GET with no-cors mode
+          response = await fetch(url, {
+            method: 'GET',
+            mode: 'no-cors',
+            signal: abortController.signal,
+          });
+        }
+
+        clearTimeout(timeoutId);
+        const endTime = performance.now();
+        const responseTime = Math.round(endTime - startTime);
+
+        // In no-cors mode, we get an opaque response (type: 'opaque')
+        // which has status 0, but means the request succeeded
+        if (response.type === 'opaque' || (response.status >= 200 && response.status < 400)) {
+          setResult({
+            status: 'success',
+            responseTime,
+          });
+        } else if (response.status >= 500) {
+          setResult({
+            status: 'error',
+            errorCode: 'SERVER_ERROR',
+            errorMessage: getErrorMessage('SERVER_ERROR'),
+          });
+        } else {
+          // 4xx errors - URL is reachable but might have auth issues
+          // For our purposes, we consider it reachable
+          setResult({
+            status: 'success',
+            responseTime,
+          });
+        }
       }
     } catch {
       clearTimeout(timeoutId);
