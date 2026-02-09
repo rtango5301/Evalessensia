@@ -118,6 +118,8 @@ function AuthPageContent() {
       const result = await signInWithOAuth(provider);
       if (result?.error) {
         setError(result.error);
+      } else if (result?.url) {
+        window.location.href = result.url;
       }
     });
   };

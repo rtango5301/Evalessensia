@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies, headers } from 'next/headers';
+
 import { z } from 'zod';
 
 const SUPABASE_NOT_CONFIGURED_ERROR =
@@ -60,10 +61,26 @@ async function getOrigin() {
   // NEXT_PUBLIC_SITE_URL should always be set in production to avoid
   // relying on host headers which can be spoofed.
   if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '');
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '');
+
+    if (process.env.NODE_ENV === 'production') {
+      if (siteUrl.includes('localhost')) {
+        console.warn('[auth] NEXT_PUBLIC_SITE_URL contains "localhost" in production:', siteUrl);
+      }
+      if (siteUrl.startsWith('http://')) {
+        console.warn('[auth] NEXT_PUBLIC_SITE_URL uses http:// in production:', siteUrl);
+      }
+    }
+
+    return siteUrl;
   }
 
   // Fallback: construct from host headers (needed for local dev)
+  if (process.env.NODE_ENV === 'production') {
+    console.warn(
+      '[auth] NEXT_PUBLIC_SITE_URL is not set in production — falling back to request headers'
+    );
+  }
   const h = await headers();
   const host = h.get('x-forwarded-host') || h.get('host') || 'localhost:3000';
   const proto = (h.get('x-forwarded-proto') || 'http').split(',')[0].trim();
@@ -164,7 +181,7 @@ export async function signInWithOAuth(provider: 'github' | 'google') {
     return { error: error.message };
   }
 
-  redirect(data.url);
+  return { url: data.url };
 }
 
 export async function signOut() {
