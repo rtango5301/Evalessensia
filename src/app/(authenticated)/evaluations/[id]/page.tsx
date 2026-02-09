@@ -39,7 +39,7 @@ function CategoryBarChart({ data }: { data: { name: string; score: number; count
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
       {data.map((category) => (
         <div key={category.name} className="space-y-1">
           <div className="flex items-center justify-between text-sm">
@@ -425,8 +425,8 @@ export default function EvaluationResultsPage({ params }: { params: Promise<{ id
           </div>
 
           {/* Score by Category */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+            <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
               <span className="material-symbols-outlined text-[#135bec] text-lg">category</span>
               Score by Category
             </h3>

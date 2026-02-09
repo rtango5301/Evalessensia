@@ -453,13 +453,16 @@ export default function DashboardPage() {
                         </div>
                       ) : score !== null ? (
                         <div className="flex items-center gap-3">
-                          <span className={cn('text-sm font-bold', getScoreColor(score))}>
-                            {score.toFixed(1)}%
+                          <span className={cn('text-sm font-bold', getScoreColor(score * 100))}>
+                            {(score * 100).toFixed(1)}%
                           </span>
                           <div className="w-16 h-2 bg-slate-200 rounded-full overflow-hidden">
                             <div
-                              className={cn('h-full rounded-full', getProgressBarColor(score))}
-                              style={{ width: `${score}%` }}
+                              className={cn(
+                                'h-full rounded-full',
+                                getProgressBarColor(score * 100)
+                              )}
+                              style={{ width: `${score * 100}%` }}
                             />
                           </div>
                         </div>
