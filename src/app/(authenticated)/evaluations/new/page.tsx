@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, Suspense, useMemo, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -131,6 +131,15 @@ function NewEvaluationWizardContent() {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
+  // Agent URL verification state — tracks backend test-connection result
+  const [agentUrlVerified, setAgentUrlVerified] = useState(false);
+  const handleAgentUrlTestResult = useCallback(
+    (status: 'idle' | 'loading' | 'success' | 'error') => {
+      setAgentUrlVerified(status === 'success');
+    },
+    []
+  );
+
   // Dataset selection state
   const [datasetSelection, setDatasetSelection] = useState<DatasetSelection>({
     type: 'existing',
@@ -172,7 +181,11 @@ function NewEvaluationWizardContent() {
     }
   }, [isEditingTitle]);
 
-  const canProceedFromAgent = agentConfig.name && agentConfig.agentUrl;
+  const canProceedFromAgent =
+    agentConfig.name &&
+    agentConfig.agentUrl &&
+    isValidExternalUrl(agentConfig.agentUrl) &&
+    agentUrlVerified;
   const canProceedFromDataset = datasetSelection.type === 'new' || datasetSelection.existingId;
 
   const handleNext = () => {
@@ -451,6 +464,7 @@ function NewEvaluationWizardContent() {
                     disabled={!agentConfig.agentUrl}
                     validateAgent={true}
                     successLabel="Agent Reachable"
+                    onResult={handleAgentUrlTestResult}
                   />
                 </div>
               </div>
