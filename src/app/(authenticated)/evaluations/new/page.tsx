@@ -172,7 +172,7 @@ function NewEvaluationWizardContent() {
     }
   }, [isEditingTitle]);
 
-  const canProceedFromAgent = agentConfig.name && agentConfig.description && agentConfig.agentUrl;
+  const canProceedFromAgent = agentConfig.name && agentConfig.agentUrl;
   const canProceedFromDataset = datasetSelection.type === 'new' || datasetSelection.existingId;
 
   const handleNext = () => {
