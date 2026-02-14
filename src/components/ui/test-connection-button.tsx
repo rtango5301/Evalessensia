@@ -13,6 +13,7 @@ interface TestConnectionButtonProps {
   validateAgent?: boolean;
   mode?: 'reachability' | 'mcp';
   className?: string;
+  onResult?: (status: 'idle' | 'loading' | 'success' | 'error') => void;
 }
 
 /**
@@ -119,6 +120,7 @@ function ReachabilityTestConnectionButton({
   successLabel = 'Reachable',
   validateAgent = false,
   className,
+  onResult,
 }: TestConnectionButtonProps) {
   const { isLoading, result, testUrl, reset } = useTestUrl();
   const prevUrlRef = useRef(url);
@@ -130,6 +132,11 @@ function ReachabilityTestConnectionButton({
       if (result.status !== 'idle') reset();
     }
   }, [url, result.status, reset]);
+
+  // Notify parent of result changes
+  useEffect(() => {
+    onResult?.(result.status);
+  }, [result.status, onResult]);
 
   const trimmedUrl = url?.trim() || '';
   const isDisabled = disabled || !trimmedUrl;
