@@ -10,6 +10,8 @@ import { MCP_SERVERS } from '@/components/ui/mcp-marketplace-modal';
 import { TestConnectionButton } from '@/components/ui/test-connection-button';
 import { useCreateDataset } from '@/hooks/use-datasets';
 import { uploadDatasetFile, StorageError } from '@/lib/supabase/storage';
+import { useUsageQuota } from '@/hooks/use-usage-quota';
+import { UsageQuotaBanner } from '@/components/ui/usage-quota-banner';
 import type {
   CreateDatasetGeneratedRequest,
   CreateDatasetUploadedRequest,
@@ -32,6 +34,7 @@ const schemaPreview = [
 export default function NewDatasetPage() {
   const router = useRouter();
   const { createDataset, isCreating, error: createError } = useCreateDataset();
+  const { quota, canCreateDataset, refetch: refetchQuota } = useUsageQuota();
 
   // Upload state
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -119,6 +122,12 @@ export default function NewDatasetPage() {
   };
 
   const handleUploadSubmit = async () => {
+    if (!canCreateDataset) {
+      setUploadError('Monthly dataset limit reached. Please wait until the next billing period.');
+      refetchQuota();
+      return;
+    }
+
     if (!uploadFile || !uploadDatasetName) return;
 
     setUploadError(null);
@@ -149,6 +158,12 @@ export default function NewDatasetPage() {
   };
 
   const handleGenerateSubmit = async () => {
+    if (!canCreateDataset) {
+      setUploadError('Monthly dataset limit reached. Please wait until the next billing period.');
+      refetchQuota();
+      return;
+    }
+
     if (!generateDatasetName || !agentName || !agentDescription) return;
 
     // Build MCP servers array
@@ -212,6 +227,16 @@ export default function NewDatasetPage() {
           Upload an existing dataset or generate one using AI.
         </p>
       </div>
+
+      {/* Usage Quota Banner */}
+      {quota && (
+        <UsageQuotaBanner
+          used={quota.datasets_used}
+          limit={quota.datasets_limit}
+          resourceName="datasets"
+          periodEnd={quota.period_end}
+        />
+      )}
 
       {/* API Error Banner */}
       {createError && (
@@ -380,10 +405,10 @@ export default function NewDatasetPage() {
             {/* Submit Button */}
             <button
               onClick={handleUploadSubmit}
-              disabled={!uploadFile || !uploadDatasetName || isCreating}
+              disabled={!uploadFile || !uploadDatasetName || isCreating || !canCreateDataset}
               className={cn(
                 'w-full py-2.5 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2',
-                uploadFile && uploadDatasetName && !isCreating
+                uploadFile && uploadDatasetName && !isCreating && canCreateDataset
                   ? 'bg-[#135bec] text-white hover:bg-[#135bec]/90 shadow-sm shadow-[#135bec]/30'
                   : 'bg-slate-100 text-slate-400 cursor-not-allowed'
               )}
@@ -665,10 +690,20 @@ export default function NewDatasetPage() {
             {/* Submit Button */}
             <button
               onClick={handleGenerateSubmit}
-              disabled={!generateDatasetName || !agentName || !agentDescription || isCreating}
+              disabled={
+                !generateDatasetName ||
+                !agentName ||
+                !agentDescription ||
+                isCreating ||
+                !canCreateDataset
+              }
               className={cn(
                 'w-full py-2.5 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2',
-                generateDatasetName && agentName && agentDescription && !isCreating
+                generateDatasetName &&
+                  agentName &&
+                  agentDescription &&
+                  !isCreating &&
+                  canCreateDataset
                   ? 'bg-[#135bec] text-white hover:bg-[#135bec]/90 shadow-sm shadow-[#135bec]/30'
                   : 'bg-slate-100 text-slate-400 cursor-not-allowed'
               )}

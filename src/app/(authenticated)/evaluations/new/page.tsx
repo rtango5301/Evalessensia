@@ -13,6 +13,8 @@ import { TestConnectionButton } from '@/components/ui/test-connection-button';
 import { isValidExternalUrl } from '@/lib/validation/url';
 import { useDatasets } from '@/hooks/use-datasets';
 import { useCreateEvaluation } from '@/hooks/use-evaluations';
+import { useUsageQuota } from '@/hooks/use-usage-quota';
+import { UsageQuotaBanner } from '@/components/ui/usage-quota-banner';
 import type { CreateEvaluationRequest, MCPServer } from '@/lib/api/types';
 
 // Types
@@ -108,6 +110,7 @@ function NewEvaluationWizardContent() {
   // Fetch datasets from API
   const { datasets, isLoading: isDatasetsLoading, error: datasetsError } = useDatasets();
   const { createEvaluation, isCreating, error: createError } = useCreateEvaluation();
+  const { quota, canCreateEvaluation, refetch: refetchQuota } = useUsageQuota();
 
   const [currentStep, setCurrentStep] = useState<WizardStep>(stepParam || 'agent');
 
@@ -205,6 +208,15 @@ function NewEvaluationWizardContent() {
   };
 
   const handleStartEvaluation = async () => {
+    if (!canCreateEvaluation) {
+      showToast(
+        'Monthly evaluation limit reached. Please wait until the next billing period.',
+        'error'
+      );
+      refetchQuota();
+      return;
+    }
+
     if (!datasetSelection.existingId) {
       showToast('Please select a dataset', 'error');
       return;
@@ -265,6 +277,12 @@ function NewEvaluationWizardContent() {
     if (evaluation) {
       showToast('Evaluation started successfully', 'success');
       router.push(`/evaluations/${evaluation.id}`);
+    } else if (createError?.isRateLimited) {
+      showToast(
+        'Monthly evaluation limit reached. Please wait until the next billing period.',
+        'error'
+      );
+      refetchQuota();
     }
   };
 
@@ -278,6 +296,16 @@ function NewEvaluationWizardContent() {
         <span className="material-symbols-outlined text-base">chevron_right</span>
         <span className="text-slate-900 font-medium">New Evaluation</span>
       </div>
+
+      {/* Usage Quota Banner */}
+      {quota && (
+        <UsageQuotaBanner
+          used={quota.evaluations_used}
+          limit={quota.evaluations_limit}
+          resourceName="evaluations"
+          periodEnd={quota.period_end}
+        />
+      )}
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -967,7 +995,7 @@ function NewEvaluationWizardContent() {
           {currentStep === 'review' ? (
             <button
               onClick={handleStartEvaluation}
-              disabled={!canProceedFromDataset || isCreating}
+              disabled={!canProceedFromDataset || isCreating || !canCreateEvaluation}
               className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-sm disabled:bg-slate-300 disabled:cursor-not-allowed"
             >
               {isCreating ? (
