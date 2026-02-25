@@ -2,9 +2,19 @@
 
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { WaitlistDialog } from '@/components/ui/waitlist-dialog';
+import { useEffect, useRef } from 'react';
+
+declare global {
+  interface Window {
+    Calendly?: {
+      initPopupWidget: (opts: { url: string }) => void;
+    };
+  }
+}
+
+const CALENDLY_CSS = 'https://assets.calendly.com/assets/external/widget.css';
+const CALENDLY_JS = 'https://assets.calendly.com/assets/external/widget.js';
 
 const pricingPlans = [
   {
@@ -23,45 +33,62 @@ const pricingPlans = [
     featured: false,
   },
   {
-    tier: 'Professional',
-    price: '$20',
-    period: '/month',
-    description: 'For teams shipping production agents',
-    features: [
-      '100 eval runs/month',
-      '30 datasets/month',
-      'Up to 100 queries per dataset',
-      '10 agents',
-      '90-day data retention',
-      'A/B testing & data export',
-      'CI/CD integrations',
-    ],
-    cta: 'Get Started',
-    featured: true,
-  },
-  {
-    tier: 'Enterprise',
+    tier: 'Teams & Enterprise',
     price: 'Custom',
     period: '',
-    description: 'For organizations with advanced needs',
+    description: 'For teams and organizations shipping production agents',
     features: [
       'Unlimited eval runs',
       'Unlimited datasets',
       'Up to 500 queries per dataset',
       'Unlimited agents',
-      'Custom retention',
+      'CI/CD integrations',
+      'A/B testing & data export',
       'SSO/SAML',
       'Dedicated support & SLA',
-      'On-premise option',
     ],
-    cta: 'Contact Sales',
-    featured: false,
+    cta: 'Book a Slot',
+    featured: true,
   },
 ];
 
 export function Pricing() {
-  const [showWaitlist, setShowWaitlist] = useState(false);
   const router = useRouter();
+  const scriptLoaded = useRef(false);
+
+  // Load Calendly widget CSS + JS on mount
+  useEffect(() => {
+    // CSS
+    const link = document.createElement('link');
+    link.href = CALENDLY_CSS;
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+
+    // JS - only inject once
+    if (!scriptLoaded.current && !window.Calendly) {
+      const script = document.createElement('script');
+      script.src = CALENDLY_JS;
+      script.async = true;
+      script.onload = () => {
+        scriptLoaded.current = true;
+      };
+      document.head.appendChild(script);
+    } else {
+      scriptLoaded.current = true;
+    }
+
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
+
+  const openCalendly = () => {
+    if (window.Calendly) {
+      window.Calendly.initPopupWidget({
+        url: 'https://calendly.com/evaltensor',
+      });
+    }
+  };
 
   return (
     <section
@@ -84,12 +111,12 @@ export function Pricing() {
             Simple, transparent pricing
           </h2>
           <p className="text-base lg:text-lg text-[var(--text-secondary)] max-w-[600px] mx-auto">
-            Start free, scale as you grow. No surprise bills.
+            Start free, upgrade when you&apos;re ready.
           </p>
         </motion.div>
 
         {/* Pricing Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 max-w-[1000px] mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 max-w-[700px] mx-auto">
           {pricingPlans.map((plan, index) => (
             <motion.div
               key={plan.tier}
@@ -137,8 +164,8 @@ export function Pricing() {
                 onClick={() => {
                   if (plan.cta === 'Start Free') {
                     router.push('/login');
-                  } else {
-                    setShowWaitlist(true);
+                  } else if (plan.cta === 'Book a Slot') {
+                    openCalendly();
                   }
                 }}
                 className={`w-full py-2.5 rounded-lg font-semibold text-sm transition-all ${
@@ -153,7 +180,6 @@ export function Pricing() {
           ))}
         </div>
       </div>
-      <WaitlistDialog open={showWaitlist} onClose={() => setShowWaitlist(false)} />
     </section>
   );
 }

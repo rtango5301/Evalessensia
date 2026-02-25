@@ -6,10 +6,12 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
-import { cn } from '@/lib/utils';
+import { cn, getScoreColor, getScoreBarColor } from '@/lib/utils';
 import { useEvaluations, useDeleteEvaluation } from '@/hooks/use-evaluations';
 import { useDatasets } from '@/hooks/use-datasets';
 import type { Evaluation, DatasetSource, DatasetStatus } from '@/lib/api/types';
+import { useUsageQuota } from '@/hooks/use-usage-quota';
+import { UsageQuotaBanner } from '@/components/ui/usage-quota-banner';
 
 // Helper to format relative time
 function formatRelativeTime(dateString: string): string {
@@ -88,18 +90,6 @@ function getStatusLabel(status: 'running' | 'completed' | 'failed') {
   }
 }
 
-function getScoreColor(score: number) {
-  if (score >= 80) return 'text-emerald-600';
-  if (score >= 60) return 'text-amber-600';
-  return 'text-red-600';
-}
-
-function getProgressBarColor(score: number) {
-  if (score >= 80) return 'bg-emerald-500';
-  if (score >= 60) return 'bg-amber-500';
-  return 'bg-red-500';
-}
-
 function getDatasetStatusStyles(status: 'ready' | 'processing' | 'error') {
   switch (status) {
     case 'ready':
@@ -150,6 +140,7 @@ function ActionsDropdown({
   isDeleting: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [showExportTooltip, setShowExportTooltip] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -186,13 +177,25 @@ function ActionsDropdown({
             <span className="material-symbols-outlined text-base">visibility</span>
             View Details
           </Link>
-          <button
-            disabled
-            className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-400 cursor-not-allowed rounded-lg mx-2 w-full text-left"
+          <div
+            className="relative"
+            onMouseEnter={() => setShowExportTooltip(true)}
+            onMouseLeave={() => setShowExportTooltip(false)}
           >
-            <span className="material-symbols-outlined text-base">download</span>
-            Export
-          </button>
+            <button
+              disabled
+              className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-400 cursor-not-allowed rounded-lg mx-2 w-full text-left"
+            >
+              <span className="material-symbols-outlined text-lg">lock</span>
+              Export
+            </button>
+            {showExportTooltip && (
+              <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 px-3 py-2 bg-slate-900 text-white text-xs font-medium rounded-lg whitespace-nowrap z-10 shadow-lg">
+                Upgrade your membership
+                <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-900 rotate-45" />
+              </div>
+            )}
+          </div>
           <div className="border-t border-slate-100 my-2 mx-2"></div>
           <button
             onClick={handleDelete}
@@ -218,6 +221,7 @@ export default function DashboardPage() {
     error: datasetsError,
     refetch: refetchDatasets,
   } = useDatasets();
+  const { quota } = useUsageQuota();
 
   // Handle delete
   const handleDelete = async (id: string) => {
@@ -370,6 +374,15 @@ export default function DashboardPage() {
         </Link>
       </div>
 
+      {quota && (
+        <UsageQuotaBanner
+          used={quota.evaluations_used}
+          limit={quota.evaluations_limit}
+          resourceName="evaluations"
+          periodEnd={quota.period_end}
+        />
+      )}
+
       {/* Table */}
       <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
         <div>
@@ -458,10 +471,7 @@ export default function DashboardPage() {
                           </span>
                           <div className="w-16 h-2 bg-slate-200 rounded-full overflow-hidden">
                             <div
-                              className={cn(
-                                'h-full rounded-full',
-                                getProgressBarColor(score * 100)
-                              )}
+                              className={cn('h-full rounded-full', getScoreBarColor(score * 100))}
                               style={{ width: `${score * 100}%` }}
                             />
                           </div>
@@ -519,6 +529,15 @@ export default function DashboardPage() {
             <span className="material-symbols-outlined text-base">arrow_forward</span>
           </Link>
         </div>
+
+        {quota && (
+          <UsageQuotaBanner
+            used={quota.datasets_used}
+            limit={quota.datasets_limit}
+            resourceName="datasets"
+            periodEnd={quota.period_end}
+          />
+        )}
 
         {/* Loading State */}
         {datasetsLoading && (

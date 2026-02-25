@@ -1,11 +1,15 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { WaitlistDialog } from '@/components/ui/waitlist-dialog';
 
 export function CTA() {
-  const [showWaitlist, setShowWaitlist] = useState(false);
+  const openCalendly = () => {
+    if (window.Calendly) {
+      window.Calendly.initPopupWidget({
+        url: 'https://calendly.com/evaltensor',
+      });
+    }
+  };
 
   return (
     <section className="py-14 lg:py-[90px] px-4 sm:px-6 lg:px-8 bg-[var(--bg-subtle)]">
@@ -28,15 +32,14 @@ export function CTA() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => setShowWaitlist(true)}
-              className="px-6 py-3 bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white rounded-lg font-semibold text-sm transition-colors"
+              onClick={openCalendly}
+              className="px-6 py-3 bg-[var(--primary)] hover:bg-[var(--primary-dark)] text-white rounded-lg font-semibold text-sm transition-colors"
             >
               Schedule a Demo
             </motion.button>
           </div>
         </motion.div>
       </div>
-      <WaitlistDialog open={showWaitlist} onClose={() => setShowWaitlist(false)} />
     </section>
   );
 }
