@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
@@ -10,6 +10,8 @@ import { MCP_SERVERS } from '@/components/ui/mcp-marketplace-modal';
 import { TestConnectionButton } from '@/components/ui/test-connection-button';
 import { useCreateDataset } from '@/hooks/use-datasets';
 import { uploadDatasetFile, StorageError } from '@/lib/supabase/storage';
+import { useUsageQuota } from '@/hooks/use-usage-quota';
+import { UsageQuotaBanner } from '@/components/ui/usage-quota-banner';
 import type {
   CreateDatasetGeneratedRequest,
   CreateDatasetUploadedRequest,
@@ -32,6 +34,7 @@ const schemaPreview = [
 export default function NewDatasetPage() {
   const router = useRouter();
   const { createDataset, isCreating, error: createError } = useCreateDataset();
+  const { quota, canCreateDataset, refetch: refetchQuota } = useUsageQuota();
 
   // Upload state
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -45,7 +48,25 @@ export default function NewDatasetPage() {
   const [generateDatasetDescription, setGenerateDatasetDescription] = useState('');
   const [agentName, setAgentName] = useState('');
   const [agentDescription, setAgentDescription] = useState('');
-  const [queryCount, setQueryCount] = useState(50);
+  const [queryCount, setQueryCount] = useState(10);
+  const [queryCountInputValue, setQueryCountInputValue] = useState('10');
+  const [sliderDisplayValue, setSliderDisplayValue] = useState(10);
+  const snapBackTimer = useRef<NodeJS.Timeout | null>(null);
+  const [showQueryCapMessage, setShowQueryCapMessage] = useState(false);
+
+  // Sync slider display when queryCount changes
+  useEffect(() => {
+    if (queryCount <= 20) {
+      setSliderDisplayValue(queryCount);
+    }
+  }, [queryCount]);
+
+  // Cleanup snap-back timer on unmount
+  useEffect(() => {
+    return () => {
+      if (snapBackTimer.current) clearTimeout(snapBackTimer.current);
+    };
+  }, []);
 
   // MCP state (UI only for now)
   const [selectedMCPServers, setSelectedMCPServers] = useState<string[]>([]);
@@ -119,6 +140,14 @@ export default function NewDatasetPage() {
   };
 
   const handleUploadSubmit = async () => {
+    if (!canCreateDataset) {
+      setUploadError(
+        'Dataset limit reached for this billing period. Please wait until your quota resets.'
+      );
+      refetchQuota();
+      return;
+    }
+
     if (!uploadFile || !uploadDatasetName) return;
 
     setUploadError(null);
@@ -149,6 +178,14 @@ export default function NewDatasetPage() {
   };
 
   const handleGenerateSubmit = async () => {
+    if (!canCreateDataset) {
+      setUploadError(
+        'Dataset limit reached for this billing period. Please wait until your quota resets.'
+      );
+      refetchQuota();
+      return;
+    }
+
     if (!generateDatasetName || !agentName || !agentDescription) return;
 
     // Build MCP servers array
@@ -212,6 +249,16 @@ export default function NewDatasetPage() {
           Upload an existing dataset or generate one using AI.
         </p>
       </div>
+
+      {/* Usage Quota Banner */}
+      {quota && (
+        <UsageQuotaBanner
+          used={quota.datasets_used}
+          limit={quota.datasets_limit}
+          resourceName="datasets"
+          periodEnd={quota.period_end}
+        />
+      )}
 
       {/* API Error Banner */}
       {createError && (
@@ -380,10 +427,10 @@ export default function NewDatasetPage() {
             {/* Submit Button */}
             <button
               onClick={handleUploadSubmit}
-              disabled={!uploadFile || !uploadDatasetName || isCreating}
+              disabled={!uploadFile || !uploadDatasetName || isCreating || !canCreateDataset}
               className={cn(
                 'w-full py-2.5 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2',
-                uploadFile && uploadDatasetName && !isCreating
+                uploadFile && uploadDatasetName && !isCreating && canCreateDataset
                   ? 'bg-[#135bec] text-white hover:bg-[#135bec]/90 shadow-sm shadow-[#135bec]/30'
                   : 'bg-slate-100 text-slate-400 cursor-not-allowed'
               )}
@@ -624,26 +671,62 @@ export default function NewDatasetPage() {
                   type="range"
                   min={3}
                   max={500}
-                  step={10}
-                  value={queryCount}
-                  onChange={(e) => setQueryCount(Number(e.target.value))}
+                  step={1}
+                  value={sliderDisplayValue}
+                  onChange={(e) => {
+                    const raw = Number(e.target.value);
+                    setSliderDisplayValue(raw);
+                    setQueryCountInputValue(String(raw));
+                    if (snapBackTimer.current) clearTimeout(snapBackTimer.current);
+
+                    if (raw > 20) {
+                      setShowQueryCapMessage(true);
+                      setQueryCount(20);
+                      snapBackTimer.current = setTimeout(() => {
+                        setSliderDisplayValue(20);
+                        setQueryCountInputValue('20');
+                      }, 800);
+                    } else {
+                      setQueryCount(Math.max(3, raw));
+                      setShowQueryCapMessage(false);
+                    }
+                  }}
                   className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#135bec]"
+                  style={{ transition: 'all 0.3s ease' }}
                 />
                 <input
                   type="number"
                   min={3}
                   max={500}
-                  value={queryCount}
+                  value={queryCountInputValue}
                   onChange={(e) => {
-                    const val = Math.max(3, Math.min(500, Number(e.target.value) || 3));
-                    setQueryCount(val);
+                    setQueryCountInputValue(e.target.value);
+                  }}
+                  onBlur={() => {
+                    const raw = Number(queryCountInputValue) || 3;
+                    if (raw > 20) {
+                      setQueryCount(20);
+                      setQueryCountInputValue('20');
+                      setShowQueryCapMessage(true);
+                    } else {
+                      const clamped = Math.max(3, raw);
+                      setQueryCount(clamped);
+                      setQueryCountInputValue(String(clamped));
+                      setShowQueryCapMessage(false);
+                    }
                   }}
                   className="w-20 px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-center text-sm font-bold text-slate-900 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
                 />
               </div>
-              <p className="text-xs text-slate-500 mt-1.5">
-                More queries = better coverage but longer generation time
-              </p>
+              {showQueryCapMessage ? (
+                <p className="text-xs text-amber-600 mt-1.5">
+                  Free plan is limited to 20 queries per dataset. Upgrade for more.
+                </p>
+              ) : (
+                <p className="text-xs text-slate-500 mt-1.5">
+                  3–20 queries per dataset on the free plan
+                </p>
+              )}
             </div>
 
             {/* Info Box */}
@@ -665,10 +748,20 @@ export default function NewDatasetPage() {
             {/* Submit Button */}
             <button
               onClick={handleGenerateSubmit}
-              disabled={!generateDatasetName || !agentName || !agentDescription || isCreating}
+              disabled={
+                !generateDatasetName ||
+                !agentName ||
+                !agentDescription ||
+                isCreating ||
+                !canCreateDataset
+              }
               className={cn(
                 'w-full py-2.5 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2',
-                generateDatasetName && agentName && agentDescription && !isCreating
+                generateDatasetName &&
+                  agentName &&
+                  agentDescription &&
+                  !isCreating &&
+                  canCreateDataset
                   ? 'bg-[#135bec] text-white hover:bg-[#135bec]/90 shadow-sm shadow-[#135bec]/30'
                   : 'bg-slate-100 text-slate-400 cursor-not-allowed'
               )}

@@ -12,7 +12,14 @@ const pricingPlans = [
     price: '$0',
     period: '/month',
     description: 'Perfect for side projects and experimentation',
-    features: ['10 eval runs/month', '1 agent', '7-day data retention', 'Community support'],
+    features: [
+      '5 eval runs/month',
+      '3 datasets/month',
+      '3–20 queries per dataset',
+      '1 agent',
+      '30-day data retention',
+      'Community support',
+    ],
     cta: 'Start Free',
     featured: false,
   },
@@ -23,6 +30,8 @@ const pricingPlans = [
     description: 'For teams shipping production agents',
     features: [
       '100 eval runs/month',
+      '30 datasets/month',
+      'Up to 100 queries per dataset',
       '10 agents',
       '90-day data retention',
       'A/B testing & data export',
@@ -39,6 +48,8 @@ const pricingPlans = [
     description: 'For organizations with advanced needs',
     features: [
       'Unlimited eval runs',
+      'Unlimited datasets',
+      'Up to 500 queries per dataset',
       'Unlimited agents',
       'Custom retention',
       'SSO/SAML',

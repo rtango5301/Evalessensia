@@ -14,17 +14,24 @@ export type TestUrlErrorCode =
   | 'TIMEOUT'
   | 'SERVER_ERROR'
   | 'INVALID_URL'
-  | 'NOT_AGENT_URL';
+  | 'NOT_AGENT_URL'
+  | 'AUTH_FAILED'
+  | 'BAD_REQUEST'
+  | 'RATE_LIMITED';
 
 export interface TestUrlResult {
   status: TestUrlStatus;
   responseTime?: number;
   errorCode?: TestUrlErrorCode;
   errorMessage?: string;
+  agentReply?: string;
 }
 
 interface TestUrlOptions {
   validateAgent?: boolean;
+  model?: string;
+  apiKey?: string;
+  systemPrompt?: string;
 }
 
 interface UseTestUrlReturn {
@@ -58,6 +65,12 @@ function getErrorMessage(errorCode: TestUrlErrorCode): string {
       return 'Invalid URL. Must start with http:// or https://';
     case 'NOT_AGENT_URL':
       return 'URL does not appear to be an API endpoint. Agent URLs should return JSON responses.';
+    case 'AUTH_FAILED':
+      return 'Authentication failed. API key is required.';
+    case 'BAD_REQUEST':
+      return 'Bad request. Check your configuration.';
+    case 'RATE_LIMITED':
+      return 'Rate limited. Check your API quota and usage limits.';
     default:
       return 'An unknown error occurred.';
   }
@@ -128,7 +141,12 @@ export function useTestUrl(): UseTestUrlReturn {
         const response = await fetch('/api/test-agent-connection', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url }),
+          body: JSON.stringify({
+            url,
+            model: options?.model,
+            apiKey: options?.apiKey,
+            systemPrompt: options?.systemPrompt,
+          }),
           signal: abortController.signal,
         });
 
@@ -138,8 +156,39 @@ export function useTestUrl(): UseTestUrlReturn {
 
         switch (agentStatus) {
           case 'agent_valid':
+            setResult({
+              status: 'success',
+              responseTime: data.responseTime,
+              agentReply: data.agentReply,
+            });
+            break;
           case 'reachable_not_agent':
-            setResult({ status: 'success', responseTime: data.responseTime });
+            setResult({
+              status: 'error',
+              errorCode: 'BAD_REQUEST',
+              errorMessage: 'URL is reachable but did not return a valid agent response.',
+            });
+            break;
+          case 'auth_failed':
+            setResult({
+              status: 'error',
+              errorCode: 'AUTH_FAILED',
+              errorMessage: data.errorMessage || getErrorMessage('AUTH_FAILED'),
+            });
+            break;
+          case 'bad_request':
+            setResult({
+              status: 'error',
+              errorCode: 'BAD_REQUEST',
+              errorMessage: data.errorMessage || getErrorMessage('BAD_REQUEST'),
+            });
+            break;
+          case 'rate_limited':
+            setResult({
+              status: 'error',
+              errorCode: 'RATE_LIMITED',
+              errorMessage: data.errorMessage || getErrorMessage('RATE_LIMITED'),
+            });
             break;
           case 'not_agent_url':
             setResult({

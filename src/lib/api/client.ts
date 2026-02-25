@@ -34,6 +34,10 @@ export class ApiError extends Error {
   get isServerError(): boolean {
     return this.status >= 500;
   }
+
+  get isRateLimited(): boolean {
+    return this.status === 429 || this.code === 'RATE_LIMIT_EXCEEDED';
+  }
 }
 
 /**
