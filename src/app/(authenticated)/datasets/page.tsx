@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { SlideOverPanel } from '@/components/ui/slide-over-panel';
+
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDatasets, useDeleteDataset } from '@/hooks/use-datasets';
 import type {
@@ -12,6 +12,8 @@ import type {
   DatasetSource,
   DatasetStatus as ApiDatasetStatus,
 } from '@/lib/api/types';
+import { useUsageQuota } from '@/hooks/use-usage-quota';
+import { UsageQuotaBanner } from '@/components/ui/usage-quota-banner';
 
 // UI Types (mapped from API types)
 type UiDatasetType = 'uploaded' | 'generated';
@@ -157,7 +159,7 @@ interface DatasetRowProps {
   menuRef: React.RefObject<HTMLDivElement | null>;
   onToggleMenu: (datasetId: string, rect: DOMRect) => void;
   onCloseMenu: () => void;
-  onOpenEditPanel: (dataset: UiDataset) => void;
+  onDelete: (dataset: UiDataset) => void;
 }
 
 const DatasetRow = React.memo(function DatasetRow({
@@ -167,9 +169,10 @@ const DatasetRow = React.memo(function DatasetRow({
   menuRef,
   onToggleMenu,
   onCloseMenu,
-  onOpenEditPanel,
+  onDelete,
 }: DatasetRowProps) {
   const router = useRouter();
+  const [showExportTooltip, setShowExportTooltip] = useState(false);
   return (
     <tr
       className="hover:bg-slate-50 transition-colors cursor-pointer"
@@ -244,18 +247,29 @@ const DatasetRow = React.memo(function DatasetRow({
                 <span className="material-symbols-outlined text-lg">science</span>
                 Run Evaluation
               </Link>
-              <button
-                disabled
-                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-400 cursor-not-allowed rounded-lg mx-2 w-full text-left"
-                onClick={onCloseMenu}
+              <div
+                className="relative"
+                onMouseEnter={() => setShowExportTooltip(true)}
+                onMouseLeave={() => setShowExportTooltip(false)}
               >
-                <span className="material-symbols-outlined text-lg">download</span>
-                Export
-              </button>
+                <button
+                  disabled
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-400 cursor-not-allowed rounded-lg mx-2 w-full text-left"
+                >
+                  <span className="material-symbols-outlined text-lg">lock</span>
+                  Export
+                </button>
+                {showExportTooltip && (
+                  <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 px-3 py-2 bg-slate-900 text-white text-xs font-medium rounded-lg whitespace-nowrap z-10 shadow-lg">
+                    Upgrade your membership
+                    <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-900 rotate-45" />
+                  </div>
+                )}
+              </div>
               <div className="border-t border-slate-100 my-2 mx-2"></div>
               <button
                 className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg mx-2 transition-all w-full text-left"
-                onClick={() => onOpenEditPanel(dataset)}
+                onClick={() => onDelete(dataset)}
               >
                 <span className="material-symbols-outlined text-lg">delete</span>
                 Delete
@@ -271,6 +285,7 @@ const DatasetRow = React.memo(function DatasetRow({
 export default function DatasetsPage() {
   const { datasets: apiDatasets, isLoading, error, refetch } = useDatasets();
   const { deleteDataset, isDeleting } = useDeleteDataset();
+  const { quota } = useUsageQuota();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
@@ -278,10 +293,8 @@ export default function DatasetsPage() {
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // SlideOverPanel state
-  const [editingDataset, setEditingDataset] = useState<UiDataset | null>(null);
-  const [editName, setEditName] = useState('');
-  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  // Delete confirmation modal state
+  const [deletingDataset, setDeletingDataset] = useState<UiDataset | null>(null);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -300,11 +313,9 @@ export default function DatasetsPage() {
     return apiDatasets.map(mapApiDatasetToUiDataset);
   }, [apiDatasets]);
 
-  // Open edit panel for a dataset
-  const openEditPanel = useCallback((dataset: UiDataset) => {
-    setEditingDataset(dataset);
-    setEditName(dataset.name);
-    setDeleteConfirm(false);
+  // Open delete confirmation for a dataset
+  const openDeleteConfirm = useCallback((dataset: UiDataset) => {
+    setDeletingDataset(dataset);
     setOpenMenuId(null);
     setMenuPosition(null);
   }, []);
@@ -330,19 +341,12 @@ export default function DatasetsPage() {
     setMenuPosition(null);
   }, []);
 
-  // Close edit panel
-  const closeEditPanel = () => {
-    setEditingDataset(null);
-    setEditName('');
-    setDeleteConfirm(false);
-  };
-
   // Handle delete dataset
   const handleDelete = async () => {
-    if (!editingDataset) return;
-    const success = await deleteDataset(editingDataset.id);
+    if (!deletingDataset) return;
+    const success = await deleteDataset(deletingDataset.id);
     if (success) {
-      closeEditPanel();
+      setDeletingDataset(null);
       refetch();
     }
   };
@@ -387,6 +391,15 @@ export default function DatasetsPage() {
           New Dataset
         </Link>
       </div>
+
+      {quota && (
+        <UsageQuotaBanner
+          used={quota.datasets_used}
+          limit={quota.datasets_limit}
+          resourceName="datasets"
+          periodEnd={quota.period_end}
+        />
+      )}
 
       {/* Filter Bar */}
       <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
@@ -529,7 +542,7 @@ export default function DatasetsPage() {
                     menuRef={menuRef}
                     onToggleMenu={handleToggleMenu}
                     onCloseMenu={handleCloseMenu}
-                    onOpenEditPanel={openEditPanel}
+                    onDelete={openDeleteConfirm}
                   />
                 ))
               )}
@@ -545,156 +558,53 @@ export default function DatasetsPage() {
         </div>
       )}
 
-      {/* Edit Dataset SlideOverPanel */}
-      <SlideOverPanel
-        isOpen={editingDataset !== null}
-        onClose={closeEditPanel}
-        title="Edit Dataset"
-        description={editingDataset ? `Editing: ${editingDataset.id}` : undefined}
-        width="md"
-      >
-        {editingDataset && (
-          <div className="p-6 flex flex-col gap-6">
-            {/* Dataset Name */}
-            <div className="flex flex-col gap-2">
-              <label htmlFor="dataset-name" className="text-sm font-medium text-slate-700">
-                Dataset Name
-              </label>
-              <input
-                id="dataset-name"
-                type="text"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                className="block w-full px-3 py-2.5 border border-slate-200 rounded-lg bg-white text-slate-900 text-sm placeholder-slate-500 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
-              />
+      {/* Delete Confirmation Modal */}
+      {deletingDataset && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => !isDeleting && setDeletingDataset(null)}
+          />
+          <div className="relative bg-white rounded-xl shadow-xl max-w-sm w-full mx-4 p-6 flex flex-col items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+              <span className="material-symbols-outlined text-red-600 text-2xl">warning</span>
             </div>
-
-            {/* Dataset Info (Read-only) */}
-            <div className="flex flex-col gap-4">
-              <h3 className="text-sm font-medium text-slate-700">Dataset Information</h3>
-              <div className="bg-slate-50 rounded-lg p-4 flex flex-col gap-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-500">Type</span>
-                  <span
-                    className={cn(
-                      'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
-                      getTypeBadgeStyles(editingDataset.type)
-                    )}
-                  >
-                    <span className="material-symbols-outlined text-sm">
-                      {getTypeIcon(editingDataset.type)}
-                    </span>
-                    {editingDataset.type === 'uploaded' ? 'Uploaded' : 'Generated'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-500">Size</span>
-                  <span className="text-sm text-slate-900">{editingDataset.size} queries</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-500">Created</span>
-                  <span className="text-sm text-slate-900">
-                    {formatDate(editingDataset.createdAt)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-500">Status</span>
-                  <span
-                    className={cn(
-                      'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
-                      getStatusBadgeStyles(editingDataset.status)
-                    )}
-                  >
-                    {getStatusLabel(editingDataset.status)}
-                  </span>
-                </div>
-              </div>
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-slate-900">Delete Dataset</h3>
+              <p className="text-sm text-slate-600 mt-2">
+                Are you sure you want to delete{' '}
+                <span className="font-semibold text-slate-900">{deletingDataset.name}</span>? This
+                action cannot be undone.
+              </p>
             </div>
-
-            {/* Quick Actions */}
-            <div className="flex flex-col gap-2">
-              <h3 className="text-sm font-medium text-slate-700">Quick Actions</h3>
-              <div className="flex flex-col gap-2">
-                <Link
-                  href={`/datasets/${editingDataset.id}`}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
-                >
-                  <span className="material-symbols-outlined text-base">visibility</span>
-                  View Details
-                </Link>
-                <Link
-                  href={`/evaluations/new?dataset=${editingDataset.id}`}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
-                >
-                  <span className="material-symbols-outlined text-base">science</span>
-                  Run Evaluation
-                </Link>
-                <button
-                  disabled
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-slate-400 cursor-not-allowed rounded-lg text-left"
-                >
-                  <span className="material-symbols-outlined text-base">download</span>
-                  Export Dataset
-                </button>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3 pt-4 border-t border-slate-200">
+            <div className="flex gap-3 w-full pt-2">
               <button
-                onClick={closeEditPanel}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+                onClick={() => setDeletingDataset(null)}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  // TODO: Implement update API when available
-                  closeEditPanel();
-                }}
-                className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-[#135bec] rounded-lg hover:bg-[#135bec]/90 transition-colors"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                Save Changes
+                {isDeleting ? (
+                  <>
+                    <span className="material-symbols-outlined text-base animate-spin">
+                      progress_activity
+                    </span>
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete'
+                )}
               </button>
             </div>
-
-            {/* Danger Zone */}
-            <div className="flex flex-col gap-2 pt-4 border-t border-slate-200">
-              <h3 className="text-sm font-medium text-red-600">Danger Zone</h3>
-              {!deleteConfirm ? (
-                <button
-                  onClick={() => setDeleteConfirm(true)}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors text-left"
-                >
-                  <span className="material-symbols-outlined text-base">delete</span>
-                  Delete Dataset
-                </button>
-              ) : (
-                <div className="flex flex-col gap-2 p-3 bg-red-50 rounded-lg">
-                  <p className="text-sm text-red-700">
-                    Are you sure you want to delete this dataset? This action cannot be undone.
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setDeleteConfirm(false)}
-                      className="flex-1 px-3 py-1.5 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleDelete}
-                      disabled={isDeleting}
-                      className="flex-1 px-3 py-1.5 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
-                    >
-                      {isDeleting ? 'Deleting...' : 'Delete'}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
-        )}
-      </SlideOverPanel>
+        </div>
+      )}
     </div>
   );
 }

@@ -10,7 +10,7 @@ import {
   MCP_SERVERS as MARKETPLACE_SERVERS,
 } from '@/components/ui/mcp-marketplace-modal';
 import { TestConnectionButton } from '@/components/ui/test-connection-button';
-import { ModelCombobox } from '@/components/ui/model-combobox';
+
 import { isValidExternalUrl } from '@/lib/validation/url';
 import { useDatasets } from '@/hooks/use-datasets';
 import { useCreateEvaluation } from '@/hooks/use-evaluations';
@@ -101,6 +101,31 @@ function DatasetsSkeleton() {
   );
 }
 
+function getAgentErrorMessage(status: string, serverMessage?: string): string {
+  switch (status) {
+    case 'auth_failed':
+      return serverMessage || 'Authentication failed. Please check your API key.';
+    case 'bad_request':
+      return serverMessage || 'Bad request. Please check your agent configuration.';
+    case 'rate_limited':
+      return serverMessage || 'Rate limited. Please check your API quota and usage limits.';
+    case 'reachable_not_agent':
+      return 'URL is reachable but did not return a valid agent response.';
+    case 'not_agent_url':
+      return 'URL does not appear to be an API endpoint. Agent URLs should return JSON responses.';
+    case 'server_error':
+      return serverMessage || 'Server error. The agent endpoint returned a 5xx error.';
+    case 'timeout':
+      return 'Request timed out. The agent may be slow or unreachable.';
+    case 'ssrf_blocked':
+    case 'invalid_url':
+      return 'Invalid URL. Must be a valid external HTTP(S) URL.';
+    case 'unreachable':
+    default:
+      return serverMessage || 'Unable to reach agent. Please check the URL and try again.';
+  }
+}
+
 function NewEvaluationWizardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -137,6 +162,8 @@ function NewEvaluationWizardContent() {
 
   // Agent URL verification state — tracks backend test-connection result
   const [agentUrlVerified, setAgentUrlVerified] = useState(false);
+  const [isVerifyingAgent, setIsVerifyingAgent] = useState(false);
+  const [agentVerifyError, setAgentVerifyError] = useState<string | null>(null);
   const handleAgentUrlTestResult = useCallback(
     (status: 'idle' | 'loading' | 'success' | 'error') => {
       setAgentUrlVerified(status === 'success');
@@ -144,9 +171,10 @@ function NewEvaluationWizardContent() {
     []
   );
 
-  // Reset verified state when config fields change
+  // Reset verified state and clear verify error when config fields change
   useEffect(() => {
     setAgentUrlVerified(false);
+    setAgentVerifyError(null);
   }, [agentConfig.agentUrl, agentConfig.model, agentConfig.apiKey, agentConfig.systemPrompt]);
 
   // Dataset selection state
@@ -191,15 +219,48 @@ function NewEvaluationWizardContent() {
   }, [isEditingTitle]);
 
   const canProceedFromAgent =
+    agentConfig.evaluationName &&
     agentConfig.name &&
     agentConfig.agentUrl &&
-    isValidExternalUrl(agentConfig.agentUrl) &&
-    agentUrlVerified;
+    isValidExternalUrl(agentConfig.agentUrl);
   const canProceedFromDataset = datasetSelection.type === 'new' || datasetSelection.existingId;
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep === 'agent' && canProceedFromAgent) {
-      setCurrentStep('dataset');
+      // Skip verification if already verified via Test Connection button
+      if (agentUrlVerified) {
+        setCurrentStep('dataset');
+        return;
+      }
+
+      setIsVerifyingAgent(true);
+      setAgentVerifyError(null);
+
+      try {
+        const response = await fetch('/api/test-agent-connection', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: agentConfig.agentUrl,
+            model: agentConfig.model || undefined,
+            apiKey: agentConfig.apiKey || undefined,
+            systemPrompt: agentConfig.systemPrompt || undefined,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'agent_valid') {
+          setAgentUrlVerified(true);
+          setCurrentStep('dataset');
+        } else {
+          setAgentVerifyError(getAgentErrorMessage(data.status, data.errorMessage));
+        }
+      } catch {
+        setAgentVerifyError('Unable to verify agent. Please check your connection and try again.');
+      } finally {
+        setIsVerifyingAgent(false);
+      }
     } else if (currentStep === 'dataset' && canProceedFromDataset) {
       setCurrentStep('review');
     }
@@ -419,10 +480,12 @@ function NewEvaluationWizardContent() {
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   Model <span className="text-slate-400 font-normal">(Optional)</span>
                 </label>
-                <ModelCombobox
+                <input
+                  type="text"
                   value={agentConfig.model}
-                  onChange={(model) => setAgentConfig({ ...agentConfig, model })}
+                  onChange={(e) => setAgentConfig({ ...agentConfig, model: e.target.value })}
                   placeholder="e.g., gpt-4o, claude-4-sonnet"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
                 />
               </div>
 
@@ -987,6 +1050,14 @@ function NewEvaluationWizardContent() {
           </div>
         )}
 
+        {/* Agent Verification Error Banner */}
+        {agentVerifyError && currentStep === 'agent' && (
+          <div className="flex items-center gap-2 mx-6 mb-0 mt-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg">
+            <span className="material-symbols-outlined text-red-500 text-lg">error</span>
+            <p className="text-sm text-red-700">{agentVerifyError}</p>
+          </div>
+        )}
+
         {/* Footer with Navigation */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50">
           <button
@@ -1026,18 +1097,29 @@ function NewEvaluationWizardContent() {
               onClick={handleNext}
               disabled={
                 (currentStep === 'agent' && !canProceedFromAgent) ||
-                (currentStep === 'dataset' && !canProceedFromDataset)
+                (currentStep === 'dataset' && !canProceedFromDataset) ||
+                isVerifyingAgent
               }
               className={cn(
                 'flex items-center gap-1.5 px-5 py-2.5 rounded-lg font-bold text-sm transition-all',
-                (currentStep === 'agent' && canProceedFromAgent) ||
-                  (currentStep === 'dataset' && canProceedFromDataset)
+                ((currentStep === 'agent' && canProceedFromAgent) ||
+                  (currentStep === 'dataset' && canProceedFromDataset)) &&
+                  !isVerifyingAgent
                   ? 'bg-[#135bec] text-white hover:bg-[#135bec]/90 shadow-sm shadow-[#135bec]/30'
                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'
               )}
             >
-              Next
-              <span className="material-symbols-outlined text-lg">arrow_forward</span>
+              {isVerifyingAgent ? (
+                <>
+                  <span className="material-symbols-outlined text-lg animate-spin">sync</span>
+                  Verifying...
+                </>
+              ) : (
+                <>
+                  Next
+                  <span className="material-symbols-outlined text-lg">arrow_forward</span>
+                </>
+              )}
             </button>
           )}
         </div>

@@ -307,11 +307,13 @@ export default function DatasetDetailPage({ params }: { params: Promise<{ id: st
                 Run Evaluation
               </Link>
               {/* Export Button with Pro Lock */}
-              <div className="relative">
+              <div
+                className="relative"
+                onMouseEnter={() => setShowExportTooltip(true)}
+                onMouseLeave={() => setShowExportTooltip(false)}
+              >
                 <button
                   disabled
-                  onMouseEnter={() => setShowExportTooltip(true)}
-                  onMouseLeave={() => setShowExportTooltip(false)}
                   className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-400 bg-slate-50 border border-slate-200 rounded-lg cursor-not-allowed"
                 >
                   <span className="material-symbols-outlined text-lg">lock</span>
@@ -320,15 +322,11 @@ export default function DatasetDetailPage({ params }: { params: Promise<{ id: st
                 {/* Tooltip */}
                 {showExportTooltip && (
                   <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-2 bg-slate-900 text-white text-xs font-medium rounded-lg whitespace-nowrap z-10 shadow-lg">
-                    Export requires Pro
+                    Upgrade your membership
                     <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45" />
                   </div>
                 )}
               </div>
-              <button className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
-                <span className="material-symbols-outlined text-lg">edit</span>
-                Edit
-              </button>
             </div>
           </div>
         </div>

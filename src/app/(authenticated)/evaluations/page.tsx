@@ -3,10 +3,12 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
-import { cn } from '@/lib/utils';
-import { SlideOverPanel } from '@/components/ui/slide-over-panel';
+import { cn, getScoreColor } from '@/lib/utils';
+
 import { useEvaluations, useDeleteEvaluation } from '@/hooks/use-evaluations';
 import type { Evaluation } from '@/lib/api/types';
+import { useUsageQuota } from '@/hooks/use-usage-quota';
+import { UsageQuotaBanner } from '@/components/ui/usage-quota-banner';
 
 type StatusFilter = 'all' | 'running' | 'completed' | 'failed';
 
@@ -106,6 +108,7 @@ const EvaluationRow = React.memo(function EvaluationRow({
   onOpenDeletePanel,
 }: EvaluationRowProps) {
   const router = useRouter();
+  const [showExportTooltip, setShowExportTooltip] = useState(false);
   const uiStatus = mapStatus(run.status);
   const passRate = run.results_summary
     ? (run.results_summary.overall_score * 100).toFixed(1)
@@ -158,15 +161,7 @@ const EvaluationRow = React.memo(function EvaluationRow({
             )}
           </div>
         ) : passRate !== null ? (
-          <span
-            className={`text-sm font-bold ${
-              parseFloat(passRate) >= 80
-                ? 'text-green-600'
-                : parseFloat(passRate) >= 60
-                  ? 'text-amber-600'
-                  : 'text-red-600'
-            }`}
-          >
+          <span className={`text-sm font-bold ${getScoreColor(parseFloat(passRate))}`}>
             {passRate}%
           </span>
         ) : (
@@ -197,13 +192,25 @@ const EvaluationRow = React.memo(function EvaluationRow({
                 <span className="material-symbols-outlined text-lg">visibility</span>
                 View Details
               </Link>
-              <button
-                className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg mx-2 transition-all w-full text-left opacity-50 cursor-not-allowed"
-                disabled
+              <div
+                className="relative"
+                onMouseEnter={() => setShowExportTooltip(true)}
+                onMouseLeave={() => setShowExportTooltip(false)}
               >
-                <span className="material-symbols-outlined text-lg">download</span>
-                Export
-              </button>
+                <button
+                  disabled
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-400 cursor-not-allowed rounded-lg mx-2 w-full text-left"
+                >
+                  <span className="material-symbols-outlined text-lg">lock</span>
+                  Export
+                </button>
+                {showExportTooltip && (
+                  <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 px-3 py-2 bg-slate-900 text-white text-xs font-medium rounded-lg whitespace-nowrap z-10 shadow-lg">
+                    Upgrade your membership
+                    <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-900 rotate-45" />
+                  </div>
+                )}
+              </div>
               <div className="border-t border-slate-100 my-2 mx-2"></div>
               <button
                 className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg mx-2 transition-all w-full text-left"
@@ -223,6 +230,7 @@ const EvaluationRow = React.memo(function EvaluationRow({
 export default function EvaluationsPage() {
   const { evaluations, isLoading, error, refetch } = useEvaluations();
   const { deleteEvaluation, isDeleting } = useDeleteEvaluation();
+  const { quota } = useUsageQuota();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -230,9 +238,8 @@ export default function EvaluationsPage() {
   const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // SlideOverPanel state for delete confirmation
+  // Delete confirmation modal state
   const [deletingRun, setDeletingRun] = useState<Evaluation | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState(false);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -246,10 +253,9 @@ export default function EvaluationsPage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Open delete panel for an evaluation run
-  const openDeletePanel = useCallback((run: Evaluation) => {
+  // Open delete confirmation for an evaluation run
+  const openDeleteConfirm = useCallback((run: Evaluation) => {
     setDeletingRun(run);
-    setDeleteConfirm(false);
     setOpenMenuId(null);
     setMenuPosition(null);
   }, []);
@@ -275,18 +281,12 @@ export default function EvaluationsPage() {
     setMenuPosition(null);
   }, []);
 
-  // Close delete panel
-  const closeDeletePanel = () => {
-    setDeletingRun(null);
-    setDeleteConfirm(false);
-  };
-
   // Handle delete action
   const handleDelete = async () => {
     if (!deletingRun) return;
     const success = await deleteEvaluation(deletingRun.id);
     if (success) {
-      closeDeletePanel();
+      setDeletingRun(null);
       refetch();
     }
   };
@@ -370,6 +370,15 @@ export default function EvaluationsPage() {
           New Evaluation
         </Link>
       </div>
+
+      {quota && (
+        <UsageQuotaBanner
+          used={quota.evaluations_used}
+          limit={quota.evaluations_limit}
+          resourceName="evaluations"
+          periodEnd={quota.period_end}
+        />
+      )}
 
       {/* Error Banner */}
       {error && (
@@ -495,7 +504,7 @@ export default function EvaluationsPage() {
                     menuRef={menuRef}
                     onToggleMenu={handleToggleMenu}
                     onCloseMenu={handleCloseMenu}
-                    onOpenDeletePanel={openDeletePanel}
+                    onOpenDeletePanel={openDeleteConfirm}
                   />
                 ))
               )}
@@ -511,141 +520,53 @@ export default function EvaluationsPage() {
         </div>
       )}
 
-      {/* Delete Evaluation SlideOverPanel */}
-      <SlideOverPanel
-        isOpen={deletingRun !== null}
-        onClose={closeDeletePanel}
-        title="Delete Evaluation"
-        description={deletingRun ? `Evaluation #${deletingRun.id.slice(0, 8)}` : undefined}
-        width="md"
-      >
-        {deletingRun && (
-          <div className="p-6 flex flex-col gap-6">
-            {/* Evaluation Info */}
-            <div className="flex flex-col gap-4">
-              <h3 className="text-sm font-medium text-slate-700">Evaluation Information</h3>
-              <div className="bg-slate-50 rounded-lg p-4 flex flex-col gap-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-500">Name</span>
-                  <span className="text-sm text-slate-900 font-medium">{deletingRun.name}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-500">ID</span>
-                  <span className="text-sm font-mono text-slate-600">
-                    #{deletingRun.id.slice(0, 8)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-500">Status</span>
-                  <span
-                    className={cn(
-                      'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border',
-                      getStatusBadgeStyles(mapStatus(deletingRun.status))
-                    )}
-                  >
-                    {getStatusLabel(mapStatus(deletingRun.status))}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-500">Dataset</span>
-                  <span className="text-sm text-slate-900">
-                    {deletingRun.dataset_name || deletingRun.dataset_id.slice(0, 8)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-slate-500">Started</span>
-                  <span className="text-sm text-slate-900">
-                    {formatRelativeTime(deletingRun.created_at)}
-                  </span>
-                </div>
-                {deletingRun.results_summary && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-slate-500">Score</span>
-                    <span
-                      className={`text-sm font-bold ${
-                        deletingRun.results_summary.overall_score * 100 >= 80
-                          ? 'text-green-600'
-                          : deletingRun.results_summary.overall_score * 100 >= 60
-                            ? 'text-amber-600'
-                            : 'text-red-600'
-                      }`}
-                    >
-                      {(deletingRun.results_summary.overall_score * 100).toFixed(1)}%
-                    </span>
-                  </div>
-                )}
-              </div>
+      {/* Delete Confirmation Modal */}
+      {deletingRun && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => !isDeleting && setDeletingRun(null)}
+          />
+          <div className="relative bg-white rounded-xl shadow-xl max-w-sm w-full mx-4 p-6 flex flex-col items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+              <span className="material-symbols-outlined text-red-600 text-2xl">warning</span>
             </div>
-
-            {/* Quick Actions */}
-            <div className="flex flex-col gap-2">
-              <h3 className="text-sm font-medium text-slate-700">Quick Actions</h3>
-              <div className="flex flex-col gap-2">
-                <Link
-                  href={`/evaluations/${deletingRun.id}`}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
-                >
-                  <span className="material-symbols-outlined text-base">visibility</span>
-                  View Details
-                </Link>
-                <button
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-slate-400 rounded-lg cursor-not-allowed text-left"
-                  disabled
-                >
-                  <span className="material-symbols-outlined text-base">download</span>
-                  Export Results
-                </button>
-              </div>
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-slate-900">Delete Evaluation</h3>
+              <p className="text-sm text-slate-600 mt-2">
+                Are you sure you want to delete{' '}
+                <span className="font-semibold text-slate-900">{deletingRun.name}</span>? This
+                action cannot be undone.
+              </p>
             </div>
-
-            {/* Actions */}
-            <div className="flex gap-3 pt-4 border-t border-slate-200">
+            <div className="flex gap-3 w-full pt-2">
               <button
-                onClick={closeDeletePanel}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+                onClick={() => setDeletingRun(null)}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
-            </div>
-
-            {/* Danger Zone */}
-            <div className="flex flex-col gap-2 pt-4 border-t border-slate-200">
-              <h3 className="text-sm font-medium text-red-600">Danger Zone</h3>
-              {!deleteConfirm ? (
-                <button
-                  onClick={() => setDeleteConfirm(true)}
-                  className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors text-left"
-                >
-                  <span className="material-symbols-outlined text-base">delete</span>
-                  Delete Evaluation
-                </button>
-              ) : (
-                <div className="flex flex-col gap-2 p-3 bg-red-50 rounded-lg">
-                  <p className="text-sm text-red-700">
-                    Are you sure you want to delete this evaluation run? This action cannot be
-                    undone.
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setDeleteConfirm(false)}
-                      className="flex-1 px-3 py-1.5 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleDelete}
-                      disabled={isDeleting}
-                      className="flex-1 px-3 py-1.5 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
-                    >
-                      {isDeleting ? 'Deleting...' : 'Delete'}
-                    </button>
-                  </div>
-                </div>
-              )}
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <span className="material-symbols-outlined text-base animate-spin">
+                      progress_activity
+                    </span>
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete'
+                )}
+              </button>
             </div>
           </div>
-        )}
-      </SlideOverPanel>
+        </div>
+      )}
     </div>
   );
 }
