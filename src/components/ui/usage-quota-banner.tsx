@@ -25,7 +25,7 @@ export function UsageQuotaBanner({ used, limit, resourceName, periodEnd }: Usage
         <span className="material-symbols-outlined text-slate-400 text-lg">info</span>
         <p className="text-sm text-slate-600">
           <span className="font-medium">{remaining}</span> of {limit} {resourceName} remaining this
-          month.
+          billing period.
         </p>
       </div>
     );
@@ -38,7 +38,7 @@ export function UsageQuotaBanner({ used, limit, resourceName, periodEnd }: Usage
         <span className="material-symbols-outlined text-amber-500 text-lg">warning</span>
         <p className="text-sm text-amber-800">
           <span className="font-medium">1</span> {resourceName.replace(/s$/, '')} remaining this
-          month. Quota resets {resetDate}.
+          billing period. Quota resets {resetDate}.
         </p>
       </div>
     );
@@ -51,9 +51,9 @@ export function UsageQuotaBanner({ used, limit, resourceName, periodEnd }: Usage
     >
       <span className="material-symbols-outlined text-red-500 text-lg">block</span>
       <div className="flex-1">
-        <p className="text-sm font-medium text-red-800">Monthly {resourceName} limit reached</p>
+        <p className="text-sm font-medium text-red-800">{resourceName} limit reached</p>
         <p className="text-sm text-red-600">
-          You&apos;ve used all {limit} {resourceName} this month. Quota resets {resetDate}.
+          You&apos;ve used all {limit} {resourceName} this billing period. Quota resets {resetDate}.
         </p>
       </div>
     </div>

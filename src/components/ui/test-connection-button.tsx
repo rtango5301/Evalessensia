@@ -14,6 +14,7 @@ interface TestConnectionButtonProps {
   mode?: 'reachability' | 'mcp';
   className?: string;
   onResult?: (status: 'idle' | 'loading' | 'success' | 'error') => void;
+  agentConfig?: { model?: string; apiKey?: string; systemPrompt?: string };
 }
 
 /**
@@ -121,9 +122,11 @@ function ReachabilityTestConnectionButton({
   validateAgent = false,
   className,
   onResult,
+  agentConfig,
 }: TestConnectionButtonProps) {
   const { isLoading, result, testUrl, reset } = useTestUrl();
   const prevUrlRef = useRef(url);
+  const prevAgentConfigRef = useRef(agentConfig);
 
   // Reset when URL changes
   useEffect(() => {
@@ -133,6 +136,19 @@ function ReachabilityTestConnectionButton({
     }
   }, [url, result.status, reset]);
 
+  // Reset when agentConfig fields change (user corrected API key, added model, etc.)
+  useEffect(() => {
+    const prev = prevAgentConfigRef.current;
+    if (
+      prev?.model !== agentConfig?.model ||
+      prev?.apiKey !== agentConfig?.apiKey ||
+      prev?.systemPrompt !== agentConfig?.systemPrompt
+    ) {
+      prevAgentConfigRef.current = agentConfig;
+      if (result.status !== 'idle') reset();
+    }
+  }, [agentConfig?.model, agentConfig?.apiKey, agentConfig?.systemPrompt, result.status, reset]);
+
   // Notify parent of result changes
   useEffect(() => {
     onResult?.(result.status);
@@ -140,7 +156,7 @@ function ReachabilityTestConnectionButton({
 
   const trimmedUrl = url?.trim() || '';
   const isDisabled = disabled || !trimmedUrl;
-  const testOptions = validateAgent ? { validateAgent: true } : undefined;
+  const testOptions = validateAgent ? { validateAgent: true, ...agentConfig } : undefined;
 
   const handleClick = async () => {
     if (!trimmedUrl || isLoading) return;
@@ -165,6 +181,7 @@ function ReachabilityTestConnectionButton({
   }
 
   if (result.status === 'success') {
+    const replySnippet = result.agentReply ? ` · '${result.agentReply.slice(0, 30).trim()}'` : '';
     return (
       <span className={cn('inline-flex items-center gap-1.5 text-xs font-medium', className)}>
         <span
@@ -175,8 +192,9 @@ function ReachabilityTestConnectionButton({
         >
           <span className="material-symbols-outlined text-sm">check_circle</span>
           {successLabel}
+          {replySnippet}
           {result.responseTime !== undefined && (
-            <span className="text-emerald-500 font-normal">{result.responseTime}ms</span>
+            <span className="text-emerald-500 font-normal">({result.responseTime}ms)</span>
           )}
         </span>
         <RetryButton onClick={handleRetry} />
@@ -184,7 +202,30 @@ function ReachabilityTestConnectionButton({
     );
   }
 
-  // Error state
+  // Amber warning states — URL confirmed reachable but config incomplete
+  if (
+    result.errorCode === 'AUTH_FAILED' ||
+    result.errorCode === 'BAD_REQUEST' ||
+    result.errorCode === 'RATE_LIMITED'
+  ) {
+    return (
+      <span className={cn('inline-flex items-center gap-1.5 text-xs font-medium', className)}>
+        <span
+          className={cn(
+            'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md',
+            'border border-amber-200 bg-amber-50 text-amber-700'
+          )}
+          title={result.errorMessage}
+        >
+          <span className="material-symbols-outlined text-sm">warning</span>
+          Reachable &middot; {result.errorMessage}
+        </span>
+        <RetryButton onClick={handleRetry} disabled={isLoading} showLabel />
+      </span>
+    );
+  }
+
+  // Error state (red)
   const getErrorLabel = () => {
     switch (result.errorCode) {
       case 'INVALID_URL':
@@ -266,22 +307,56 @@ function McpTestConnectionButton({
   // MCP Valid (green)
   if (result.status === 'mcp_valid') {
     const serverName = result.serverInfo?.name || 'MCP Server';
+    const tools = result.tools;
+    const toolCount = tools?.length ?? 0;
+    const maxChips = 10;
+    const visibleTools = tools?.slice(0, maxChips);
+    const overflowCount = toolCount > maxChips ? toolCount - maxChips : 0;
+
     return (
-      <span className={cn('inline-flex items-center gap-1.5 text-xs font-medium', className)}>
-        <span
-          className={cn(
-            'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md',
-            'border border-emerald-200 bg-emerald-50 text-emerald-700'
-          )}
-        >
-          <span className="material-symbols-outlined text-sm">check_circle</span>
-          MCP Server &middot; {serverName}
-          {result.responseTime !== undefined && (
-            <span className="text-emerald-500 font-normal">{result.responseTime}ms</span>
-          )}
+      <div className={cn('space-y-2 text-xs font-medium', className)}>
+        <span className="inline-flex items-center gap-1.5">
+          <span
+            className={cn(
+              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md',
+              'border border-emerald-200 bg-emerald-50 text-emerald-700'
+            )}
+          >
+            <span className="material-symbols-outlined text-sm">check_circle</span>
+            MCP Server &middot; {serverName}
+            {toolCount > 0 && (
+              <span className="text-emerald-600">
+                &middot; {toolCount} tool{toolCount !== 1 ? 's' : ''}
+              </span>
+            )}
+            {result.responseTime !== undefined && (
+              <span className="text-emerald-500 font-normal">{result.responseTime}ms</span>
+            )}
+          </span>
+          <RetryButton onClick={handleRetry} />
         </span>
-        <RetryButton onClick={handleRetry} />
-      </span>
+        {visibleTools && visibleTools.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {visibleTools.map((tool) => (
+              <span
+                key={tool.name}
+                title={tool.description}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-600 text-[11px]"
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '12px' }}>
+                  build
+                </span>
+                {tool.name}
+              </span>
+            ))}
+            {overflowCount > 0 && (
+              <span className="inline-flex items-center px-2 py-0.5 text-slate-400 text-[11px]">
+                +{overflowCount} more
+              </span>
+            )}
+          </div>
+        )}
+      </div>
     );
   }
 
