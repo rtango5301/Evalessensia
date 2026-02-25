@@ -10,6 +10,7 @@ import {
   MCP_SERVERS as MARKETPLACE_SERVERS,
 } from '@/components/ui/mcp-marketplace-modal';
 import { TestConnectionButton } from '@/components/ui/test-connection-button';
+import { ModelCombobox } from '@/components/ui/model-combobox';
 import { isValidExternalUrl } from '@/lib/validation/url';
 import { useDatasets } from '@/hooks/use-datasets';
 import { useCreateEvaluation } from '@/hooks/use-evaluations';
@@ -143,6 +144,11 @@ function NewEvaluationWizardContent() {
     []
   );
 
+  // Reset verified state when config fields change
+  useEffect(() => {
+    setAgentUrlVerified(false);
+  }, [agentConfig.agentUrl, agentConfig.model, agentConfig.apiKey, agentConfig.systemPrompt]);
+
   // Dataset selection state
   const [datasetSelection, setDatasetSelection] = useState<DatasetSelection>({
     type: 'existing',
@@ -210,7 +216,7 @@ function NewEvaluationWizardContent() {
   const handleStartEvaluation = async () => {
     if (!canCreateEvaluation) {
       showToast(
-        'Monthly evaluation limit reached. Please wait until the next billing period.',
+        'Evaluation limit reached for this billing period. Please wait until your quota resets.',
         'error'
       );
       refetchQuota();
@@ -279,7 +285,7 @@ function NewEvaluationWizardContent() {
       router.push(`/evaluations/${evaluation.id}`);
     } else if (createError?.isRateLimited) {
       showToast(
-        'Monthly evaluation limit reached. Please wait until the next billing period.',
+        'Evaluation limit reached for this billing period. Please wait until your quota resets.',
         'error'
       );
       refetchQuota();
@@ -363,7 +369,7 @@ function NewEvaluationWizardContent() {
       )}
 
       {/* Step Content */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
         {/* Step 1: Configure Agent */}
         {currentStep === 'agent' && (
           <div className="p-6">
@@ -413,12 +419,10 @@ function NewEvaluationWizardContent() {
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">
                   Model <span className="text-slate-400 font-normal">(Optional)</span>
                 </label>
-                <input
-                  type="text"
+                <ModelCombobox
                   value={agentConfig.model}
-                  onChange={(e) => setAgentConfig({ ...agentConfig, model: e.target.value })}
-                  placeholder="e.g., gpt-4o, claude-3-sonnet"
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
+                  onChange={(model) => setAgentConfig({ ...agentConfig, model })}
+                  placeholder="e.g., gpt-4o, claude-4-sonnet"
                 />
               </div>
 
@@ -483,16 +487,30 @@ function NewEvaluationWizardContent() {
                   placeholder="https://api.example.com/v1/chat/completions"
                   className="w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
                 />
-                <div className="flex items-center gap-3 mt-1.5">
-                  <p className="text-xs text-slate-500">
-                    The endpoint URL where your agent is hosted
+                <div className="flex items-start gap-2 p-2.5 mt-1.5 bg-blue-50 border border-blue-100 rounded-lg">
+                  <span className="material-symbols-outlined text-blue-500 text-sm mt-0.5">
+                    info
+                  </span>
+                  <p className="text-xs text-blue-700">
+                    Agent URL should be an OpenAI-compatible chat completions endpoint (e.g.,{' '}
+                    <code className="bg-blue-100 px-1 py-0.5 rounded text-[11px]">
+                      https://api.openai.com/v1/chat/completions
+                    </code>
+                    )
                   </p>
+                </div>
+                <div className="mt-2">
                   <TestConnectionButton
                     url={agentConfig.agentUrl}
                     disabled={!agentConfig.agentUrl}
                     validateAgent={true}
                     successLabel="Agent Reachable"
                     onResult={handleAgentUrlTestResult}
+                    agentConfig={{
+                      model: agentConfig.model,
+                      apiKey: agentConfig.apiKey,
+                      systemPrompt: agentConfig.systemPrompt,
+                    }}
                   />
                 </div>
               </div>
@@ -851,13 +869,6 @@ function NewEvaluationWizardContent() {
                     <p className="text-sm font-mono text-slate-700 mt-1 break-all">
                       {agentConfig.agentUrl}
                     </p>
-                    <div className="mt-2">
-                      <TestConnectionButton
-                        url={agentConfig.agentUrl}
-                        validateAgent={true}
-                        successLabel="Agent Reachable"
-                      />
-                    </div>
                   </div>
                   <div>
                     <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">

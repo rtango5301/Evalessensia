@@ -20,11 +20,17 @@ export type TestMcpErrorCode =
   | 'RATE_LIMITED'
   | 'SERVER_ERROR';
 
+export interface McpToolInfo {
+  name: string;
+  description?: string;
+}
+
 export interface TestMcpResult {
   status: TestMcpStatus;
   responseTime?: number;
   serverInfo?: { name: string; version?: string };
   protocolVersion?: string;
+  tools?: McpToolInfo[];
   errorCode?: TestMcpErrorCode;
   errorMessage?: string;
 }
@@ -136,6 +142,7 @@ export function useTestMcpUrl(): UseTestMcpUrlReturn {
               responseTime: data.responseTime,
               serverInfo: data.serverInfo,
               protocolVersion: data.protocolVersion,
+              tools: data.tools,
             });
             break;
           case 'reachable_not_mcp':

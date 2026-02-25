@@ -10,11 +10,17 @@ export type McpValidationStatus =
   | 'ssrf_blocked'
   | 'invalid_url';
 
+export interface McpToolInfo {
+  name: string;
+  description?: string;
+}
+
 export interface McpValidationResponse {
   status: McpValidationStatus;
   responseTime?: number;
   serverInfo?: { name: string; version?: string };
   protocolVersion?: string;
+  tools?: McpToolInfo[];
   errorMessage?: string;
 }
 
@@ -120,7 +126,7 @@ export async function POST(request: NextRequest) {
     id: 1,
     method: 'initialize',
     params: {
-      protocolVersion: '2025-03-26',
+      protocolVersion: '2025-06-18',
       capabilities: {},
       clientInfo: { name: 'TensorEvals', version: '1.0.0' },
     },
@@ -132,14 +138,18 @@ export async function POST(request: NextRequest) {
   const startTime = performance.now();
 
   try {
+    const requestHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      Accept: 'application/json, text/event-stream',
+    };
+
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: requestHeaders,
       body: mcpBody,
       signal: abortController.signal,
     });
 
-    clearTimeout(timeoutId);
     const responseTime = Math.round(performance.now() - startTime);
 
     // Try to parse as JSON-RPC response
@@ -147,6 +157,7 @@ export async function POST(request: NextRequest) {
     try {
       json = await response.json();
     } catch {
+      clearTimeout(timeoutId);
       // Not JSON — reachable but not MCP
       return NextResponse.json<McpValidationResponse>({
         status: 'reachable_not_mcp',
@@ -157,36 +168,111 @@ export async function POST(request: NextRequest) {
 
     // Check if it's a valid MCP initialize response
     if (
-      json &&
-      typeof json === 'object' &&
-      'result' in json &&
-      json.result &&
-      typeof json.result === 'object'
+      !(
+        json &&
+        typeof json === 'object' &&
+        'result' in json &&
+        json.result &&
+        typeof json.result === 'object'
+      )
     ) {
-      const result = json.result as Record<string, unknown>;
-      if (
-        typeof result.protocolVersion === 'string' &&
-        result.serverInfo &&
-        typeof result.serverInfo === 'object'
-      ) {
-        const serverInfo = result.serverInfo as Record<string, unknown>;
-        return NextResponse.json<McpValidationResponse>({
-          status: 'mcp_valid',
-          responseTime,
-          protocolVersion: String(result.protocolVersion),
-          serverInfo: {
-            name: typeof serverInfo.name === 'string' ? serverInfo.name : 'Unknown',
-            version: typeof serverInfo.version === 'string' ? serverInfo.version : undefined,
-          },
-        });
-      }
+      clearTimeout(timeoutId);
+      return NextResponse.json<McpValidationResponse>({
+        status: 'reachable_not_mcp',
+        responseTime,
+        errorMessage: 'Server returned JSON but not a valid MCP initialize response',
+      });
     }
 
-    // Got JSON but not a valid MCP response
+    const initResult = json.result as Record<string, unknown>;
+    if (
+      typeof initResult.protocolVersion !== 'string' ||
+      !initResult.serverInfo ||
+      typeof initResult.serverInfo !== 'object'
+    ) {
+      clearTimeout(timeoutId);
+      return NextResponse.json<McpValidationResponse>({
+        status: 'reachable_not_mcp',
+        responseTime,
+        errorMessage: 'Server returned JSON but not a valid MCP initialize response',
+      });
+    }
+
+    const serverInfoRaw = initResult.serverInfo as Record<string, unknown>;
+    const serverInfo = {
+      name: typeof serverInfoRaw.name === 'string' ? serverInfoRaw.name : 'Unknown',
+      version: typeof serverInfoRaw.version === 'string' ? serverInfoRaw.version : undefined,
+    };
+    const protocolVersion = String(initResult.protocolVersion);
+
+    // Extract session ID for subsequent requests
+    const sessionId = response.headers.get('mcp-session-id');
+    const sessionHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      Accept: 'application/json, text/event-stream',
+    };
+    if (sessionId) {
+      sessionHeaders['Mcp-Session-Id'] = sessionId;
+    }
+
+    // Complete handshake: send notifications/initialized, then call tools/list
+    let tools: McpToolInfo[] | undefined;
+    try {
+      // Fire-and-forget: notifications/initialized (no id field = notification)
+      await fetch(url, {
+        method: 'POST',
+        headers: sessionHeaders,
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'notifications/initialized',
+        }),
+        signal: abortController.signal,
+      });
+
+      // Request tools/list
+      const toolsResponse = await fetch(url, {
+        method: 'POST',
+        headers: sessionHeaders,
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 2,
+          method: 'tools/list',
+          params: {},
+        }),
+        signal: abortController.signal,
+      });
+
+      const toolsJson: unknown = await toolsResponse.json();
+      if (
+        toolsJson &&
+        typeof toolsJson === 'object' &&
+        'result' in toolsJson &&
+        toolsJson.result &&
+        typeof toolsJson.result === 'object'
+      ) {
+        const toolsResult = toolsJson.result as Record<string, unknown>;
+        if (Array.isArray(toolsResult.tools)) {
+          tools = toolsResult.tools.slice(0, 50).map((t: unknown) => {
+            const tool = t as Record<string, unknown>;
+            return {
+              name: typeof tool.name === 'string' ? tool.name : 'unknown',
+              description: typeof tool.description === 'string' ? tool.description : undefined,
+            };
+          });
+        }
+      }
+    } catch {
+      // tools/list or notifications/initialized failed — still return mcp_valid
+    }
+
+    clearTimeout(timeoutId);
+
     return NextResponse.json<McpValidationResponse>({
-      status: 'reachable_not_mcp',
+      status: 'mcp_valid',
       responseTime,
-      errorMessage: 'Server returned JSON but not a valid MCP initialize response',
+      protocolVersion,
+      serverInfo,
+      tools,
     });
   } catch (err) {
     clearTimeout(timeoutId);

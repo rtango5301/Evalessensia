@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
@@ -48,7 +48,25 @@ export default function NewDatasetPage() {
   const [generateDatasetDescription, setGenerateDatasetDescription] = useState('');
   const [agentName, setAgentName] = useState('');
   const [agentDescription, setAgentDescription] = useState('');
-  const [queryCount, setQueryCount] = useState(50);
+  const [queryCount, setQueryCount] = useState(10);
+  const [queryCountInputValue, setQueryCountInputValue] = useState('10');
+  const [sliderDisplayValue, setSliderDisplayValue] = useState(10);
+  const snapBackTimer = useRef<NodeJS.Timeout | null>(null);
+  const [showQueryCapMessage, setShowQueryCapMessage] = useState(false);
+
+  // Sync slider display when queryCount changes
+  useEffect(() => {
+    if (queryCount <= 20) {
+      setSliderDisplayValue(queryCount);
+    }
+  }, [queryCount]);
+
+  // Cleanup snap-back timer on unmount
+  useEffect(() => {
+    return () => {
+      if (snapBackTimer.current) clearTimeout(snapBackTimer.current);
+    };
+  }, []);
 
   // MCP state (UI only for now)
   const [selectedMCPServers, setSelectedMCPServers] = useState<string[]>([]);
@@ -123,7 +141,9 @@ export default function NewDatasetPage() {
 
   const handleUploadSubmit = async () => {
     if (!canCreateDataset) {
-      setUploadError('Monthly dataset limit reached. Please wait until the next billing period.');
+      setUploadError(
+        'Dataset limit reached for this billing period. Please wait until your quota resets.'
+      );
       refetchQuota();
       return;
     }
@@ -159,7 +179,9 @@ export default function NewDatasetPage() {
 
   const handleGenerateSubmit = async () => {
     if (!canCreateDataset) {
-      setUploadError('Monthly dataset limit reached. Please wait until the next billing period.');
+      setUploadError(
+        'Dataset limit reached for this billing period. Please wait until your quota resets.'
+      );
       refetchQuota();
       return;
     }
@@ -649,26 +671,62 @@ export default function NewDatasetPage() {
                   type="range"
                   min={3}
                   max={500}
-                  step={10}
-                  value={queryCount}
-                  onChange={(e) => setQueryCount(Number(e.target.value))}
+                  step={1}
+                  value={sliderDisplayValue}
+                  onChange={(e) => {
+                    const raw = Number(e.target.value);
+                    setSliderDisplayValue(raw);
+                    setQueryCountInputValue(String(raw));
+                    if (snapBackTimer.current) clearTimeout(snapBackTimer.current);
+
+                    if (raw > 20) {
+                      setShowQueryCapMessage(true);
+                      setQueryCount(20);
+                      snapBackTimer.current = setTimeout(() => {
+                        setSliderDisplayValue(20);
+                        setQueryCountInputValue('20');
+                      }, 800);
+                    } else {
+                      setQueryCount(Math.max(3, raw));
+                      setShowQueryCapMessage(false);
+                    }
+                  }}
                   className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#135bec]"
+                  style={{ transition: 'all 0.3s ease' }}
                 />
                 <input
                   type="number"
                   min={3}
                   max={500}
-                  value={queryCount}
+                  value={queryCountInputValue}
                   onChange={(e) => {
-                    const val = Math.max(3, Math.min(500, Number(e.target.value) || 3));
-                    setQueryCount(val);
+                    setQueryCountInputValue(e.target.value);
+                  }}
+                  onBlur={() => {
+                    const raw = Number(queryCountInputValue) || 3;
+                    if (raw > 20) {
+                      setQueryCount(20);
+                      setQueryCountInputValue('20');
+                      setShowQueryCapMessage(true);
+                    } else {
+                      const clamped = Math.max(3, raw);
+                      setQueryCount(clamped);
+                      setQueryCountInputValue(String(clamped));
+                      setShowQueryCapMessage(false);
+                    }
                   }}
                   className="w-20 px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-center text-sm font-bold text-slate-900 focus:ring-2 focus:ring-[#135bec] focus:border-transparent transition-all"
                 />
               </div>
-              <p className="text-xs text-slate-500 mt-1.5">
-                More queries = better coverage but longer generation time
-              </p>
+              {showQueryCapMessage ? (
+                <p className="text-xs text-amber-600 mt-1.5">
+                  Free plan is limited to 20 queries per dataset. Upgrade for more.
+                </p>
+              ) : (
+                <p className="text-xs text-slate-500 mt-1.5">
+                  3–20 queries per dataset on the free plan
+                </p>
+              )}
             </div>
 
             {/* Info Box */}
