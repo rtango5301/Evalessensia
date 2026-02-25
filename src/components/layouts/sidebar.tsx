@@ -17,11 +17,19 @@ export function Sidebar() {
   return (
     <aside className="hidden md:flex w-56 flex-col border-r border-slate-200 bg-white h-screen sticky top-0 flex-shrink-0">
       <div className="flex flex-col h-full p-4">
-        {/* Logo */}
+        {/* Logo – opens landing page in new tab */}
         <div className="flex flex-col mb-8 px-2 mt-2">
-          <Link href="/dashboard" className="flex items-center">
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 group"
+          >
             <Logo variant="dashboard" size="md" />
-          </Link>
+            <span className="material-symbols-outlined text-base text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
+              open_in_new
+            </span>
+          </a>
         </div>
 
         {/* Primary Navigation */}
