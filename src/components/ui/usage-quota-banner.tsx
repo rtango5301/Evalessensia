@@ -51,7 +51,9 @@ export function UsageQuotaBanner({ used, limit, resourceName, periodEnd }: Usage
     >
       <span className="material-symbols-outlined text-red-500 text-lg">block</span>
       <div className="flex-1">
-        <p className="text-sm font-medium text-red-800">{resourceName} limit reached</p>
+        <p className="text-sm font-medium text-red-800">
+          {resourceName.charAt(0).toUpperCase() + resourceName.slice(1)} Limit Reached
+        </p>
         <p className="text-sm text-red-600">
           You&apos;ve used all {limit} {resourceName} this billing period. Quota resets {resetDate}.
         </p>

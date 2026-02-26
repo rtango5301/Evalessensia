@@ -2,7 +2,7 @@
 
 import { useState, use, useMemo } from 'react';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import { cn, getScoreColor, getScoreBarColor, getScoreHexColor } from '@/lib/utils';
 import { DebugViewPanel } from '@/components/debug-view-panel';
 import { useEvaluationWithPolling } from '@/hooks/use-evaluations';
 import type { EvaluationResult as ApiEvaluationResult } from '@/lib/api/types';
@@ -44,16 +44,7 @@ function CategoryBarChart({ data }: { data: { name: string; score: number; count
         <div key={category.name} className="space-y-1">
           <div className="flex items-center justify-between text-sm">
             <span className="text-slate-700 font-medium">{formatCategory(category.name)}</span>
-            <span
-              className={cn(
-                'font-bold',
-                category.score >= 90
-                  ? 'text-emerald-600'
-                  : category.score >= 70
-                    ? 'text-amber-600'
-                    : 'text-red-600'
-              )}
-            >
+            <span className={cn('font-bold', getScoreColor(category.score))}>
               {category.score.toFixed(0)}%
             </span>
           </div>
@@ -61,11 +52,7 @@ function CategoryBarChart({ data }: { data: { name: string; score: number; count
             <div
               className={cn(
                 'absolute h-full rounded-full transition-all duration-500',
-                category.score >= 90
-                  ? 'bg-emerald-500'
-                  : category.score >= 70
-                    ? 'bg-amber-500'
-                    : 'bg-red-500'
+                getScoreBarColor(category.score)
               )}
               style={{ width: `${(category.score / maxScore) * 100}%` }}
             />
@@ -83,12 +70,6 @@ function OverallScoreCircle({ score }: { score: number }) {
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
-  const getScoreColor = () => {
-    if (score >= 90) return '#10b981';
-    if (score >= 70) return '#f59e0b';
-    return '#ef4444';
-  };
-
   return (
     <div className="relative inline-flex items-center justify-center">
       <svg width="160" height="160" className="-rotate-90">
@@ -100,7 +81,7 @@ function OverallScoreCircle({ score }: { score: number }) {
           cy="80"
           r={radius}
           fill="none"
-          stroke={getScoreColor()}
+          stroke={getScoreHexColor(score)}
           strokeWidth="12"
           strokeLinecap="round"
           strokeDasharray={circumference}
@@ -139,6 +120,7 @@ export default function EvaluationResultsPage({ params }: { params: Promise<{ id
 
   const [resultFilter, setResultFilter] = useState<'all' | 'pass' | 'fail'>('all');
   const [selectedResult, setSelectedResult] = useState<ApiEvaluationResult | null>(null);
+  const [showExportTooltip, setShowExportTooltip] = useState(false);
 
   // Calculate category scores from results
   const categoryScores = useMemo(() => {
@@ -306,13 +288,25 @@ export default function EvaluationResultsPage({ params }: { params: Promise<{ id
           <div className="flex items-center gap-2">
             {isCompleted && (
               <>
-                <button
-                  className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors opacity-50 cursor-not-allowed"
-                  disabled
+                <div
+                  className="relative"
+                  onMouseEnter={() => setShowExportTooltip(true)}
+                  onMouseLeave={() => setShowExportTooltip(false)}
                 >
-                  <span className="material-symbols-outlined text-lg">download</span>
-                  Export
-                </button>
+                  <button
+                    disabled
+                    className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-400 bg-slate-50 border border-slate-200 rounded-lg cursor-not-allowed"
+                  >
+                    <span className="material-symbols-outlined text-lg">lock</span>
+                    Export
+                  </button>
+                  {showExportTooltip && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-2 bg-slate-900 text-white text-xs font-medium rounded-lg whitespace-nowrap z-10 shadow-lg">
+                      Upgrade your membership
+                      <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-slate-900 rotate-45" />
+                    </div>
+                  )}
+                </div>
                 <Link
                   href={`/evaluations/new?dataset=${evaluation.dataset_id}`}
                   className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-[#135bec] rounded-lg hover:bg-[#135bec]/90 transition-colors"
@@ -557,16 +551,7 @@ export default function EvaluationResultsPage({ params }: { params: Promise<{ id
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span
-                        className={cn(
-                          'text-sm font-bold',
-                          result.score * 100 >= 80
-                            ? 'text-emerald-600'
-                            : result.score * 100 >= 50
-                              ? 'text-amber-600'
-                              : 'text-red-600'
-                        )}
-                      >
+                      <span className={cn('text-sm font-bold', getScoreColor(result.score * 100))}>
                         {(result.score * 100).toFixed(0)}%
                       </span>
                     </td>
