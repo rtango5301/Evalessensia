@@ -53,22 +53,27 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  // Refresh auth token
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Protect dashboard routes
+  // Only check auth for protected and login routes — skip public routes entirely
   const isAuthRoute = PROTECTED_ROUTES.some((route) => request.nextUrl.pathname.startsWith(route));
+  const isLoginRoute = request.nextUrl.pathname === '/login';
 
-  if (isAuthRoute && !user) {
+  if (!isAuthRoute && !isLoginRoute) {
+    return response;
+  }
+
+  // Use getSession() for fast local JWT validation (no network call)
+  // Use getUser() in server components/actions where you need verified user data
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (isAuthRoute && !session) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
 
-  // Redirect authenticated users away from login
-  if (request.nextUrl.pathname === '/login' && user) {
+  if (isLoginRoute && session) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     return NextResponse.redirect(url);
