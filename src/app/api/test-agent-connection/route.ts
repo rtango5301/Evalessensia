@@ -66,8 +66,9 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Rate limit
-  if (!checkRateLimit(user.id)) {
+  // Rate limit (skip for exempt users)
+  const isExempt = user.app_metadata?.rate_limit_exempt === true;
+  if (!isExempt && !checkRateLimit(user.id)) {
     return NextResponse.json<AgentValidationResponse>(
       { status: 'unreachable', errorMessage: 'Rate limited' },
       { status: 429 }

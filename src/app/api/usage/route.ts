@@ -10,6 +10,7 @@ export interface UsageQuota {
   evaluations_remaining: number;
   period_start: string;
   period_end: string;
+  is_exempt?: boolean;
 }
 
 export async function GET() {

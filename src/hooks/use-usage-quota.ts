@@ -44,7 +44,11 @@ export function useUsageQuota(): UseUsageQuota {
   return {
     ...state,
     refetch: fetchQuota,
-    canCreateDataset: state.quota ? state.quota.datasets_remaining > 0 : true,
-    canCreateEvaluation: state.quota ? state.quota.evaluations_remaining > 0 : true,
+    canCreateDataset: state.quota
+      ? state.quota.datasets_remaining === -1 || state.quota.datasets_remaining > 0
+      : true,
+    canCreateEvaluation: state.quota
+      ? state.quota.evaluations_remaining === -1 || state.quota.evaluations_remaining > 0
+      : true,
   };
 }
