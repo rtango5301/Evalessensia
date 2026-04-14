@@ -2,8 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Linkedin, CheckCircle } from 'lucide-react';
-import { Logo } from './logo';
+import { Layers, Linkedin, CheckCircle } from 'lucide-react';
 
 const footerLinks = {
   Product: [
@@ -36,8 +35,14 @@ export function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <Link href="/" className="flex items-center text-[var(--foreground)] no-underline mb-4">
-              <Logo size="sm" />
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 text-[var(--foreground)] no-underline mb-4"
+            >
+              <div className="w-8 h-8 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] rounded-lg flex items-center justify-center text-white">
+                <Layers className="w-4 h-4" />
+              </div>
+              <span className="font-bold text-lg">TensorEval</span>
             </Link>
             <p className="text-sm text-[var(--text-secondary)] max-w-[280px] mb-4">
               Where AI agents go from experimental to enterprise-grade.
