@@ -10,6 +10,9 @@ interface UsageQuotaBannerProps {
 }
 
 export function UsageQuotaBanner({ used, limit, resourceName, periodEnd }: UsageQuotaBannerProps) {
+  // Exempt users (limit === -1) see no quota banner
+  if (limit === -1) return null;
+
   const remaining = Math.max(0, limit - used);
 
   const resetDate = new Date(periodEnd).toLocaleDateString('en-US', {
