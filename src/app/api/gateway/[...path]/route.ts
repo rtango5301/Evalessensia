@@ -33,16 +33,39 @@ function pickWorker(workers: string[], exclude?: string): string | null {
   return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
-/** Strip hop-by-hop headers that shouldn't be forwarded */
+/**
+ * Build headers for the backend worker.
+ * - Replaces Authorization with HF proxy token
+ * - Maps the client's Supabase JWT to X-Supabase-Auth
+ * - Strips hop-by-hop headers
+ */
 function forwardHeaders(req: NextRequest): Record<string, string> {
   const headers: Record<string, string> = {};
-  const skipHeaders = new Set(['host', 'connection', 'keep-alive', 'transfer-encoding']);
+  const skipHeaders = new Set([
+    'host',
+    'connection',
+    'keep-alive',
+    'transfer-encoding',
+    'authorization', // handled separately below
+  ]);
 
   req.headers.forEach((value, key) => {
     if (!skipHeaders.has(key.toLowerCase())) {
       headers[key] = value;
     }
   });
+
+  // HF proxy authentication
+  const hfToken = process.env.TENSOREVALS_BACKEND_API_KEY;
+  if (hfToken) {
+    headers['Authorization'] = `Bearer ${hfToken}`;
+  }
+
+  // Forward the client's Supabase JWT as X-Supabase-Auth
+  const clientAuth = req.headers.get('authorization');
+  if (clientAuth) {
+    headers['X-Supabase-Auth'] = clientAuth;
+  }
 
   return headers;
 }
