@@ -40,7 +40,7 @@ export function Logo({ variant = 'default', size = 'sm', showText = true, classN
             variant === 'light' ? 'text-white' : variant === 'dashboard' ? 'text-slate-900' : ''
           )}
         >
-          TensorEval
+          Evalessensia
         </span>
       )}
     </div>

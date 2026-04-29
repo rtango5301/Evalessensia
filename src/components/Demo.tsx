@@ -43,7 +43,7 @@ export function Demo() {
             See it in action
           </h2>
           <p className="text-base lg:text-lg text-[var(--text-secondary)] max-w-[600px] mx-auto">
-            Watch how TensorEval evaluates your agent in under 20 seconds
+            Watch how Evalessensia evaluates your agent in under 20 seconds
           </p>
         </motion.div>
 

@@ -25,7 +25,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: 'TensorEval - CI/CD for AI Agents',
+  title: 'Evalessensia - CI/CD for AI Agents',
   description:
     'The CI/CD platform built for deterministic AI evaluation. Catch regressions, latency spikes, and hallucinations before they reach production.',
   metadataBase: new URL('https://tensoreval.com'),
@@ -37,26 +37,26 @@ export const metadata: Metadata = {
     'machine learning',
     'regression testing',
   ],
-  authors: [{ name: 'TensorEval' }],
+  authors: [{ name: 'Evalessensia' }],
   openGraph: {
-    title: 'TensorEval - CI/CD for AI Agents',
+    title: 'Evalessensia - CI/CD for AI Agents',
     description:
       'The CI/CD platform built for deterministic AI evaluation. Catch regressions, latency spikes, and hallucinations before they reach production.',
     type: 'website',
     url: 'https://tensoreval.com',
-    siteName: 'TensorEval',
+    siteName: 'Evalessensia',
     images: [
       {
         url: '/og-image.svg',
         width: 1200,
         height: 630,
-        alt: 'TensorEval - CI/CD for AI Agents',
+        alt: 'Evalessensia - CI/CD for AI Agents',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TensorEval - CI/CD for AI Agents',
+    title: 'Evalessensia - CI/CD for AI Agents',
     description:
       'The CI/CD platform built for deterministic AI evaluation. Catch regressions, latency spikes, and hallucinations before they reach production.',
     images: ['/og-image.svg'],

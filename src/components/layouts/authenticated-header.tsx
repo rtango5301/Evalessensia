@@ -18,7 +18,7 @@ function getPageTitle(pathname: string): string {
   if (pathname.startsWith('/evaluations/configure')) return 'Configure Evaluation';
   if (pathname.startsWith('/evaluations/')) return 'Evaluation Details';
   if (pathname.startsWith('/evaluations')) return 'Evaluations';
-  return 'TensorEval';
+  return 'Evalessensia';
 }
 
 export function AuthenticatedHeader() {
