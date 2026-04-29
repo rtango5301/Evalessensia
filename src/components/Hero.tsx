@@ -165,7 +165,7 @@ function EvaluationDashboard() {
               <span className="w-3 h-3 rounded-full bg-[#28c840]" />
             </div>
             <div className="flex-1 text-center">
-              <span className="text-[13px] text-gray-500 font-medium">Evalessensia Dashboard</span>
+              <span className="text-[13px] text-gray-500 font-medium">EvalEssensia Dashboard</span>
             </div>
             <div className="w-[52px]"></div>
           </div>

@@ -18,7 +18,7 @@ const workflowSteps = [
   {
     number: '03',
     title: 'Run Evaluation',
-    description: 'Evalessensia scrapes and tests your agent',
+    description: 'EvalEssensia scrapes and tests your agent',
   },
   {
     number: '04',
@@ -83,7 +83,7 @@ export function Workflow() {
             Evaluate, compare, deploy
           </h2>
           <p className="text-base lg:text-lg text-[var(--text-secondary)]">
-            See how Evalessensia automates your agent testing workflow
+            See how EvalEssensia automates your agent testing workflow
           </p>
         </motion.div>
 
@@ -293,7 +293,7 @@ function ConfigureScreen() {
                   </svg>
                 </motion.div>
                 <span className="text-[9px] font-semibold text-[var(--primary)] mt-2 uppercase tracking-wide">
-                  Evalessensia
+                  EvalEssensia
                 </span>
 
                 {/* Floating icons around TensorEval */}
@@ -374,7 +374,7 @@ function ConfigureScreen() {
               <div className="flex gap-2">
                 <span className="text-[var(--primary)] text-sm">ℹ</span>
                 <p className="text-[10px] text-[var(--text-secondary)] leading-relaxed">
-                  The connection map visualizes how Evalessensia interacts with your agent via the
+                  The connection map visualizes how EvalEssensia interacts with your agent via the
                   specified API endpoint. Ensure CORS is enabled if using browser-based testing.
                 </p>
               </div>

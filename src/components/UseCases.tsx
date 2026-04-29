@@ -81,7 +81,7 @@ export function UseCases() {
             Evaluate Any Agent, Any Workflow
           </h2>
           <p className="text-base lg:text-lg text-[var(--text-secondary)]">
-            See how Evalessensia adapts to different agent architectures
+            See how EvalEssensia adapts to different agent architectures
           </p>
         </motion.div>
 

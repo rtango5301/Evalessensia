@@ -42,7 +42,7 @@ export function Footer() {
               <div className="w-8 h-8 bg-gradient-to-br from-[var(--primary)] to-[var(--primary-light)] rounded-lg flex items-center justify-center text-white">
                 <Layers className="w-4 h-4" />
               </div>
-              <span className="font-bold text-lg">Evalessensia</span>
+              <span className="font-bold text-lg">EvalEssensia</span>
             </Link>
             <p className="text-sm text-[var(--text-secondary)] max-w-[280px] mb-4">
               Where AI agents go from experimental to enterprise-grade.
@@ -82,7 +82,7 @@ export function Footer() {
         {/* Footer Bottom */}
         <div className="pt-6 border-t border-[var(--border-light)] flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-[var(--text-muted)]">
-            © 2025 Evalessensia Inc. All rights reserved.
+            © 2025 EvalEssensia Inc. All rights reserved.
           </p>
           <div className="flex gap-4">
             <motion.a

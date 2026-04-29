@@ -26,7 +26,7 @@ export function CTA() {
           </h2>
           <p className="text-base lg:text-lg text-[var(--text-secondary)] mb-6 lg:mb-8">
             Join hundreds of AI engineers who ship deterministic, high-quality agents every day with
-            Evalessensia.
+            EvalEssensia.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <motion.button
