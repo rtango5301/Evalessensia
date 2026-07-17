@@ -12,15 +12,35 @@ const { listProjects, getMetrics } = vi.hoisted(() => ({
 vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   LineChart: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  CartesianGrid: () => null, Legend: () => null, Line: () => null,
-  Tooltip: () => null, XAxis: () => null, YAxis: () => null,
+  CartesianGrid: () => null,
+  Legend: () => null,
+  Line: () => null,
+  Tooltip: () => null,
+  XAxis: () => null,
+  YAxis: () => null,
 }));
 vi.mock('@/lib/observability/client', () => ({ listProjects, getMetrics }));
 
 import MonitoringPage from './page';
 
-const emptyMetrics = { timestamps: [], trace_count: [], latency: [], cost: [], errors: [], tokens: [] };
-const project = { id: 'project-1', name: 'Agent project', description: null, created_at: '', trace_count: 0, error_rate: 0, avg_latency_ms: 0, recent_run: null };
+const emptyMetrics = {
+  timestamps: [],
+  trace_count: [],
+  latency: [],
+  cost: [],
+  errors: [],
+  tokens: [],
+};
+const project = {
+  id: 'project-1',
+  name: 'Agent project',
+  description: null,
+  created_at: '',
+  trace_count: 0,
+  error_rate: 0,
+  avg_latency_ms: 0,
+  recent_run: null,
+};
 
 describe('MonitoringPage', () => {
   afterEach(cleanup);
@@ -35,13 +55,19 @@ describe('MonitoringPage', () => {
     render(<MonitoringPage />);
     await screen.findByText('No monitoring data for this selection');
     fireEvent.click(screen.getByRole('button', { name: 'hour' }));
-    await waitFor(() => expect(getMetrics).toHaveBeenLastCalledWith({ interval: 'hour', projectId: undefined }));
+    await waitFor(() =>
+      expect(getMetrics).toHaveBeenLastCalledWith({ interval: 'hour', projectId: undefined })
+    );
     fireEvent.change(screen.getByLabelText('Project'), { target: { value: 'project-1' } });
-    await waitFor(() => expect(getMetrics).toHaveBeenLastCalledWith({ interval: 'hour', projectId: 'project-1' }));
+    await waitFor(() =>
+      expect(getMetrics).toHaveBeenLastCalledWith({ interval: 'hour', projectId: 'project-1' })
+    );
   });
 
   it('renders a retryable safe error state', async () => {
-    getMetrics.mockRejectedValueOnce(new Error('Metrics unavailable')).mockResolvedValue(emptyMetrics);
+    getMetrics
+      .mockRejectedValueOnce(new Error('Metrics unavailable'))
+      .mockResolvedValue(emptyMetrics);
     render(<MonitoringPage />);
     await screen.findByText('Metrics unavailable');
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
