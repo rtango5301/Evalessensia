@@ -4,12 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
-
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
-  { href: '/datasets', label: 'Datasets', icon: 'folder_open' },
-  { href: '/evaluations', label: 'Evaluations', icon: 'science' },
-];
+import { dashboardNavigation } from '@/lib/observability/navigation';
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -34,13 +29,8 @@ export function Sidebar() {
 
         {/* Primary Navigation */}
         <nav className="flex flex-col gap-1 flex-1">
-          {navItems.map((item) => {
-            const isActive =
-              item.href === '/datasets'
-                ? pathname.startsWith('/datasets')
-                : item.href === '/evaluations'
-                  ? pathname.startsWith('/evaluations')
-                  : pathname === item.href || pathname.startsWith('/dashboard');
+          {dashboardNavigation.map((item) => {
+            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Link
                 key={item.href}
