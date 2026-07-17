@@ -4,11 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { AuthProfileDropdown } from '@/components/ui/auth-profile-dropdown';
 import { useUser } from '@/contexts/user-context';
+import { observabilityPageTitle } from '@/lib/observability/navigation';
 
 /**
  * Derives page title from the current pathname
  */
 function getPageTitle(pathname: string): string {
+  const observabilityTitle = observabilityPageTitle(pathname);
+  if (observabilityTitle) return observabilityTitle;
   if (pathname.startsWith('/dashboard/settings')) return 'Settings';
   if (pathname.startsWith('/dashboard')) return 'Dashboard';
   if (pathname.startsWith('/datasets/new')) return 'New Dataset';
