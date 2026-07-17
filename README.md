@@ -1,9 +1,9 @@
-# TensorEval
+# Evalessensia
 
-[![CI](https://github.com/rtango5301/TensorEval1/actions/workflows/ci.yml/badge.svg)](https://github.com/rtango5301/TensorEval1/actions/workflows/ci.yml)
+[![CI](https://github.com/RTE404/Evalessensia-SDK/actions/workflows/ci.yml/badge.svg)](https://github.com/RTE404/Evalessensia-SDK/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-TensorEval is a CI/CD platform for AI agents — helping teams systematically evaluate, test, and monitor AI agent performance before deployment.
+Evalessensia is a CI/CD platform for AI agents — helping teams systematically evaluate, test, and monitor AI agent performance before deployment.
 
 ## Features
 
@@ -30,8 +30,8 @@ TensorEval is a CI/CD platform for AI agents — helping teams systematically ev
 
 ```bash
 # Clone the repository
-git clone https://github.com/rtango5301/TensorEval1.git
-cd TensorEval1
+git clone https://github.com/RTE404/Evalessensia-SDK.git
+cd Evalessensia-SDK
 
 # Install dependencies
 npm install
