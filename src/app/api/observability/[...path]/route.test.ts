@@ -17,16 +17,13 @@ describe('observability proxy', () => {
       })
     );
     vi.stubGlobal('fetch', fetchMock);
-    const request = new NextRequest(
-      'http://localhost/api/observability/api/v1/projects?page=2',
-      {
-        headers: {
-          authorization: 'Bearer user-token',
-          cookie: 'private=cookie',
-          'x-request-id': 'request-1',
-        },
-      }
-    );
+    const request = new NextRequest('http://localhost/api/observability/api/v1/projects?page=2', {
+      headers: {
+        authorization: 'Bearer user-token',
+        cookie: 'private=cookie',
+        'x-request-id': 'request-1',
+      },
+    });
 
     const response = await GET(request, {
       params: Promise.resolve({ path: ['api', 'v1', 'projects'] }),
@@ -94,12 +91,13 @@ describe('observability proxy', () => {
     process.env.OBSERVABILITY_BACKEND_URL = 'https://observability.example';
     vi.stubGlobal(
       'fetch',
-      vi.fn((_url, init: RequestInit) =>
-        new Promise((_resolve, reject) => {
-          init.signal?.addEventListener('abort', () =>
-            reject(new DOMException('aborted', 'AbortError'))
-          );
-        })
+      vi.fn(
+        (_url, init: RequestInit) =>
+          new Promise((_resolve, reject) => {
+            init.signal?.addEventListener('abort', () =>
+              reject(new DOMException('aborted', 'AbortError'))
+            );
+          })
       )
     );
     const request = new NextRequest('http://localhost/api/observability/api/v1/projects');

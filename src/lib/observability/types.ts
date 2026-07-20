@@ -65,3 +65,93 @@ export interface Metrics {
   errors: number[];
   tokens: number[];
 }
+
+export interface MetricPoint {
+  timestamp: string;
+  trace_count: number;
+  errors: number;
+  avg_latency_ms: number | null;
+  p50_latency_ms: number | null;
+  p95_latency_ms: number | null;
+  p99_latency_ms: number | null;
+  tokens: number;
+  cost: number;
+}
+
+export interface MetricsSummary {
+  trace_count: number;
+  error_count: number;
+  error_rate: number;
+  avg_latency_ms: number | null;
+  p50_latency_ms: number | null;
+  p95_latency_ms: number | null;
+  p99_latency_ms: number | null;
+  tokens: number;
+  cost: number;
+}
+
+export interface RunDistributionItem {
+  run_type: string;
+  running: number;
+  success: number;
+  error: number;
+  total: number;
+}
+
+export interface RecentRun {
+  id: string;
+  trace_id: string;
+  project_id: string;
+  project_name: string;
+  name: string | null;
+  run_type: string | null;
+  status: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  latency_ms: number | null;
+  total_tokens: number;
+  cost: number;
+  error: string | null;
+}
+
+export interface MonitoringData {
+  current: MetricsSummary;
+  previous: MetricsSummary | null;
+  points: MetricPoint[];
+  run_distribution: RunDistributionItem[];
+  recent_runs: RecentRun[];
+  traces: {
+    count: { timestamp: string; trace_count: number; run_count: number }[];
+    latency: LatencyPoint[];
+    error_rate: { timestamp: string; error_rate: number }[];
+  };
+  llm_calls: {
+    count: { timestamp: string; count: number }[];
+    latency: LatencyPoint[];
+  };
+  cost_tokens: {
+    points: {
+      timestamp: string;
+      cost: number;
+      input_tokens: number;
+      output_tokens: number;
+    }[];
+  };
+  tools: {
+    tool_names: string[];
+    points: {
+      timestamp: string;
+      tool_name: string;
+      run_count: number;
+      median_latency_ms: number | null;
+      error_rate: number;
+    }[];
+  };
+}
+
+export interface LatencyPoint {
+  timestamp: string;
+  p50_latency_ms: number | null;
+  p95_latency_ms: number | null;
+  p99_latency_ms: number | null;
+}

@@ -47,7 +47,10 @@ export function RunDetail({ run }: { run: RunNode }) {
         {attributes.length ? (
           <dl className="divide-y divide-slate-100 overflow-hidden rounded-lg border border-slate-200 bg-white">
             {attributes.map(([key, value]) => (
-              <div key={key} className="grid gap-1 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+              <div
+                key={key}
+                className="grid gap-1 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]"
+              >
                 <dt className="text-xs font-semibold text-slate-500">{key}</dt>
                 <dd className="break-words text-sm text-slate-900">{value}</dd>
               </div>
