@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
-import type { Metrics, Project, RunNode, TraceDetail, TracePage } from './types';
+import type { Metrics, MonitoringData, Project, RunNode, TraceDetail, TracePage } from './types';
 
 const API_BASE = '/api/observability/api/v1';
 
@@ -119,4 +119,19 @@ export function getMetrics(options: {
   if (options.start) params.set('start', options.start);
   if (options.end) params.set('end', options.end);
   return request(`/metrics?${params.toString()}`);
+}
+
+export function getMonitoringData(options: {
+  interval: 'hour' | 'day' | 'week';
+  projectId?: string;
+  start?: string;
+  end?: string;
+  limit?: number;
+}): Promise<MonitoringData> {
+  const params = new URLSearchParams({ interval: options.interval });
+  if (options.projectId) params.set('project_id', options.projectId);
+  if (options.start) params.set('start', options.start);
+  if (options.end) params.set('end', options.end);
+  if (options.limit != null) params.set('limit', String(options.limit));
+  return request(`/metrics/overview?${params.toString()}`);
 }
