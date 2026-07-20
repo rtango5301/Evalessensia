@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { getTrace, getTraceTree, latencySeconds } from '@/lib/observability/client';
 import type { RunNode, TraceDetail } from '@/lib/observability/types';
 import { RunDetail } from '@/components/observability/run-detail';
+import { RunTimeline } from '@/components/observability/run-timeline';
 import { StatusBadge } from '@/components/observability/status-badge';
 
 function TreeItem({
@@ -111,6 +112,7 @@ export default function TraceDetailPage() {
           </div>
         ))}
       </div>
+      <RunTimeline root={tree} selectedId={selected.id} onSelect={setSelected} />
       <div className="grid min-h-[560px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm lg:grid-cols-[320px_minmax(0,1fr)]">
         <aside className="border-b border-slate-200 lg:border-b-0 lg:border-r">
           <div className="border-b border-slate-200 px-4 py-3">
